@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Product, View, StockMovement, MovementType, Supplier, Sale, Expense, User, Role, Customer, Promotion } from './types';
-import { getStoredProducts, saveStoredProducts, getStoredMovements, saveStoredMovements, getStoredSuppliers, saveStoredSuppliers, getStoredSales, saveStoredSales, getStoredExpenses, saveStoredExpenses, getStoredCustomers, saveStoredCustomers, getStoredPromotions, saveStoredPromotions } from './services/storageService';
+import { getStoredProducts, saveStoredProducts, getStoredMovements, saveStoredMovements, getStoredSuppliers, saveStoredSuppliers, getStoredSales, saveStoredSales, getStoredExpenses, saveStoredExpenses, getStoredCustomers, saveStoredCustomers, getStoredPromotions, saveStoredPromotions, getStoredUsers, saveStoredUsers } from './services/storageService';
 import Dashboard from './components/Dashboard';
 import InventoryList from './components/InventoryList';
 import ProductForm from './components/ProductForm';
@@ -20,12 +20,15 @@ import CustomerList from './components/CustomerList';
 import CustomerForm from './components/CustomerForm';
 import Promotions from './components/Promotions';
 import SecurityPanel from './components/SecurityPanel';
-import { LayoutDashboard, PackageSearch, Sparkles, Truck, DollarSign, ShoppingBag, Download, Users, LogOut, Tag, Shield } from 'lucide-react';
+import TeamManagement from './components/TeamManagement';
+import UserProfile from './components/UserProfile';
+import { LayoutDashboard, PackageSearch, Sparkles, Truck, DollarSign, ShoppingBag, Download, Users, LogOut, Tag, Shield, User as UserIcon } from 'lucide-react';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   
+  const [users, setUsers] = useState<User[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -116,6 +119,7 @@ export default function App() {
 
   // Load data on mount
   useEffect(() => {
+    setUsers(getStoredUsers());
     setProducts(getStoredProducts());
     setMovements(getStoredMovements());
     setSuppliers(getStoredSuppliers());
@@ -143,10 +147,11 @@ export default function App() {
   useEffect(() => { saveStoredExpenses(expenses); }, [expenses]);
   useEffect(() => { saveStoredCustomers(customers); }, [customers]);
   useEffect(() => { saveStoredPromotions(promotions); }, [promotions]);
+  useEffect(() => { saveStoredUsers(users); }, [users]);
 
   // --- Login Handler ---
   if (!currentUser) {
-    return <LoginScreen onLogin={setCurrentUser} isDark={isDark} />;
+    return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} />;
   }
 
   // --- Role Check Utilities ---
@@ -154,7 +159,25 @@ export default function App() {
   const canViewFinance = currentUser.role !== Role.SELLER;
   const canViewSuppliers = currentUser.role !== Role.SELLER;
   const canViewAnalysis = currentUser.role !== Role.SELLER;
-  const canViewSecurity = currentUser.role === Role.ADMIN;
+  const isAdmin = currentUser.role === Role.ADMIN;
+
+  // --- User Handlers ---
+  const handleAddUser = (user: User) => {
+      setUsers([...users, user]);
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+      setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+      if (currentUser.id === updatedUser.id) {
+          setCurrentUser(updatedUser);
+      }
+  };
+
+  const handleDeleteUser = (userId: string) => {
+      if (window.confirm("¿Seguro que deseas eliminar este usuario?")) {
+          setUsers(users.filter(u => u.id !== userId));
+      }
+  };
 
   // --- Product Handlers ---
 
@@ -472,22 +495,61 @@ export default function App() {
                 onToggleTheme={toggleTheme}
             />
         );
+      case View.TEAM:
+        return (
+            <TeamManagement
+                users={users}
+                onAddUser={handleAddUser}
+                onUpdateUser={handleUpdateUser}
+                onDeleteUser={handleDeleteUser}
+                currentUser={currentUser}
+                isDark={isDark}
+                onToggleTheme={toggleTheme}
+            />
+        );
+      case View.PROFILE:
+        return (
+            <UserProfile 
+                user={currentUser}
+                onUpdateUser={handleUpdateUser}
+                isDark={isDark}
+            />
+        );
       default:
         return <Dashboard products={products} isDark={isDark} onToggleTheme={toggleTheme} />;
     }
   };
 
+  const getAvatarColor = (avatar?: string) => {
+      // Map avatar string ID to color for quick visual distinction
+      if (!avatar) return 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300';
+      const colors: any = {
+          'AVATAR_1': 'bg-blue-500 text-white',
+          'AVATAR_2': 'bg-purple-500 text-white',
+          'AVATAR_3': 'bg-emerald-500 text-white',
+          'AVATAR_4': 'bg-orange-500 text-white',
+          'AVATAR_5': 'bg-pink-500 text-white',
+      }
+      return colors[avatar] || 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300';
+  }
+
   return (
     <div className="h-full w-full flex flex-col bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-300">
       
       {/* Top Bar for System Status */}
-      <div className="flex justify-between items-center px-4 py-1 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] text-slate-500">
-         <div className="flex items-center gap-2">
-            <span className="font-bold tracking-wider">StockArg v1.2</span>
-            <span className="mx-1">•</span>
-            <span className="text-blue-600 dark:text-blue-400 font-bold">{currentUser.name} ({currentUser.role})</span>
-            <button onClick={() => setCurrentUser(null)} title="Cerrar Sesión" className="ml-2 hover:text-red-500">
-                <LogOut size={10} />
+      <div className="flex justify-between items-center px-4 py-2 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-20">
+         <div className="flex items-center gap-3">
+            <button 
+                onClick={() => setCurrentView(View.PROFILE)}
+                className="flex items-center gap-2 group"
+            >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${getAvatarColor(currentUser.avatar)} ring-2 ring-transparent group-hover:ring-blue-400 transition-all`}>
+                    <UserIcon size={16} />
+                </div>
+                <div className="flex flex-col items-start">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors">{currentUser.name}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">{currentUser.role}</span>
+                </div>
             </button>
 
             {deferredPrompt && (
@@ -499,7 +561,18 @@ export default function App() {
                 </button>
             )}
          </div>
-         <NetworkStatus isOnline={isOnline} isSyncing={isSyncing} />
+
+         <div className="flex items-center gap-4">
+             <NetworkStatus isOnline={isOnline} isSyncing={isSyncing} />
+             <div className="h-6 w-px bg-slate-200 dark:bg-slate-700"></div>
+             <button 
+                onClick={() => setCurrentUser(null)} 
+                title="Cerrar Sesión" 
+                className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+            >
+                <LogOut size={18} />
+            </button>
+         </div>
       </div>
 
       {/* Main Content Area */}
@@ -559,13 +632,13 @@ export default function App() {
             </button>
         )}
 
-        {canViewSecurity && (
+        {isAdmin && (
             <button 
-            onClick={() => setCurrentView(View.SECURITY)}
-            className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.SECURITY ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
+            onClick={() => setCurrentView(View.TEAM)}
+            className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.TEAM ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
             >
-            <Shield size={20} strokeWidth={currentView === View.SECURITY ? 2.5 : 2} />
-            <span className="text-[9px] font-medium">Seguridad</span>
+            <Shield size={20} strokeWidth={currentView === View.TEAM ? 2.5 : 2} />
+            <span className="text-[9px] font-medium">Equipo</span>
             </button>
         )}
 
