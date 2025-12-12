@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Product, Category } from '../types';
+
+import React, { useState } from 'react';
+import { Product, Category, Supplier, ProductSupplierInfo } from '../types';
 import { suggestProductDetails } from '../services/geminiService';
-import { Sparkles, Save, X, Loader2 } from 'lucide-react';
+import { formatCurrency } from '../constants';
+import { Sparkles, Save, X, Loader2, Calendar, Truck, Plus, Trash2 } from 'lucide-react';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
   onSave: (product: Product) => void;
   onCancel: () => void;
+  suppliers?: Supplier[]; // Pass available suppliers
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCancel }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCancel, suppliers = [] }) => {
   const [name, setName] = useState(initialProduct?.name || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
   const [category, setCategory] = useState<Category>(initialProduct?.category || Category.ALMACEN);
@@ -17,8 +20,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
   const [cost, setCost] = useState(initialProduct?.cost?.toString() || '');
   const [stock, setStock] = useState(initialProduct?.stock?.toString() || '');
   const [minStock, setMinStock] = useState(initialProduct?.minStock?.toString() || '5');
+  const [productSuppliers, setProductSuppliers] = useState<ProductSupplierInfo[]>(initialProduct?.suppliers || []);
+  
+  // Format timestamp to YYYY-MM-DD for input or empty string
+  const [expirationDate, setExpirationDate] = useState(
+    initialProduct?.expirationDate 
+      ? new Date(initialProduct.expirationDate).toISOString().split('T')[0] 
+      : ''
+  );
   
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  const [supplierCost, setSupplierCost] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +44,34 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
       cost: parseFloat(cost) || 0,
       stock: parseInt(stock) || 0,
       minStock: parseInt(minStock) || 0,
+      expirationDate: expirationDate ? new Date(expirationDate).getTime() : undefined,
       lastUpdated: Date.now(),
+      suppliers: productSuppliers
     };
     onSave(newProduct);
+  };
+
+  const handleAddSupplier = () => {
+    if (selectedSupplierId && supplierCost) {
+      const exists = productSuppliers.find(ps => ps.supplierId === selectedSupplierId);
+      const newInfo: ProductSupplierInfo = {
+        supplierId: selectedSupplierId,
+        cost: parseFloat(supplierCost),
+        lastPurchaseDate: Date.now()
+      };
+
+      if (exists) {
+        setProductSuppliers(productSuppliers.map(ps => ps.supplierId === selectedSupplierId ? newInfo : ps));
+      } else {
+        setProductSuppliers([...productSuppliers, newInfo]);
+      }
+      setSelectedSupplierId('');
+      setSupplierCost('');
+    }
+  };
+
+  const handleRemoveSupplier = (sId: string) => {
+    setProductSuppliers(productSuppliers.filter(ps => ps.supplierId !== sId));
   };
 
   const handleAIAssist = async () => {
@@ -44,7 +82,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
       if (suggestion.description) setDescription(suggestion.description);
       if (suggestion.suggestedPrice) setPrice(suggestion.suggestedPrice.toString());
       
-      // Try to match category enum
       const suggestedCat = Object.values(Category).find(c => 
         c.toLowerCase() === suggestion.category?.toLowerCase()
       );
@@ -124,7 +161,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Costo (ARS)</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Costo Base (ARS)</label>
               <input
                 type="number"
                 value={cost}
@@ -166,6 +203,84 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 placeholder="5"
               />
             </div>
+          </div>
+
+          <div>
+             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+                <Calendar size={14} /> Fecha de Vencimiento <span className="text-slate-400 font-normal">(Opcional)</span>
+             </label>
+             <input
+               type="date"
+               value={expirationDate}
+               onChange={(e) => setExpirationDate(e.target.value)}
+               className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+             />
+          </div>
+
+          {/* Supplier Price Comparison Section */}
+          <div className="border-t border-slate-100 dark:border-slate-800 pt-4 mt-2">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center gap-2">
+              <Truck size={16} /> Costos por Proveedor
+            </h3>
+            
+            {/* Add Supplier inputs */}
+            <div className="flex gap-2 mb-3">
+              <select 
+                value={selectedSupplierId}
+                onChange={(e) => setSelectedSupplierId(e.target.value)}
+                className="flex-1 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-2 py-2"
+              >
+                <option value="">Seleccionar Proveedor</option>
+                {suppliers.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              <input 
+                type="number"
+                value={supplierCost}
+                onChange={(e) => setSupplierCost(e.target.value)}
+                placeholder="Costo"
+                className="w-20 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-2 py-2"
+              />
+              <button 
+                type="button"
+                onClick={handleAddSupplier}
+                disabled={!selectedSupplierId || !supplierCost}
+                className="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 p-2 rounded-lg disabled:opacity-50"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+
+            {/* List of linked suppliers */}
+            {productSuppliers.length > 0 ? (
+              <div className="space-y-2">
+                {productSuppliers.map((ps, index) => {
+                  const sName = suppliers.find(s => s.id === ps.supplierId)?.name || 'Desconocido';
+                  const isCheapest = productSuppliers.every(other => other.cost >= ps.cost);
+                  return (
+                    <div key={index} className={`flex justify-between items-center p-2 rounded-lg text-sm border ${isCheapest ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700'}`}>
+                      <div>
+                        <span className="font-medium text-slate-800 dark:text-slate-200">{sName}</span>
+                        {isCheapest && <span className="ml-2 text-xs bg-green-200 text-green-800 px-1.5 py-0.5 rounded-full">Mejor Precio</span>}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{formatCurrency(ps.cost)}</span>
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveSupplier(ps.supplierId)}
+                          className="text-slate-400 hover:text-red-500"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+               <p className="text-xs text-slate-400 italic">No hay proveedores asignados.</p>
+            )}
           </div>
 
         </div>

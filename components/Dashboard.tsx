@@ -1,8 +1,12 @@
-import React, { useMemo } from 'react';
-import { Product, InventoryStats } from '../types';
+
+import React, { useMemo, useState, useEffect } from 'react';
+import { Product, InventoryStats, AppNotification, NotificationSeverity } from '../types';
+import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity } from 'lucide-react';
+import { getStoredMovements } from '../services/storageService';
+import { generateNotifications } from '../services/notificationService';
 
 interface DashboardProps {
   products: Product[];
@@ -13,6 +17,20 @@ interface DashboardProps {
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
 
 const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [movements, setMovements] = useState<StockMovement[]>([]);
+
+  // Load movements independently here to calculate velocity alerts
+  useEffect(() => {
+    setMovements(getStoredMovements());
+  }, []);
+
+  // Recalculate notifications whenever products or movements change
+  useEffect(() => {
+    setNotifications(generateNotifications(products, movements));
+  }, [products, movements]);
+
   const stats: InventoryStats = useMemo(() => {
     return {
       totalValue: products.reduce((sum, p) => sum + (p.price * p.stock), 0),
@@ -29,21 +47,88 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }
     return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
   }, [products]);
 
+  const unreadCount = notifications.length;
+
   return (
-    <div className="h-full overflow-y-auto no-scrollbar p-4 pb-24 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="h-full overflow-y-auto no-scrollbar p-4 pb-24 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative">
       {/* Header */}
       <header className="mb-6 flex justify-between items-start">
         <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Resumen del Negocio</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Estado actual de tu inventario</p>
         </div>
-        <button 
-            onClick={onToggleTheme}
-            className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-        >
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+        <div className="flex gap-2">
+            <button 
+                onClick={onToggleTheme}
+                className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+                {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button 
+                onClick={() => setShowNotifications(true)}
+                className="relative p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full border border-white dark:border-slate-900 animate-pulse"></span>
+                )}
+            </button>
+        </div>
       </header>
+
+      {/* Notifications Drawer/Modal */}
+      {showNotifications && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowNotifications(false)}></div>
+            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 h-full shadow-2xl animate-slide-left border-l border-slate-200 dark:border-slate-800 flex flex-col">
+                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+                    <h2 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <Bell size={18} className="text-blue-600" /> Notificaciones
+                    </h2>
+                    <button onClick={() => setShowNotifications(false)} className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                        <X size={20} />
+                    </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950">
+                    {notifications.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-40 text-slate-400 text-center">
+                            <Bell size={32} className="mb-2 opacity-50" />
+                            <p className="text-sm">Todo está en orden.</p>
+                            <p className="text-xs">No tienes alertas pendientes.</p>
+                        </div>
+                    ) : (
+                        notifications.map(notif => {
+                            let icon = <AlertTriangle size={18} />;
+                            let colorClass = 'bg-slate-100 text-slate-600 border-slate-200';
+                            
+                            if (notif.severity === NotificationSeverity.CRITICAL) {
+                                colorClass = 'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/30';
+                            } else if (notif.severity === NotificationSeverity.WARNING) {
+                                colorClass = 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/30';
+                                icon = <Calendar size={18} />;
+                            } else {
+                                colorClass = 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30';
+                                icon = <Activity size={18} />;
+                            }
+
+                            return (
+                                <div key={notif.id} className={`p-3 rounded-xl border ${colorClass} flex gap-3`}>
+                                    <div className="mt-0.5">{icon}</div>
+                                    <div>
+                                        <h4 className="font-semibold text-sm">{notif.title}</h4>
+                                        <p className="text-xs opacity-90 mt-0.5">{notif.message}</p>
+                                        <p className="text-[10px] opacity-70 mt-2 text-right">
+                                            {new Date(notif.date).toLocaleDateString('es-AR')}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4">
