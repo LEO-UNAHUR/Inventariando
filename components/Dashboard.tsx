@@ -85,8 +85,8 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }
           Distribución por Categoría
         </h3>
         
-        {/* Chart Container - Added explicit min-height and relative positioning to fix Recharts warning */}
-        <div className="h-64 w-full relative min-h-[250px]">
+        {/* Chart Container - Using explicit inline styles to guarantee dimensions for Recharts */}
+        <div style={{ width: '100%', height: 300, minHeight: 300 }}>
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -98,7 +98,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }
                   outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
-                  stroke={isDark ? '#0f172a' : '#fff'} // Matches bg color for better look
+                  stroke={isDark ? '#0f172a' : '#fff'}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -124,7 +124,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }
           )}
         </div>
         
-        {/* Legend - Improved layout for better visibility */}
+        {/* Legend */}
         <div className="flex flex-wrap gap-2 mt-6 justify-center">
           {categoryData.map((entry, index) => (
             <div 

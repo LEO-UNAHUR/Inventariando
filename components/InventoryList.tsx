@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Product, Category } from '../types';
 import { formatCurrency } from '../constants';
-import { Search, Edit2, Trash2, Plus, AlertCircle, Filter, Sun, Moon } from 'lucide-react';
+import { Search, Edit2, Trash2, Plus, AlertCircle, Filter, Sun, Moon, TrendingUp } from 'lucide-react';
 
 interface InventoryListProps {
   products: Product[];
@@ -19,7 +19,8 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
 
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          p.category.toLowerCase().includes(searchTerm.toLowerCase());
+                          p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -51,7 +52,7 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
-            placeholder="Buscar producto..."
+            placeholder="Buscar por nombre, ID o categoría..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-colors"
@@ -86,40 +87,50 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
             <p>No se encontraron productos.</p>
           </div>
         ) : (
-          filteredProducts.map(product => (
-            <div key={product.id} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between active:scale-[0.99] transition-all">
-              <div className="flex-1 min-w-0 pr-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-slate-800 dark:text-slate-100 truncate">{product.name}</h3>
-                  {product.stock <= product.minStock && (
-                    <AlertCircle size={16} className="text-orange-500 flex-shrink-0" />
-                  )}
+          filteredProducts.map(product => {
+            const profit = product.price - product.cost;
+            return (
+              <div key={product.id} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between active:scale-[0.99] transition-all">
+                <div className="flex-1 min-w-0 pr-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-slate-800 dark:text-slate-100 truncate">{product.name}</h3>
+                    {product.stock <= product.minStock && (
+                      <AlertCircle size={16} className="text-orange-500 flex-shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-400 font-mono mb-1">ID: {product.id}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{product.category}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                     <span className="font-bold text-blue-600 dark:text-blue-400 mr-1">{formatCurrency(product.price)}</span>
+                     
+                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${product.stock <= product.minStock ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                       Stock: {product.stock}
+                     </span>
+
+                     <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 flex items-center gap-1">
+                        <TrendingUp size={12} />
+                        +{formatCurrency(profit)}
+                     </span>
+                  </div>
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{product.category}</p>
-                <div className="mt-2 flex items-center gap-4 text-sm">
-                   <span className="font-bold text-blue-600 dark:text-blue-400">{formatCurrency(product.price)}</span>
-                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${product.stock <= product.minStock ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                     Stock: {product.stock}
-                   </span>
+                
+                <div className="flex flex-col gap-2 border-l border-slate-100 dark:border-slate-800 pl-3">
+                  <button 
+                    onClick={() => onEdit(product)} 
+                    className="p-2 text-blue-500 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button 
+                    onClick={() => onDelete(product.id)} 
+                    className="p-2 text-red-400 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
-              
-              <div className="flex flex-col gap-2 border-l border-slate-100 dark:border-slate-800 pl-3">
-                <button 
-                  onClick={() => onEdit(product)} 
-                  className="p-2 text-blue-500 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
-                >
-                  <Edit2 size={18} />
-                </button>
-                <button 
-                  onClick={() => onDelete(product.id)} 
-                  className="p-2 text-red-400 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
