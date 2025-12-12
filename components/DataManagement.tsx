@@ -61,7 +61,18 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, onImport, onC
               let parsedProducts: Product[] = [];
 
               if (file.name.endsWith('.json')) {
-                  parsedProducts = JSON.parse(text);
+                  const json = JSON.parse(text);
+                  
+                  // Handle different JSON structures
+                  if (Array.isArray(json)) {
+                      parsedProducts = json;
+                  } else if (json.inventario && Array.isArray(json.inventario)) {
+                      parsedProducts = json.inventario;
+                  } else if (json.products && Array.isArray(json.products)) {
+                      parsedProducts = json.products;
+                  } else if (json.data && Array.isArray(json.data)) {
+                      parsedProducts = json.data;
+                  }
               } else if (file.name.endsWith('.csv')) {
                   // Basic CSV Parser
                   const lines = text.split('\n').filter(l => l.trim());
@@ -92,9 +103,12 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, onImport, onC
                   }
               }
 
-              if (parsedProducts.length > 0) {
-                  onImport(parsedProducts);
-                  setImportStats({ total: parsedProducts.length, valid: parsedProducts.length });
+              // Filter out invalid items (must have at least a name and price)
+              const validProducts = parsedProducts.filter(p => p && p.name);
+
+              if (validProducts.length > 0) {
+                  onImport(validProducts);
+                  setImportStats({ total: validProducts.length, valid: validProducts.length });
                   setError(null);
               } else {
                   setError("No se encontraron productos válidos en el archivo.");
