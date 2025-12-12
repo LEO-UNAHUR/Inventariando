@@ -1,5 +1,5 @@
 
-import { Product, StockMovement, Supplier, Sale, Expense, Customer, Promotion, Backup, User } from '../types';
+import { Product, StockMovement, Supplier, Sale, Expense, Customer, Promotion, Backup, User, DataLog } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_USERS } from '../constants';
 
 const STORAGE_KEY = 'stockarg_inventory_v1';
@@ -11,6 +11,7 @@ const CUSTOMERS_KEY = 'stockarg_customers_v1';
 const PROMOTIONS_KEY = 'stockarg_promotions_v1';
 const BACKUPS_KEY = 'stockarg_backups_v1';
 const USERS_KEY = 'stockarg_users_v1';
+const DATA_LOGS_KEY = 'stockarg_data_logs_v1';
 
 export const getStoredProducts = (): Product[] => {
   try {
@@ -178,6 +179,31 @@ export const saveStoredUsers = (users: User[]): void => {
   } catch (error) {
     console.error("Error saving users", error);
   }
+};
+
+// --- DATA LOGS ---
+
+export const getStoredLogs = (): DataLog[] => {
+    try {
+        const stored = localStorage.getItem(DATA_LOGS_KEY);
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        return [];
+    } catch (error) {
+        return [];
+    }
+};
+
+export const saveLog = (log: DataLog): void => {
+    try {
+        const logs = getStoredLogs();
+        // Keep last 50 logs
+        const newLogs = [log, ...logs].slice(0, 50);
+        localStorage.setItem(DATA_LOGS_KEY, JSON.stringify(newLogs));
+    } catch (error) {
+        console.error("Error saving data log", error);
+    }
 };
 
 // --- BACKUP SYSTEM ---
