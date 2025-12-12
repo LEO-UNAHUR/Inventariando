@@ -55,6 +55,7 @@ export const INITIAL_USERS: User[] = [
     role: Role.ADMIN, 
     pin: '1111', 
     password: 'admin', 
+    avatar: 'AVATAR_1',
     is2FAEnabled: true,
     sessions: [
       { id: 's1', deviceName: 'PC Escritorio (Windows)', ip: '192.168.1.5', lastActive: Date.now(), isCurrent: true },
@@ -67,6 +68,7 @@ export const INITIAL_USERS: User[] = [
     role: Role.MANAGER, 
     pin: '2222', 
     password: 'juan', 
+    avatar: 'AVATAR_2',
     is2FAEnabled: false,
     sessions: [
       { id: 's3', deviceName: 'Tablet Mostrador', ip: '192.168.1.20', lastActive: Date.now(), isCurrent: true }
@@ -78,6 +80,7 @@ export const INITIAL_USERS: User[] = [
     role: Role.SELLER, 
     pin: '3333', 
     password: 'sofia', 
+    avatar: 'AVATAR_3',
     is2FAEnabled: false 
   },
 ];

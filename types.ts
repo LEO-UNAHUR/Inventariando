@@ -51,6 +51,8 @@ export enum View {
   CUSTOMERS = 'CUSTOMERS',
   PROMOTIONS = 'PROMOTIONS',
   SECURITY = 'SECURITY',
+  TEAM = 'TEAM',
+  PROFILE = 'PROFILE',
 }
 
 export interface InventoryStats {
@@ -195,6 +197,7 @@ export interface User {
   role: Role;
   pin: string; // Keeping PIN for quick access in POS if needed
   password?: string; // For secure login
+  avatar?: string; // Avatar ID or URL
   is2FAEnabled: boolean;
   sessions?: Session[];
 }

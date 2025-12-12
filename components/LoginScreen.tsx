@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
 import { User, Role } from '../types';
-import { INITIAL_USERS } from '../constants';
 import { Lock, User as UserIcon, LogIn, ChevronRight, Key, ShieldCheck, RefreshCw } from 'lucide-react';
 
 interface LoginScreenProps {
+  users: User[];
   onLogin: (user: User) => void;
   isDark: boolean;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, isDark }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin, isDark }) => {
   const [step, setStep] = useState<'SELECT_USER' | 'PASSWORD' | '2FA'>('SELECT_USER');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [password, setPassword] = useState('');
@@ -74,6 +74,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, isDark }) => {
     }
   };
 
+  const getAvatarColor = (avatar?: string) => {
+      // Map avatar string ID to color for quick visual distinction
+      if (!avatar) return 'bg-slate-100 dark:bg-slate-800 text-slate-600';
+      const colors: any = {
+          'AVATAR_1': 'bg-blue-500 text-white',
+          'AVATAR_2': 'bg-purple-500 text-white',
+          'AVATAR_3': 'bg-emerald-500 text-white',
+          'AVATAR_4': 'bg-orange-500 text-white',
+          'AVATAR_5': 'bg-pink-500 text-white',
+      }
+      return colors[avatar] || 'bg-slate-100 dark:bg-slate-800 text-slate-600';
+  }
+
   return (
     <div className="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-colors duration-300">
       
@@ -92,15 +105,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, isDark }) => {
                  <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Seleccionar Usuario</h2>
              </div>
              <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                 {INITIAL_USERS.map(user => (
+                 {users.map(user => (
                      <button
                         key={user.id}
                         onClick={() => handleUserSelect(user)}
                         className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
                      >
                          <div className="flex items-center gap-4">
-                             <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-full">
-                                 <UserIcon size={20} className="text-slate-600 dark:text-slate-300" />
+                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getAvatarColor(user.avatar)}`}>
+                                 <UserIcon size={20} />
                              </div>
                              <div>
                                  <p className="font-bold text-slate-800 dark:text-slate-100">{user.name}</p>
