@@ -1,4 +1,5 @@
-import { Category, Product } from './types';
+
+import { Category, Product, User, Role } from './types';
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
@@ -45,6 +46,40 @@ export const INITIAL_PRODUCTS: Product[] = [
     minStock: 8,
     lastUpdated: Date.now(),
   }
+];
+
+export const INITIAL_USERS: User[] = [
+  { 
+    id: '1', 
+    name: 'Dueño (Admin)', 
+    role: Role.ADMIN, 
+    pin: '1111', 
+    password: 'admin', 
+    is2FAEnabled: true,
+    sessions: [
+      { id: 's1', deviceName: 'PC Escritorio (Windows)', ip: '192.168.1.5', lastActive: Date.now(), isCurrent: true },
+      { id: 's2', deviceName: 'Samsung S21', ip: '192.168.1.12', lastActive: Date.now() - 3600000, isCurrent: false }
+    ]
+  },
+  { 
+    id: '2', 
+    name: 'Juan (Encargado)', 
+    role: Role.MANAGER, 
+    pin: '2222', 
+    password: 'juan', 
+    is2FAEnabled: false,
+    sessions: [
+      { id: 's3', deviceName: 'Tablet Mostrador', ip: '192.168.1.20', lastActive: Date.now(), isCurrent: true }
+    ]
+  },
+  { 
+    id: '3', 
+    name: 'Sofía (Vendedora)', 
+    role: Role.SELLER, 
+    pin: '3333', 
+    password: 'sofia', 
+    is2FAEnabled: false 
+  },
 ];
 
 export const formatCurrency = (amount: number): string => {

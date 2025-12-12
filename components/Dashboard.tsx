@@ -4,7 +4,7 @@ import { Product, InventoryStats, AppNotification, NotificationSeverity } from '
 import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield } from 'lucide-react';
 import { getStoredMovements } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
 

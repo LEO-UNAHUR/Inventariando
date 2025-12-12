@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { Product, Category, Sale, Expense, ExpenseCategory } from '../types';
 import { formatCurrency } from '../constants';
-import { Sun, Moon, TrendingUp, DollarSign, Percent, AlertCircle, ArrowRight, Calculator, PieChart as PieIcon, Wallet, ArrowDown, Plus, Trash2 } from 'lucide-react';
+import { Sun, Moon, TrendingUp, DollarSign, Percent, AlertCircle, ArrowRight, Calculator, PieChart as PieIcon, Wallet, ArrowDown, Plus, Trash2, Save, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie } from 'recharts';
 
 interface FinancialAnalysisProps {
@@ -13,13 +13,15 @@ interface FinancialAnalysisProps {
   onDeleteExpense: (id: string) => void;
   isDark: boolean;
   onToggleTheme: () => void;
+  onUpdatePrices: (products: Product[]) => void; // Function to save bulk updates
 }
 
 type Tab = 'STRATEGY' | 'BALANCE';
 
-const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({ products, sales, expenses, onAddExpense, onDeleteExpense, isDark, onToggleTheme }) => {
+const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({ products, sales, expenses, onAddExpense, onDeleteExpense, isDark, onToggleTheme, onUpdatePrices }) => {
   const [activeTab, setActiveTab] = useState<Tab>('BALANCE');
   const [inflationRate, setInflationRate] = useState<number>(5); 
+  const [selectedCategoryForUpdate, setSelectedCategoryForUpdate] = useState<string>('ALL');
 
   // --- Calculations for Strategy Tab (Inventory Potential) ---
   const inventoryData = useMemo(() => {
@@ -107,6 +109,21 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({ products, sales, 
     };
   }, [sales, expenses]);
 
+  const handleApplyInflation = () => {
+      const confirmation = window.confirm(`¿Estás seguro de aumentar un ${inflationRate}% el precio de ${selectedCategoryForUpdate === 'ALL' ? 'TODOS los productos' : selectedCategoryForUpdate}?`);
+      
+      if (confirmation) {
+          const updatedProducts = products.map(p => {
+              if (selectedCategoryForUpdate === 'ALL' || p.category === selectedCategoryForUpdate) {
+                  const newPrice = Math.ceil(p.price * (1 + inflationRate / 100) / 10) * 10; // Round to nearest 10
+                  return { ...p, price: newPrice, lastUpdated: Date.now() };
+              }
+              return p;
+          });
+          onUpdatePrices(updatedProducts);
+          alert('Precios actualizados correctamente.');
+      }
+  };
 
   const getMarginColor = (markup: number) => {
     if (markup >= 50) return 'text-emerald-500 bg-emerald-100 dark:bg-emerald-900/20';
@@ -300,37 +317,66 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({ products, sales, 
                     </div>
                 </div>
 
-                {/* Inflation Simulator */}
+                {/* Inflation Adjustment Tool */}
                 <div className="bg-slate-800 dark:bg-slate-900 rounded-2xl p-5 text-white shadow-lg">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Calculator className="text-amber-400" />
-                        <h3 className="font-bold text-lg">Simulador Precios</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Calculator className="text-amber-400" />
+                            <h3 className="font-bold text-lg">Ajuste por Inflación</h3>
+                        </div>
+                        <span className="text-[10px] bg-green-500/20 text-green-300 px-2 py-1 rounded">Dólar Blue: $1150 (Sim)</span>
                     </div>
                     
-                    <div className="flex items-center gap-4 mb-4">
-                        <input 
-                            type="range" 
-                            min="1" 
-                            max="50" 
-                            value={inflationRate} 
-                            onChange={(e) => setInflationRate(parseInt(e.target.value))}
-                            className="flex-1 accent-amber-500 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer"
-                        />
-                        <span className="font-bold text-xl w-12 text-right text-amber-400">{inflationRate}%</span>
-                    </div>
-
-                    {products.length > 0 && (
-                        <div className="bg-white/10 rounded-xl p-3 border border-white/10">
-                            <p className="text-xs text-slate-300 mb-1">Ej: {products[0].name}</p>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-slate-400">{formatCurrency(products[0].price)}</span>
-                                <ArrowRight size={14} className="text-slate-500" />
-                                <span className="font-bold text-amber-400 text-base">
-                                    {formatCurrency(products[0].price * (1 + inflationRate / 100))}
-                                </span>
-                            </div>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-xs text-slate-400 mb-1 block">Categoría a Impactar</label>
+                            <select 
+                                value={selectedCategoryForUpdate}
+                                onChange={(e) => setSelectedCategoryForUpdate(e.target.value)}
+                                className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2 text-sm"
+                            >
+                                <option value="ALL">Todo el Inventario</option>
+                                {Object.values(Category).map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
                         </div>
-                    )}
+
+                        <div>
+                            <div className="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Porcentaje de Aumento</span>
+                                <span className="font-bold text-amber-400">{inflationRate}%</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="1" 
+                                max="100" 
+                                value={inflationRate} 
+                                onChange={(e) => setInflationRate(parseInt(e.target.value))}
+                                className="w-full accent-amber-500 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer"
+                            />
+                        </div>
+
+                        {products.length > 0 && (
+                            <div className="bg-white/10 rounded-xl p-3 border border-white/10">
+                                <p className="text-xs text-slate-300 mb-1">Ejemplo: {products[0].name}</p>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-400">{formatCurrency(products[0].price)}</span>
+                                    <ArrowRight size={14} className="text-slate-500" />
+                                    <span className="font-bold text-amber-400 text-base">
+                                        {formatCurrency(Math.ceil(products[0].price * (1 + inflationRate / 100) / 10) * 10)}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        <button 
+                            onClick={handleApplyInflation}
+                            className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+                        >
+                            <Save size={16} /> Aplicar Nuevos Precios
+                        </button>
+                    </div>
                 </div>
 
                 {/* Category Profit Chart */}

@@ -1,18 +1,20 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, Category, Supplier, ProductSupplierInfo } from '../types';
 import { suggestProductDetails } from '../services/geminiService';
 import { formatCurrency } from '../constants';
-import { Sparkles, Save, X, Loader2, Calendar, Truck, Plus, Trash2 } from 'lucide-react';
+import { Sparkles, Save, X, Loader2, Calendar, Truck, Plus, Trash2, ScanLine } from 'lucide-react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
   onSave: (product: Product) => void;
   onCancel: () => void;
-  suppliers?: Supplier[]; // Pass available suppliers
+  suppliers?: Supplier[]; 
+  initialBarcode?: string; // Allow pre-filling barcode from scan
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCancel, suppliers = [] }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCancel, suppliers = [], initialBarcode = '' }) => {
   const [name, setName] = useState(initialProduct?.name || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
   const [category, setCategory] = useState<Category>(initialProduct?.category || Category.ALMACEN);
@@ -20,9 +22,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
   const [cost, setCost] = useState(initialProduct?.cost?.toString() || '');
   const [stock, setStock] = useState(initialProduct?.stock?.toString() || '');
   const [minStock, setMinStock] = useState(initialProduct?.minStock?.toString() || '5');
+  const [barcode, setBarcode] = useState(initialProduct?.barcode || initialBarcode);
   const [productSuppliers, setProductSuppliers] = useState<ProductSupplierInfo[]>(initialProduct?.suppliers || []);
   
-  // Format timestamp to YYYY-MM-DD for input or empty string
   const [expirationDate, setExpirationDate] = useState(
     initialProduct?.expirationDate 
       ? new Date(initialProduct.expirationDate).toISOString().split('T')[0] 
@@ -32,6 +34,29 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [supplierCost, setSupplierCost] = useState('');
+  
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  useEffect(() => {
+    let scanner: any = null;
+    if (isScannerOpen) {
+        scanner = new Html5QrcodeScanner(
+            "reader-form", 
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            false
+        );
+        scanner.render((decodedText: string) => {
+            setBarcode(decodedText);
+            setIsScannerOpen(false);
+            scanner.clear();
+        }, (error: any) => {
+            // Ignore scan errors
+        });
+    }
+    return () => {
+        if (scanner) { try { scanner.clear(); } catch (e) {} }
+    };
+  }, [isScannerOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +71,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
       minStock: parseInt(minStock) || 0,
       expirationDate: expirationDate ? new Date(expirationDate).getTime() : undefined,
       lastUpdated: Date.now(),
-      suppliers: productSuppliers
+      suppliers: productSuppliers,
+      barcode
     };
     onSave(newProduct);
   };
@@ -96,7 +122,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full sm:max-w-md h-[90vh] sm:h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col animate-slide-up transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-900 w-full sm:max-w-md h-[95vh] sm:h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col animate-slide-up transition-colors duration-300">
         
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b border-slate-100 dark:border-slate-800">
@@ -111,6 +137,40 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
         {/* Scrollable Form Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           
+          {/* Barcode Scanner Modal */}
+          {isScannerOpen && (
+              <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl mb-4 relative">
+                   <button 
+                        onClick={() => setIsScannerOpen(false)} 
+                        className="absolute top-2 right-2 p-1 bg-white dark:bg-slate-700 rounded-full z-10"
+                    >
+                        <X size={16} />
+                    </button>
+                   <div id="reader-form" className="rounded-lg overflow-hidden"></div>
+                   <p className="text-center text-xs mt-2 text-slate-500">Apunta al código de barras</p>
+              </div>
+          )}
+
+          <div>
+             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Código de Barras</label>
+             <div className="flex gap-2">
+                 <input 
+                    type="text"
+                    value={barcode}
+                    onChange={(e) => setBarcode(e.target.value)}
+                    className="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="Escanear o escribir..."
+                 />
+                 <button 
+                    type="button"
+                    onClick={() => setIsScannerOpen(true)}
+                    className="bg-slate-800 dark:bg-slate-700 text-white px-3 rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                 >
+                    <ScanLine size={20} />
+                 </button>
+             </div>
+          </div>
+
           <div className="relative">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre del Producto</label>
             <div className="flex gap-2">

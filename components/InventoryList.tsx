@@ -9,7 +9,7 @@ interface InventoryListProps {
   products: Product[];
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
-  onAdd: () => void;
+  onAdd: (scannedBarcode?: string) => void;
   isDark: boolean;
   onToggleTheme: () => void;
 }
@@ -61,9 +61,23 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
             false
         );
         scanner.render((decodedText: string) => {
-            setSearchTerm(decodedText);
             setIsScannerOpen(false);
             scanner.clear();
+
+            // Logic: Check if product exists
+            const foundProduct = products.find(p => p.barcode === decodedText);
+            
+            if (foundProduct) {
+                // If found, open edit form
+                onEdit(foundProduct);
+            } else {
+                // If not found, prompt to add
+                if (window.confirm(`Producto no encontrado (Código: ${decodedText}). ¿Deseas crearlo?`)) {
+                    onAdd(decodedText);
+                } else {
+                    setSearchTerm(decodedText); // Just search if cancelled
+                }
+            }
         }, (error: any) => {
             // Ignore scan errors, they happen when no code is in frame
         });
@@ -74,7 +88,7 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
             try { scanner.clear(); } catch (e) { console.error(e); }
         }
     };
-  }, [isScannerOpen]);
+  }, [isScannerOpen, products]);
 
   return (
     <div className="h-full flex flex-col pb-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
@@ -286,7 +300,7 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
 
       {/* Floating Action Button */}
       <button
-        onClick={onAdd}
+        onClick={() => onAdd()}
         className="fixed bottom-24 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-2xl shadow-lg shadow-blue-600/30 transition-all hover:scale-105 active:scale-95 z-20"
       >
         <Plus size={28} />
