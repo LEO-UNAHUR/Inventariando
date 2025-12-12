@@ -1,0 +1,5 @@
+{
+  "name": "StockArg - Gestor de Inventario",
+  "description": "Aplicación estilo Android para gestionar inventario de pequeñas empresas en Argentina. Incluye análisis de stock y asistente inteligente con Gemini.",
+  "requestFramePermissions": []
+}
