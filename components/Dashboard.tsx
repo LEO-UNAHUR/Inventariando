@@ -4,7 +4,7 @@ import { Product, InventoryStats, AppNotification, NotificationSeverity } from '
 import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database } from 'lucide-react';
 import { getStoredMovements } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
 
@@ -12,11 +12,12 @@ interface DashboardProps {
   products: Product[];
   isDark: boolean;
   onToggleTheme: () => void;
+  onOpenDataManagement?: () => void;
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
 
-const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }) => {
+const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
@@ -58,6 +59,15 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme }
             <p className="text-slate-500 dark:text-slate-400 text-sm">Estado actual de tu inventario</p>
         </div>
         <div className="flex gap-2">
+            {onOpenDataManagement && (
+                <button 
+                    onClick={onOpenDataManagement}
+                    className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    title="Copia de Seguridad"
+                >
+                    <Database size={20} />
+                </button>
+            )}
             <button 
                 onClick={onToggleTheme}
                 className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"

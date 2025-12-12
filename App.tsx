@@ -13,6 +13,7 @@ import FinancialAnalysis from './components/FinancialAnalysis';
 import SalesDashboard from './components/SalesDashboard';
 import POS from './components/POS';
 import ExpenseForm from './components/ExpenseForm';
+import DataManagement from './components/DataManagement';
 import { LayoutDashboard, PackageSearch, Sparkles, Truck, DollarSign, ShoppingBag } from 'lucide-react';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
   
   const [isPOSOpen, setIsPOSOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
+  const [isDataManagementOpen, setIsDataManagementOpen] = useState(false);
 
 
   // Theme State Management
@@ -157,6 +159,18 @@ export default function App() {
     setIsProductFormOpen(true);
   };
 
+  // --- Import Handler ---
+  const handleImportProducts = (newProducts: Product[]) => {
+      // Merge logic: Update existing by ID, add new
+      const currentMap = new Map(products.map(p => [p.id, p]));
+      
+      newProducts.forEach(p => {
+          currentMap.set(p.id, p);
+      });
+
+      setProducts(Array.from(currentMap.values()));
+  };
+
   // --- Supplier Handlers ---
 
   const handleSaveSupplier = (supplier: Supplier) => {
@@ -240,7 +254,14 @@ export default function App() {
   const renderContent = () => {
     switch (currentView) {
       case View.DASHBOARD:
-        return <Dashboard products={products} isDark={isDark} onToggleTheme={toggleTheme} />;
+        return (
+            <Dashboard 
+                products={products} 
+                isDark={isDark} 
+                onToggleTheme={toggleTheme} 
+                onOpenDataManagement={() => setIsDataManagementOpen(true)}
+            />
+        );
       case View.INVENTORY:
         return (
           <InventoryList 
@@ -385,6 +406,14 @@ export default function App() {
             onSave={handleSaveExpense}
             onCancel={() => setIsExpenseFormOpen(false)}
         />
+      )}
+
+      {isDataManagementOpen && (
+          <DataManagement 
+             products={products}
+             onImport={handleImportProducts}
+             onClose={() => setIsDataManagementOpen(false)}
+          />
       )}
     </div>
   );

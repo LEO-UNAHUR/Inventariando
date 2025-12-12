@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import { Product } from "../types";
+import { Product, Sale, BusinessIntelligence } from "../types";
 
 const apiKey = process.env.API_KEY || '';
 
@@ -34,24 +35,93 @@ export const suggestProductDetails = async (productName: string) => {
 };
 
 export const analyzeInventoryBusiness = async (products: Product[]) => {
+    // Deprecated simple text analysis, keeping for backward compatibility if needed, 
+    // but the new app uses generateBusinessInsights
+    return "Por favor usa la nueva función de Inteligencia de Negocios.";
+};
+
+export const generateBusinessInsights = async (products: Product[], sales: Sale[]): Promise<BusinessIntelligence> => {
   if (!apiKey) throw new Error("API Key faltante");
 
-  const inventorySummary = products.map(p => 
-    `${p.name} (${p.category}): Stock ${p.stock}, Precio AR$${p.price}`
-  ).join('\n');
+  // 1. Pre-process data to save tokens and give context
+  const now = Date.now();
+  const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+  
+  const recentSales = sales.filter(s => s.date >= thirtyDaysAgo);
+  
+  const salesSummary = products.map(p => {
+    const qtySold = recentSales.reduce((acc, sale) => {
+       const item = sale.items.find(i => i.productId === p.id);
+       return acc + (item ? item.quantity : 0);
+    }, 0);
+    return {
+        name: p.name,
+        category: p.category,
+        stock: p.stock,
+        soldLast30Days: qtySold
+    };
+  }).filter(p => p.stock > 0 || p.soldLast30Days > 0).slice(0, 30); // Limit to top 30 active items to fit context
+
+  const contextData = JSON.stringify(salesSummary);
 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `Actúa como un experto consultor de negocios para PyMEs en Argentina. Analiza este inventario:\n\n${inventorySummary}\n\nProvee 3 consejos breves y accionables para mejorar la rentabilidad, rotación o mix de productos. Formato markdown simple.`,
+      contents: `Actúa como un experto consultor de retail y Supply Chain en Argentina.
+      Analiza estos datos de ventas de los últimos 30 días y stock actual: ${contextData}.
+      
+      Genera un reporte de inteligencia de negocios con:
+      1. Insights de mercado (considerando la economía argentina, inflación y estacionalidad actual).
+      2. Predicciones de demanda para los próximos 30 días basadas en la rotación actual y estacionalidad.
+      3. Recomendaciones de compra (Restock) inteligentes.
+      `,
       config: {
-        systemInstruction: "Eres un asesor de negocios argentino. Usa lenguaje local profesional pero cercano. Enfócate en la economía inflacionaria y estacionalidad."
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            marketInsights: { 
+                type: Type.STRING, 
+                description: "Resumen breve (2 frases) sobre tendencias estacionales actuales en Argentina y consejos generales." 
+            },
+            predictions: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        productName: { type: Type.STRING },
+                        currentSales: { type: Type.NUMBER, description: "Ventas reales ultimos 30 dias" },
+                        predictedSales: { type: Type.NUMBER, description: "Ventas estimadas proximos 30 dias" },
+                        trend: { type: Type.STRING, enum: ["UP", "DOWN", "STABLE"] },
+                        confidence: { type: Type.NUMBER, description: "Nivel de confianza 0-100" }
+                    },
+                    required: ["productName", "currentSales", "predictedSales", "trend", "confidence"]
+                }
+            },
+            restockSuggestions: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        productName: { type: Type.STRING },
+                        suggestedQuantity: { type: Type.NUMBER },
+                        reason: { type: Type.STRING, description: "Por qué comprar esto (ej: alta rotación, estacionalidad)" },
+                        urgency: { type: Type.STRING, enum: ["HIGH", "MEDIUM", "LOW"] }
+                    },
+                    required: ["productName", "suggestedQuantity", "reason", "urgency"]
+                }
+            }
+          },
+          required: ["marketInsights", "predictions", "restockSuggestions"]
+        }
       }
     });
 
-    return response.text;
+    if (!response.text) throw new Error("No response from AI");
+    return JSON.parse(response.text) as BusinessIntelligence;
+
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return "No se pudo generar el análisis en este momento.";
+    console.error("Gemini BI Error:", error);
+    throw error;
   }
 };
