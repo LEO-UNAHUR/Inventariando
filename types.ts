@@ -11,6 +11,7 @@ export interface Product {
   lastUpdated: number;
   expirationDate?: number; // Timestamp
   suppliers?: ProductSupplierInfo[]; // List of suppliers for this product
+  barcode?: string; // Optional barcode
 }
 
 export interface Supplier {
@@ -132,3 +133,31 @@ export interface Expense {
   category: ExpenseCategory;
   date: number;
 }
+
+// --- BI Interfaces ---
+
+export interface DemandPrediction {
+  productName: string;
+  currentSales: number; // Last 30 days
+  predictedSales: number; // Next 30 days
+  trend: 'UP' | 'DOWN' | 'STABLE';
+  confidence: number; // 0-100
+}
+
+export interface RestockRecommendation {
+  productName: string;
+  suggestedQuantity: number;
+  reason: string;
+  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+}
+
+export interface BusinessIntelligence {
+  marketInsights: string; // General text about seasonality/market
+  predictions: DemandPrediction[];
+  restockSuggestions: RestockRecommendation[];
+}
+
+// --- Sorting & Filtering ---
+
+export type SortOption = 'NAME_ASC' | 'NAME_DESC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_ASC' | 'STOCK_DESC';
+export type ViewMode = 'LIST' | 'GRID';
