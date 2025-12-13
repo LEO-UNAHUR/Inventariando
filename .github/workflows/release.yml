@@ -41,6 +41,13 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      - name: 🪪 Configure git identity
+        run: |
+          git config --global user.email "leonardo@inventariando.app"
+          git config --global user.name "Leonardo Esteves"
+          git config --global pull.rebase false
+          git config --global init.defaultBranch main
+
       - name: 🏗️ Build Web
         run: npm run build:web
 
