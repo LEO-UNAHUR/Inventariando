@@ -8,6 +8,12 @@
 > **La solución definitiva para PyMEs argentinas.**  
 > Gestión de stock, punto de venta (POS) y análisis financiero potenciado por Inteligencia Artificial, todo en tu bolsillo.
 
+
+## [1.5.0] - 2025-12-13
+
+### Changed
+- Release automático via GitHub Actions
+
 ---
 
 ## 🚀 Sobre el Proyecto
