@@ -125,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
                 <LogOut size={18} /> Cerrar Sesión
             </button>
-            <p className="text-[10px] text-center text-slate-400 mt-3">StockArg v1.2</p>
+            <p className="text-[10px] text-center text-slate-400 mt-3">Inventariando v1.2</p>
         </div>
       </div>
     </>

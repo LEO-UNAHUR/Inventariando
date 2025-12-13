@@ -26,7 +26,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, currentUser, 
   const isAdmin = currentUser.role === Role.ADMIN;
 
   const handleExportCSV = () => {
-    const fileName = `inventario_completo_${new Date().toISOString().split('T')[0]}.csv`;
+    const fileName = `inventariando_completo_${new Date().toISOString().split('T')[0]}.csv`;
     const headers = ['ID', 'Nombre', 'Categoria', 'Precio', 'Costo', 'Stock', 'MinStock', 'Descripcion'];
     const rows = products.map(p => [
         p.id,
@@ -62,7 +62,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, currentUser, 
   };
 
   const handleExportJSON = () => {
-      const fileName = `backup_inventario_${new Date().toISOString().split('T')[0]}.json`;
+      const fileName = `inventariando_backup_${new Date().toISOString().split('T')[0]}.json`;
       const jsonString = JSON.stringify(products, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);

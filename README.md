@@ -1,5 +1,5 @@
 
-# 🇦🇷 StockArg | Gestión de Inventario Inteligente
+# 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
 ![Version](https://img.shields.io/badge/version-1.0.0_MVP-blue?style=for-the-badge&logo=appveyor)
 ![Status](https://img.shields.io/badge/status-Stable-success?style=for-the-badge)
@@ -12,7 +12,7 @@
 
 ## 🚀 Sobre el Proyecto
 
-**StockArg** no es solo una hoja de cálculo glorificada. Es una **Progressive Web App (PWA)** diseñada desde cero para enfrentar los desafíos reales del comercio minorista en Argentina. 
+**Inventariando** no es solo una hoja de cálculo glorificada. Es una **Progressive Web App (PWA)** diseñada desde cero para enfrentar los desafíos reales del comercio minorista en Argentina. 
 
 Combina una interfaz móvil fluida ("Mobile-First") con herramientas poderosas como **Google Gemini AI** para predicción de demanda y un módulo financiero adaptado a economías inflacionarias.
 
@@ -69,8 +69,8 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone https://github.com/tu-usuario/stockarg.git
-    cd stockarg
+    git clone https://github.com/tu-usuario/inventariando.git
+    cd inventariando
     ```
 
 2.  **Instalar dependencias:**
@@ -104,7 +104,7 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
 
 ## 🤝 Contribución
 
-¡Las contribuciones son bienvenidas! StockArg es un proyecto pensado para la comunidad.
+¡Las contribuciones son bienvenidas! Inventariando es un proyecto pensado para la comunidad.
 
 1.  Haz un Fork del proyecto.
 2.  Crea tu rama de funcionalidad (`git checkout -b feature/AmazingFeature`).
@@ -122,5 +122,5 @@ Distribuido bajo la licencia MIT. Ver `LICENSE` para más información.
 
 <div align="center">
   <p>Desarrollado con ❤️ y 🧉 en Argentina.</p>
-  <p>2023 - 2025 StockArg Team</p>
+  <p>2023 - 2025 Inventariando Team</p>
 </div>

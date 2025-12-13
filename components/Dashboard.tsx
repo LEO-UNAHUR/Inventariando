@@ -111,7 +111,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
   const handleExportCategory = () => {
       if (!selectedCategory || selectedCategoryProducts.length === 0) return;
 
-      const fileName = `categoria_${selectedCategory.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+      const fileName = `inventariando_categoria_${selectedCategory.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
       const headers = ['Nombre', 'Precio', 'Costo', 'Stock', 'Valor Total'];
       const rows = selectedCategoryProducts.map(p => [
           `"${p.name.replace(/"/g, '""')}"`,

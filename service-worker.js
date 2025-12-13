@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'stockarg-v1';
+const CACHE_NAME = 'inventariando-v1';
 const ASSETS = [
   './',
   './index.html',

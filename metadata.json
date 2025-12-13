@@ -1,5 +1,5 @@
 {
-  "name": "StockArg - Gestión de Inventario",
+  "name": "Inventariando",
   "description": "Aplicación estilo Android para gestionar inventario de pequeñas empresas en Argentina. Incluye análisis de stock y asistente inteligente con Gemini.",
   "requestFramePermissions": [
     "camera"
