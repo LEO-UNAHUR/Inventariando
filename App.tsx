@@ -259,7 +259,7 @@ export default function App() {
     setIsProductFormOpen(true);
   };
 
-  // --- Import Handler ---
+  // --- Import / Data Handlers ---
   const handleImportProducts = (newProducts: Product[]) => {
       // Merge logic: Update existing by ID, add new
       const currentMap = new Map(products.map(p => [p.id, p]));
@@ -269,6 +269,10 @@ export default function App() {
       });
 
       setProducts(Array.from(currentMap.values()));
+  };
+
+  const handleClearProducts = () => {
+      setProducts([]);
   };
 
   // --- Mass Update Handler ---
@@ -703,6 +707,7 @@ export default function App() {
           <DataManagement 
              products={products}
              onImport={handleImportProducts}
+             onClearData={handleClearProducts}
              onClose={() => setIsDataManagementOpen(false)}
           />
       )}

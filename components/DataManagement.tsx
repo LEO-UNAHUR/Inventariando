@@ -2,15 +2,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Product, Category, DataLog } from '../types';
 import { getStoredLogs, saveLog } from '../services/storageService';
-import { Download, Upload, Database, X, Check, AlertTriangle, Save, FileText, ArrowUp, ArrowDown, Clock } from 'lucide-react';
+import { Download, Upload, Database, X, Check, AlertTriangle, Save, FileText, ArrowUp, ArrowDown, Clock, Trash2 } from 'lucide-react';
 
 interface DataManagementProps {
   products: Product[];
   onImport: (newProducts: Product[]) => void;
+  onClearData: () => void;
   onClose: () => void;
 }
 
-const DataManagement: React.FC<DataManagementProps> = ({ products, onImport, onClose }) => {
+const DataManagement: React.FC<DataManagementProps> = ({ products, onImport, onClearData, onClose }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importStats, setImportStats] = useState<{total: number, valid: number} | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +196,17 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, onImport, onC
       reader.readAsText(file);
   };
 
+  const handleClearDatabase = () => {
+      const confirm1 = window.confirm("¡ADVERTENCIA! ¿Estás seguro de que quieres BORRAR TODOS LOS PRODUCTOS?");
+      if (confirm1) {
+          const confirm2 = window.confirm("Esta acción no se puede deshacer. Se eliminarán todos los productos de la base de datos local. ¿Continuar?");
+          if (confirm2) {
+              onClearData();
+              onClose();
+          }
+      }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
@@ -304,6 +316,24 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, onImport, onC
                                 </div>
                             ))
                         )}
+                    </div>
+                </div>
+
+                {/* DANGER ZONE */}
+                <div className="border-t-2 border-red-100 dark:border-red-900/30 pt-4 mt-2">
+                    <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/20">
+                        <h3 className="font-bold text-red-600 dark:text-red-400 flex items-center gap-2 text-sm mb-2">
+                            <AlertTriangle size={16} /> Zona de Peligro
+                        </h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                            Si tuviste errores al importar o quieres reiniciar el sistema, puedes eliminar toda la base de datos de productos.
+                        </p>
+                        <button 
+                            onClick={handleClearDatabase}
+                            className="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 py-2 rounded-lg text-sm font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        >
+                            <Trash2 size={16} /> Eliminar Todos los Productos
+                        </button>
                     </div>
                 </div>
 
