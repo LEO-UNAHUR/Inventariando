@@ -44,6 +44,10 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+    const [isDesktop, setIsDesktop] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
+        return window.matchMedia('(min-width: 1024px)').matches;
+    });
 
   // -- Data State --
   const [products, setProducts] = useState<Product[]>([]);
@@ -84,7 +88,21 @@ const App: React.FC = () => {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setIsDark(true);
     }
+
+        const mq = window.matchMedia('(min-width: 1024px)');
+        const handler = (e: MediaQueryListEvent) => {
+            setIsDesktop(e.matches);
+        };
+        setIsDesktop(mq.matches);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
   }, []);
+
+    useEffect(() => {
+        if (isDesktop) {
+            setIsSidebarOpen(true);
+        }
+    }, [isDesktop]);
 
   useEffect(() => {
     if (isDark) {
@@ -424,6 +442,7 @@ const App: React.FC = () => {
           onLogout={() => setCurrentUser(null)}
           onOpenDataManagement={() => setShowDataManagement(true)}
           isDark={isDark}
+          isDesktop={isDesktop}
       />
 
       {/* Main Content */}
@@ -431,7 +450,7 @@ const App: React.FC = () => {
           
           {/* Mobile Top Bar (Only visible if not in POS/Fullscreen modes ideally, but keeping simple) */}
           {currentView !== View.POS && (
-             <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+             <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
                  <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300">
                      <Menu size={24} />
                  </button>
@@ -446,8 +465,8 @@ const App: React.FC = () => {
           </main>
 
           {/* Bottom Navigation (Mobile) */}
-          {currentView !== View.POS && (
-            <div className="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-center h-16 pb-safe z-30">
+                    {currentView !== View.POS && (
+                        <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-center h-16 pb-safe z-30">
                 <button 
                   onClick={() => setCurrentView(View.DASHBOARD)}
                   className={`flex-1 flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.DASHBOARD ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
