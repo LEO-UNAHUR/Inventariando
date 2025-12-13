@@ -29,7 +29,7 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: 🔧 Setup Java (for Android build)
@@ -37,6 +37,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: 📱 Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
 
       - name: 📦 Install dependencies
         run: npm ci
@@ -48,8 +54,8 @@ jobs:
           git config --global pull.rebase false
           git config --global init.defaultBranch main
 
-      - name: 🏗️ Build Web
-        run: npm run build:web
+      - name: 📦 Build Android & APK
+        run: npm run release:build
 
       - name: 📝 Bump version
         run: npm run release:version
@@ -115,6 +121,17 @@ jobs:
               \"prerelease\": $IS_PRERELEASE
             }" \
             "https://api.github.com/repos/LEO-UNAHUR/Inventariando/releases"
+
+      - name: 📤 Upload APK asset
+        run: |
+          APK_PATH="APK/v${{ steps.extract_version.outputs.version }}/Inventariando-${{ steps.extract_version.outputs.version }}.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "APK no encontrado en $APK_PATH"
+            exit 1
+          fi
+          gh release upload "v${{ steps.extract_version.outputs.version }}" "$APK_PATH" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📊 Build Summary
         run: |
