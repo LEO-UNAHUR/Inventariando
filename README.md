@@ -134,25 +134,58 @@ Ver [PM_ANALYSIS_V1.1.0.md](./PM_ANALYSIS_V1.1.0.md) para análisis completo del
 
 ---
 
-## 🚀 Release Process (Automatizado)
+## 🚀 Release Process (Completamente Automatizado)
 
-Cada release se genera automáticamente mediante GitHub Actions:
+### 📋 Resumen Rápido
+Cuando quieras hacer un release, solo pide:
+> "Quiero hacer un release **beta**" o "Release **stable**"
+
+**Yo haré automáticamente:**
+- ✅ Validar versión contra GitHub (sin conflictos)
+- ✅ Actualizar `package.json` 
+- ✅ Generar CHANGELOG
+- ✅ Commit y push automático
+- ✅ Disparar GitHub Actions workflow
+- ✅ Compilar APK
+- ✅ Crear GitHub Release con assets
+
+### 🔧 Detalles Técnicos
+
+El script `scripts/release-auto.js` maneja:
 
 ```bash
-# 1. Haz tus cambios
-git commit -m "feat: Nueva funcionalidad"
+# Opción 1: Automático (sin token)
+npm run release:auto beta      # Calcula version, commits, push
+npm run release:auto stable
 
-# 2. Dispara el workflow de release (manual en GitHub Actions)
-# O usa el endpoint de GitHub CLI:
-gh workflow run release.yml -f release_type=beta
-
-# 3. El workflow automáticamente:
-#    - Bumpea la versión
-#    - Compila el APK
-#    - Organiza en APK/v[version]/
-#    - Crea release en GitHub
-#    - Sube el APK como asset
+# Opción 2: Con GitHub Actions (requiere GITHUB_TOKEN)
+export GITHUB_TOKEN="ghp_..."
+npm run release:auto beta      # + dispara workflow automáticamente
 ```
+
+**Validación de Correlatividad:**
+- Beta → Beta: Mantiene versión (refresh)
+- Beta → Stable: Quita `-beta`
+- Stable → Beta: Bumpea minor + agrega `-beta`
+- Stable → Stable: Bumpea patch
+
+**Ejemplo de Progresión:**
+```
+1.0.0 (stable)
+  ↓
+1.1.0-beta (beta)
+  ↓
+1.1.0 (stable)
+  ↓
+1.2.0-beta (beta)
+```
+
+### 📖 Documentación Completa
+Ver [RELEASE_AUTO_GUIDE.md](./RELEASE_AUTO_GUIDE.md) para:
+- Configuración del Personal Access Token
+- Troubleshooting
+- Ejemplos de uso
+- Validaciones de seguridad
 
 ---
 
