@@ -2,18 +2,18 @@
 import { Product, StockMovement, Supplier, Sale, Expense, Customer, Promotion, Backup, User, DataLog } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_USERS } from '../constants';
 
-const STORAGE_KEY = 'stockarg_inventory_v1';
-const HISTORY_KEY = 'stockarg_history_v1';
-const SUPPLIER_KEY = 'stockarg_suppliers_v1';
-const SALES_KEY = 'stockarg_sales_v1';
-const EXPENSES_KEY = 'stockarg_expenses_v1';
-const CUSTOMERS_KEY = 'stockarg_customers_v1';
-const PROMOTIONS_KEY = 'stockarg_promotions_v1';
-const BACKUPS_KEY = 'stockarg_backups_v1';
-const USERS_KEY = 'stockarg_users_v1';
-const DATA_LOGS_KEY = 'stockarg_data_logs_v1';
-const NOTIFICATIONS_DISMISSED_KEY = 'stockarg_notif_dismissed_v1';
-const NOTIFICATIONS_READ_KEY = 'stockarg_notif_read_v1';
+const STORAGE_KEY = 'inventariando_products_v1';
+const HISTORY_KEY = 'inventariando_history_v1';
+const SUPPLIER_KEY = 'inventariando_suppliers_v1';
+const SALES_KEY = 'inventariando_sales_v1';
+const EXPENSES_KEY = 'inventariando_expenses_v1';
+const CUSTOMERS_KEY = 'inventariando_customers_v1';
+const PROMOTIONS_KEY = 'inventariando_promotions_v1';
+const BACKUPS_KEY = 'inventariando_backups_v1';
+const USERS_KEY = 'inventariando_users_v1';
+const DATA_LOGS_KEY = 'inventariando_data_logs_v1';
+const NOTIFICATIONS_DISMISSED_KEY = 'inventariando_notif_dismissed_v1';
+const NOTIFICATIONS_READ_KEY = 'inventariando_notif_read_v1';
 
 export const getStoredProducts = (): Product[] => {
   try {

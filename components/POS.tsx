@@ -281,7 +281,7 @@ const POS: React.FC<POSProps> = ({ products, customers, promotions = [], onCompl
                      <div className="w-32 h-32 bg-slate-200 dark:bg-white p-2 rounded-lg flex items-center justify-center">
                          <QrCode size={100} className="text-black" />
                      </div>
-                     <p className="text-xs text-slate-500 mt-2">Alias: NEGOCIO.STOCKARG.MP</p>
+                     <p className="text-xs text-slate-500 mt-2">Alias: NEGOCIO.INVENTARIANDO.MP</p>
                  </div>
              )}
           </div>
@@ -359,7 +359,7 @@ const POS: React.FC<POSProps> = ({ products, customers, promotions = [], onCompl
                  <p className="text-slate-500 text-sm">Total</p>
                  <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(finalTotal)}</p>
              </div>
-             <button onClick={() => setShowCheckout(true)} disabled={cart.length === 0} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all flex justify-between px-6 items-center">
+             <button onClick={() => setShowCheckout(true)} disabled={cart.length === 0} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-slate-100 py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all flex justify-between px-6 items-center">
                 <span>Cobrar</span><span className="bg-blue-500 px-2 py-0.5 rounded text-sm">{formatCurrency(finalTotal)}</span>
              </button>
          </div>

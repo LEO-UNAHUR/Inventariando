@@ -1,7 +1,7 @@
 
 {
-  "name": "StockArg Inventario",
-  "short_name": "StockArg",
+  "name": "Inventariando App",
+  "short_name": "Inventariando",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0f172a",

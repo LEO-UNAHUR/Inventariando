@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { User, Role } from '../types';
-import { Lock, User as UserIcon, LogIn, ChevronRight, Key, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Store, User as UserIcon, LogIn, ChevronRight, Key, ShieldCheck, RefreshCw } from 'lucide-react';
 
 interface LoginScreenProps {
   users: User[];
@@ -93,9 +93,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin, isDark }) => 
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
             <div className="inline-block p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-lg mb-4">
-                <Lock size={40} className="text-blue-600 dark:text-blue-400" />
+                <Store size={40} className="text-blue-600 dark:text-blue-400" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">StockArg Seguro</h1>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Inventariando</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2">Acceso al Sistema</p>
         </div>
 

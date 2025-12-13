@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Product, User, View, Role, Sale, Customer, Supplier, 
@@ -434,7 +435,7 @@ const App: React.FC = () => {
                  <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300">
                      <Menu size={24} />
                  </button>
-                 <span className="font-bold text-lg text-slate-800 dark:text-slate-100">StockArg</span>
+                 <span className="font-bold text-lg text-slate-800 dark:text-slate-100">Inventariando</span>
                  <div className="w-8"></div> {/* Spacer */}
              </div>
           )}
