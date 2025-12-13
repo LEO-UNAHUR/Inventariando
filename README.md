@@ -1,9 +1,9 @@
 
 # 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.0.0_MVP-blue?style=for-the-badge&logo=appveyor)
-![Status](https://img.shields.io/badge/status-Stable-success?style=for-the-badge)
-![Tech](https://img.shields.io/badge/stack-React_19_•_Gemini_AI_•_Tailwind-222?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.1.0_beta-blue?style=for-the-badge&logo=appveyor)
+![Status](https://img.shields.io/badge/status-Beta-yellow?style=for-the-badge)
+![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
 > **La solución definitiva para PyMEs argentinas.**  
 > Gestión de stock, punto de venta (POS) y análisis financiero potenciado por Inteligencia Artificial, todo en tu bolsillo.
@@ -35,10 +35,12 @@ Construido con las últimas tecnologías para garantizar performance, escalabili
 
 *   **Core:** React 19 (Hooks, Context API).
 *   **Estilos:** Tailwind CSS (Diseño responsivo, Dark Mode nativo).
+*   **Mobile:** Capacitor (Android APK nativo).
+*   **Bundler:** Vite (Desarrollo rápido, builds optimizados).
 *   **IA:** Google GenAI SDK (`gemini-2.5-flash`).
 *   **Gráficos:** Recharts (Visualización de datos interactiva).
 *   **Hardware:** Html5-Qrcode (Uso de cámara como escáner).
-*   **Persistencia:** LocalStorage Service Layer (Offline-first architecture).
+*   **Persistencia:** LocalStorage + PWA (Offline-first architecture).
 *   **Iconografía:** Lucide React.
 
 ---
@@ -79,26 +81,78 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
     ```
 
 3.  **Configurar Variables de Entorno:**
-    Crea un archivo `.env` en la raíz (o configura tu entorno de despliegue):
+    Crea un archivo `.env` en la raíz (o configura en tu entorno de despliegue):
     ```env
-    REACT_APP_GEMINI_API_KEY=tu_api_key_aqui
+    VITE_GEMINI_API_KEY=tu_api_key_aqui
     ```
-    *(Nota: En la versión actual del código, la key se inyecta o se maneja vía process.env.API_KEY según el bundler).*
 
 4.  **Iniciar en Desarrollo:**
     ```bash
-    npm start
+    npm run dev
     ```
     Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
+5.  **Build Web:**
+    ```bash
+    npm run build:web
+    ```
+    Genera archivos optimizados en la carpeta `dist/`.
+
+6.  **Build APK Android (Requiere Java 17+):**
+    ```bash
+    npm run build:android
+    ```
+    Genera APK en `android/app/build/outputs/apk/release/`.
+
 ---
 
-## 🔮 Roadmap (Próximos Pasos)
+## 📥 Descargas
 
-*   [ ] Integración real con AFIP (Facturación Electrónica).
-*   [ ] Sincronización en la nube (Firebase/Supabase) para multi-dispositivo real.
-*   [ ] Generación de PDFs para comprobantes de venta.
-*   [ ] Modo "Kiosco" para auto-atención.
+### APK (Android)
+Descarga la última versión compilada desde:
+- **GitHub Releases:** https://github.com/LEO-UNAHUR/Inventariando/releases
+- **Carpeta Local:** `APK/v[version]/` en el repositorio
+
+**Requisitos:** Android 6.0+
+
+### Web (PWA)
+Puedes usar la versión web directamente en cualquier navegador o instalarla como PWA:
+1. Abre la app en tu navegador
+2. Toca el menú (⋮) > "Instalar app"
+
+---
+
+## 🔮 Roadmap v1.1.0 Beta (Validación)
+
+*   [ ] Implementar analytics (PostHog/Mixpanel)
+*   [ ] Programa piloto con 10 comercios reales
+*   [ ] Feedback loop y mejoras UX
+*   [ ] Exportar facturas a PDF
+*   [ ] Sincronización multi-dispositivo (Cloud)
+
+Ver [PM_ANALYSIS_V1.1.0.md](./PM_ANALYSIS_V1.1.0.md) para análisis completo del roadmap.
+
+---
+
+## 🚀 Release Process (Automatizado)
+
+Cada release se genera automáticamente mediante GitHub Actions:
+
+```bash
+# 1. Haz tus cambios
+git commit -m "feat: Nueva funcionalidad"
+
+# 2. Dispara el workflow de release (manual en GitHub Actions)
+# O usa el endpoint de GitHub CLI:
+gh workflow run release.yml -f release_type=beta
+
+# 3. El workflow automáticamente:
+#    - Bumpea la versión
+#    - Compila el APK
+#    - Organiza en APK/v[version]/
+#    - Crea release en GitHub
+#    - Sube el APK como asset
+```
 
 ---
 
