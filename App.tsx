@@ -1,717 +1,542 @@
-
 import React, { useState, useEffect } from 'react';
-import { Product, View, StockMovement, MovementType, Supplier, Sale, Expense, User, Role, Customer, Promotion } from './types';
-import { getStoredProducts, saveStoredProducts, getStoredMovements, saveStoredMovements, getStoredSuppliers, saveStoredSuppliers, getStoredSales, saveStoredSales, getStoredExpenses, saveStoredExpenses, getStoredCustomers, saveStoredCustomers, getStoredPromotions, saveStoredPromotions, getStoredUsers, saveStoredUsers } from './services/storageService';
+import { 
+  Product, User, View, Role, Sale, Customer, Supplier, 
+  Expense, Promotion, StockMovement, MovementType, Category
+} from './types';
+import { 
+  getStoredProducts, saveStoredProducts, 
+  getStoredUsers, saveStoredUsers,
+  getStoredSales, saveStoredSales,
+  getStoredSuppliers, saveStoredSuppliers,
+  getStoredCustomers, saveStoredCustomers,
+  getStoredExpenses, saveStoredExpenses,
+  getStoredPromotions, saveStoredPromotions,
+  getStoredMovements, saveStoredMovements
+} from './services/storageService';
+import LoginScreen from './components/LoginScreen';
 import Dashboard from './components/Dashboard';
 import InventoryList from './components/InventoryList';
 import ProductForm from './components/ProductForm';
-import AIAssistant from './components/AIAssistant';
+import POS from './components/POS';
+import SalesDashboard from './components/SalesDashboard';
 import StockHistory from './components/StockHistory';
+import FinancialAnalysis from './components/FinancialAnalysis';
 import SupplierList from './components/SupplierList';
 import SupplierForm from './components/SupplierForm';
-import FinancialAnalysis from './components/FinancialAnalysis';
-import SalesDashboard from './components/SalesDashboard';
-import POS from './components/POS';
-import ExpenseForm from './components/ExpenseForm';
-import DataManagement from './components/DataManagement';
-import NetworkStatus from './components/NetworkStatus';
-import LoginScreen from './components/LoginScreen';
 import CustomerList from './components/CustomerList';
 import CustomerForm from './components/CustomerForm';
 import Promotions from './components/Promotions';
+import AIAssistant from './components/AIAssistant';
 import SecurityPanel from './components/SecurityPanel';
 import TeamManagement from './components/TeamManagement';
 import UserProfile from './components/UserProfile';
-import { LayoutDashboard, PackageSearch, Sparkles, Truck, DollarSign, ShoppingBag, Download, Users, LogOut, Tag, Shield, User as UserIcon } from 'lucide-react';
+import DataManagement from './components/DataManagement';
+import Sidebar from './components/Sidebar';
+import ExpenseForm from './components/ExpenseForm';
+import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
-export default function App() {
+const App: React.FC = () => {
+  // -- Auth State --
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // -- View State --
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
-  
-  const [users, setUsers] = useState<User[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  // -- Data State --
   const [products, setProducts] = useState<Product[]>([]);
-  const [movements, setMovements] = useState<StockMovement[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
-  
-  // Modal States
+  const [movements, setMovements] = useState<StockMovement[]>([]);
+
+  // -- Modal / Form States --
+  const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
-  const [scannedBarcodeForNew, setScannedBarcodeForNew] = useState('');
-  
+  const [newProductBarcode, setNewProductBarcode] = useState<string>('');
+
+  const [showSupplierForm, setShowSupplierForm] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-  const [isSupplierFormOpen, setIsSupplierFormOpen] = useState(false);
-  
+
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
-  
-  const [isPOSOpen, setIsPOSOpen] = useState(false);
-  const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
-  const [isDataManagementOpen, setIsDataManagementOpen] = useState(false);
 
-  // Network & PWA State
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [showDataManagement, setShowDataManagement] = useState(false);
 
-  // Theme State Management
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('theme');
-      if (stored) return stored === 'dark';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // -- Initialization --
+  useEffect(() => {
+    setProducts(getStoredProducts());
+    setUsers(getStoredUsers());
+    setSales(getStoredSales());
+    setSuppliers(getStoredSuppliers());
+    setCustomers(getStoredCustomers());
+    setExpenses(getStoredExpenses());
+    setPromotions(getStoredPromotions());
+    setMovements(getStoredMovements());
+    
+    // Check system preference for theme
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setIsDark(true);
     }
-    return false;
-  });
+  }, []);
 
-  // Apply theme class
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  // -- Data Handlers --
 
-  // Network Listeners
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      // Simulate sync
-      setIsSyncing(true);
-      setTimeout(() => setIsSyncing(false), 2000);
-    };
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // PWA Install Prompt Listener
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    });
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        }
-        setDeferredPrompt(null);
-      });
-    }
+  const handleUpdateProducts = (updatedProducts: Product[]) => {
+      setProducts(updatedProducts);
+      saveStoredProducts(updatedProducts);
   };
-
-  // Load data on mount
-  useEffect(() => {
-    setUsers(getStoredUsers());
-    setProducts(getStoredProducts());
-    setMovements(getStoredMovements());
-    setSuppliers(getStoredSuppliers());
-    setSales(getStoredSales());
-    setExpenses(getStoredExpenses());
-    setCustomers(getStoredCustomers());
-    setPromotions(getStoredPromotions());
-  }, []);
-
-  // Persist data on change
-  useEffect(() => {
-    saveStoredProducts(products);
-    if (isOnline) {
-       const timer = setTimeout(() => {
-           setIsSyncing(true);
-           setTimeout(() => setIsSyncing(false), 800);
-       }, 500);
-       return () => clearTimeout(timer);
-    }
-  }, [products, isOnline]);
-
-  useEffect(() => { saveStoredMovements(movements); }, [movements]);
-  useEffect(() => { saveStoredSuppliers(suppliers); }, [suppliers]);
-  useEffect(() => { saveStoredSales(sales); }, [sales]);
-  useEffect(() => { saveStoredExpenses(expenses); }, [expenses]);
-  useEffect(() => { saveStoredCustomers(customers); }, [customers]);
-  useEffect(() => { saveStoredPromotions(promotions); }, [promotions]);
-  useEffect(() => { saveStoredUsers(users); }, [users]);
-
-  // --- Login Handler ---
-  if (!currentUser) {
-    return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} />;
-  }
-
-  // --- Role Check Utilities ---
-  const canEditInventory = currentUser.role !== Role.SELLER;
-  const canViewFinance = currentUser.role !== Role.SELLER;
-  const canViewSuppliers = currentUser.role !== Role.SELLER;
-  const canViewAnalysis = currentUser.role !== Role.SELLER;
-  const isAdmin = currentUser.role === Role.ADMIN;
-
-  // --- User Handlers ---
-  const handleAddUser = (user: User) => {
-      setUsers([...users, user]);
-  };
-
-  const handleUpdateUser = (updatedUser: User) => {
-      setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-      if (currentUser.id === updatedUser.id) {
-          setCurrentUser(updatedUser);
-      }
-  };
-
-  const handleDeleteUser = (userId: string) => {
-      if (window.confirm("¿Seguro que deseas eliminar este usuario?")) {
-          setUsers(users.filter(u => u.id !== userId));
-      }
-  };
-
-  // --- Product Handlers ---
 
   const handleSaveProduct = (product: Product) => {
-    let newMovements = [...movements];
-    
-    if (editingProduct) {
-      const oldProduct = products.find(p => p.id === product.id);
-      if (oldProduct) {
-        const stockDiff = product.stock - oldProduct.stock;
-        if (stockDiff !== 0) {
-          newMovements.push({
-            id: crypto.randomUUID(),
-            productId: product.id,
-            productName: product.name,
-            type: stockDiff > 0 ? MovementType.IN : MovementType.OUT,
-            quantity: stockDiff,
-            date: Date.now(),
-            reason: 'Actualización manual',
-            userId: currentUser.id,
-            userName: currentUser.name
-          });
-        }
+    const exists = products.find(p => p.id === product.id);
+    let newProducts = [];
+    if (exists) {
+      newProducts = products.map(p => p.id === product.id ? product : p);
+      // Log movement if stock changed manually? Usually handled by specific adjustments, but basic edit:
+      if (exists.stock !== product.stock) {
+          const diff = product.stock - exists.stock;
+          logMovement(product.id, product.name, MovementType.ADJUSTMENT, diff, 'Ajuste manual en edición');
       }
-      setProducts(products.map(p => p.id === product.id ? product : p));
     } else {
-      if (product.stock > 0) {
-        newMovements.push({
-            id: crypto.randomUUID(),
-            productId: product.id,
-            productName: product.name,
-            type: MovementType.IN,
-            quantity: product.stock,
-            date: Date.now(),
-            reason: 'Stock Inicial',
-            userId: currentUser.id,
-            userName: currentUser.name
-        });
-      }
-      setProducts([...products, product]);
+      newProducts = [...products, product];
+      logMovement(product.id, product.name, MovementType.IN, product.stock, 'Inventario Inicial');
     }
-
-    setMovements(newMovements);
-    setIsProductFormOpen(false);
+    handleUpdateProducts(newProducts);
+    setShowProductForm(false);
     setEditingProduct(null);
-    setScannedBarcodeForNew('');
+    setNewProductBarcode('');
   };
 
   const handleDeleteProduct = (id: string) => {
-    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
-      const productToDelete = products.find(p => p.id === id);
-      if (productToDelete && productToDelete.stock > 0) {
-        const newMovement: StockMovement = {
-            id: crypto.randomUUID(),
-            productId: productToDelete.id,
-            productName: productToDelete.name,
-            type: MovementType.OUT,
-            quantity: -productToDelete.stock,
-            date: Date.now(),
-            reason: 'Eliminación de producto',
-            userId: currentUser.id,
-            userName: currentUser.name
-        };
-        setMovements([...movements, newMovement]);
-      }
-      setProducts(products.filter(p => p.id !== id));
+    if (window.confirm('¿Eliminar producto?')) {
+        const newProducts = products.filter(p => p.id !== id);
+        handleUpdateProducts(newProducts);
     }
   };
 
-  const openAddProductForm = (scannedBarcode?: string) => {
-    setEditingProduct(null);
-    setScannedBarcodeForNew(scannedBarcode || '');
-    setIsProductFormOpen(true);
+  const logMovement = (productId: string, productName: string, type: MovementType, quantity: number, reason: string) => {
+      const movement: StockMovement = {
+          id: crypto.randomUUID(),
+          productId,
+          productName,
+          type,
+          quantity,
+          date: Date.now(),
+          reason,
+          userId: currentUser?.id,
+          userName: currentUser?.name
+      };
+      const newMovements = [...movements, movement];
+      setMovements(newMovements);
+      saveStoredMovements(newMovements);
   };
 
-  const openEditProductForm = (product: Product) => {
-    setEditingProduct(product);
-    setScannedBarcodeForNew('');
-    setIsProductFormOpen(true);
-  };
+  const handleCompleteSale = (sale: Sale, updatedCustomer?: Customer) => {
+      // 1. Save Sale
+      const newSales = [...sales, sale];
+      setSales(newSales);
+      saveStoredSales(newSales);
 
-  // --- Import / Data Handlers ---
-  const handleImportProducts = (newProducts: Product[]) => {
-      // Merge logic: Update existing by ID, add new
-      const currentMap = new Map(products.map(p => [p.id, p]));
-      
-      newProducts.forEach(p => {
-          currentMap.set(p.id, p);
+      // 2. Update Stock & Log Movements
+      let currentProducts = [...products];
+      sale.items.forEach(item => {
+          const productIndex = currentProducts.findIndex(p => p.id === item.productId);
+          if (productIndex > -1) {
+              const p = currentProducts[productIndex];
+              currentProducts[productIndex] = { ...p, stock: p.stock - item.quantity };
+              logMovement(p.id, p.name, MovementType.OUT, -item.quantity, `Venta #${sale.id.slice(0,4)}`);
+          }
       });
+      handleUpdateProducts(currentProducts);
 
-      setProducts(Array.from(currentMap.values()));
+      // 3. Update Customer if needed
+      if (updatedCustomer) {
+          handleSaveCustomer(updatedCustomer);
+      }
+
+      setCurrentView(View.SALES); // Return to sales dashboard? Or stay in POS?
+      // Usually POS closes itself or resets. The POS component handles internal reset or close via onCompleteSale callback logic if needed.
+      // Here we assume POS view is active.
   };
-
-  const handleClearProducts = () => {
-      setProducts([]);
-  };
-
-  // --- Mass Update Handler ---
-  const handleMassPriceUpdate = (updatedProducts: Product[]) => {
-      // Create movements for audit logic could be added here if needed
-      setProducts(updatedProducts);
-  };
-
-  // --- Supplier Handlers ---
 
   const handleSaveSupplier = (supplier: Supplier) => {
-    if (editingSupplier) {
-        setSuppliers(suppliers.map(s => s.id === supplier.id ? supplier : s));
-    } else {
-        setSuppliers([...suppliers, supplier]);
-    }
-    setIsSupplierFormOpen(false);
-    setEditingSupplier(null);
+      const exists = suppliers.find(s => s.id === supplier.id);
+      let newSuppliers = [];
+      if (exists) {
+          newSuppliers = suppliers.map(s => s.id === supplier.id ? supplier : s);
+      } else {
+          newSuppliers = [...suppliers, supplier];
+      }
+      setSuppliers(newSuppliers);
+      saveStoredSuppliers(newSuppliers);
+      setShowSupplierForm(false);
+      setEditingSupplier(null);
   };
 
   const handleDeleteSupplier = (id: string) => {
-    if (window.confirm('¿Estás seguro de eliminar este proveedor?')) {
-        setSuppliers(suppliers.filter(s => s.id !== id));
-    }
-  };
-
-  const openAddSupplierForm = () => {
-    setEditingSupplier(null);
-    setIsSupplierFormOpen(true);
-  };
-
-  const openEditSupplierForm = (supplier: Supplier) => {
-    setEditingSupplier(supplier);
-    setIsSupplierFormOpen(true);
-  };
-
-  // --- Customer Handlers ---
-  const handleSaveCustomer = (customer: Customer) => {
-      if (editingCustomer) {
-          setCustomers(customers.map(c => c.id === customer.id ? customer : c));
-      } else {
-          setCustomers([...customers, customer]);
+      if (window.confirm('¿Eliminar proveedor?')) {
+          const newSuppliers = suppliers.filter(s => s.id !== id);
+          setSuppliers(newSuppliers);
+          saveStoredSuppliers(newSuppliers);
       }
-      setIsCustomerFormOpen(false);
+  };
+
+  const handleSaveCustomer = (customer: Customer) => {
+      const exists = customers.find(c => c.id === customer.id);
+      let newCustomers = [];
+      if (exists) {
+          newCustomers = customers.map(c => c.id === customer.id ? customer : c);
+      } else {
+          newCustomers = [...customers, customer];
+      }
+      setCustomers(newCustomers);
+      saveStoredCustomers(newCustomers);
+      setShowCustomerForm(false);
       setEditingCustomer(null);
   };
 
   const handleDeleteCustomer = (id: string) => {
       if (window.confirm('¿Eliminar cliente?')) {
-          setCustomers(customers.filter(c => c.id !== id));
+          const newCustomers = customers.filter(c => c.id !== id);
+          setCustomers(newCustomers);
+          saveStoredCustomers(newCustomers);
       }
   };
 
-  const openAddCustomerForm = () => {
-      setEditingCustomer(null);
-      setIsCustomerFormOpen(true);
-  };
-
-  const openEditCustomerForm = (customer: Customer) => {
-      setEditingCustomer(customer);
-      setIsCustomerFormOpen(true);
-  };
-
-  // --- Promotion Handlers ---
-  const handleAddPromotion = (promo: Promotion) => {
-      setPromotions([...promotions, promo]);
-  };
-
-  const handleDeletePromotion = (id: string) => {
-      setPromotions(promotions.filter(p => p.id !== id));
-  };
-
-  // --- Sales / POS Handlers ---
-
-  const handleNewSale = () => {
-    setIsPOSOpen(true);
-  };
-
-  const handleCompleteSale = (sale: Sale, updatedCustomer?: Customer) => {
-    // 0. Update Customer (if points or balance changed)
-    if (updatedCustomer) {
-        setCustomers(customers.map(c => c.id === updatedCustomer.id ? updatedCustomer : c));
-    }
-
-    // 1. Add Sale (Audit)
-    const saleWithAudit = { 
-        ...sale, 
-        userId: currentUser.id, 
-        userName: currentUser.name 
-    };
-    setSales([...sales, saleWithAudit]);
-
-    // 2. Create Stock Movements & Update Product Stock
-    const newMovements: StockMovement[] = [];
-    let updatedProducts = [...products];
-
-    sale.items.forEach(item => {
-        // Update product stock in memory
-        updatedProducts = updatedProducts.map(p => 
-            p.id === item.productId 
-            ? { ...p, stock: p.stock - item.quantity, lastUpdated: Date.now() } 
-            : p
-        );
-
-        // Add movement log
-        newMovements.push({
-            id: crypto.randomUUID(),
-            productId: item.productId,
-            productName: item.productName,
-            type: MovementType.OUT,
-            quantity: -item.quantity,
-            date: Date.now(),
-            reason: `Venta POS #${sale.id.slice(0,4)}`,
-            userId: currentUser.id,
-            userName: currentUser.name
-        });
-    });
-
-    setMovements([...movements, ...newMovements]);
-    setProducts(updatedProducts);
-    setIsPOSOpen(false);
-  };
-
-  // --- Expenses Handlers ---
-
   const handleSaveExpense = (expense: Expense) => {
-    setExpenses([...expenses, expense]);
-    setIsExpenseFormOpen(false);
+      const newExpenses = [...expenses, expense];
+      setExpenses(newExpenses);
+      saveStoredExpenses(newExpenses);
+      setShowExpenseForm(false);
   };
 
   const handleDeleteExpense = (id: string) => {
-    if (window.confirm('¿Borrar este gasto?')) {
-        setExpenses(expenses.filter(e => e.id !== id));
-    }
-  };
-
-  const renderContent = () => {
-    switch (currentView) {
-      case View.DASHBOARD:
-        return (
-            <Dashboard 
-                products={products} 
-                isDark={isDark} 
-                onToggleTheme={toggleTheme} 
-                onOpenDataManagement={canEditInventory ? () => setIsDataManagementOpen(true) : undefined}
-            />
-        );
-      case View.INVENTORY:
-        return (
-          <InventoryList 
-            products={products} 
-            onEdit={canEditInventory ? openEditProductForm : () => {}} 
-            onDelete={canEditInventory ? handleDeleteProduct : () => {}} 
-            onAdd={canEditInventory ? openAddProductForm : () => {}} 
-            isDark={isDark}
-            onToggleTheme={toggleTheme}
-          />
-        );
-      case View.SALES:
-        return (
-            <SalesDashboard 
-                sales={sales}
-                onNewSale={handleNewSale}
-                isDark={isDark}
-                onToggleTheme={toggleTheme}
-            />
-        );
-      case View.HISTORY:
-        return <StockHistory movements={movements} isDark={isDark} onToggleTheme={toggleTheme} />;
-      case View.SUPPLIERS:
-        return (
-            <SupplierList 
-                suppliers={suppliers}
-                onAdd={openAddSupplierForm}
-                onEdit={openEditSupplierForm}
-                onDelete={handleDeleteSupplier}
-                isDark={isDark}
-                onToggleTheme={toggleTheme}
-            />
-        );
-      case View.FINANCE:
-        return (
-            <FinancialAnalysis 
-                products={products}
-                sales={sales}
-                expenses={expenses}
-                onAddExpense={() => setIsExpenseFormOpen(true)}
-                onDeleteExpense={handleDeleteExpense}
-                isDark={isDark} 
-                onToggleTheme={toggleTheme} 
-                onUpdatePrices={handleMassPriceUpdate}
-            />
-        );
-      case View.ANALYSIS:
-        return <AIAssistant products={products} isDark={isDark} onToggleTheme={toggleTheme} />;
-      case View.CUSTOMERS:
-        return (
-            <CustomerList
-                customers={customers}
-                sales={sales}
-                onAdd={openAddCustomerForm}
-                onEdit={openEditCustomerForm}
-                onDelete={handleDeleteCustomer}
-                isDark={isDark}
-                onToggleTheme={toggleTheme}
-            />
-        );
-      case View.PROMOTIONS:
-        return (
-            <Promotions 
-                promotions={promotions}
-                products={products}
-                onAddPromotion={handleAddPromotion}
-                onDeletePromotion={handleDeletePromotion}
-                isDark={isDark}
-                onToggleTheme={toggleTheme}
-            />
-        );
-      case View.SECURITY:
-        return (
-            <SecurityPanel 
-                user={currentUser}
-                isDark={isDark}
-                onToggleTheme={toggleTheme}
-            />
-        );
-      case View.TEAM:
-        return (
-            <TeamManagement
-                users={users}
-                onAddUser={handleAddUser}
-                onUpdateUser={handleUpdateUser}
-                onDeleteUser={handleDeleteUser}
-                currentUser={currentUser}
-                isDark={isDark}
-                onToggleTheme={toggleTheme}
-            />
-        );
-      case View.PROFILE:
-        return (
-            <UserProfile 
-                user={currentUser}
-                onUpdateUser={handleUpdateUser}
-                isDark={isDark}
-            />
-        );
-      default:
-        return <Dashboard products={products} isDark={isDark} onToggleTheme={toggleTheme} />;
-    }
-  };
-
-  const getAvatarColor = (avatar?: string) => {
-      // Map avatar string ID to color for quick visual distinction
-      if (!avatar) return 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300';
-      const colors: any = {
-          'AVATAR_1': 'bg-blue-500 text-white',
-          'AVATAR_2': 'bg-purple-500 text-white',
-          'AVATAR_3': 'bg-emerald-500 text-white',
-          'AVATAR_4': 'bg-orange-500 text-white',
-          'AVATAR_5': 'bg-pink-500 text-white',
+      if (window.confirm('¿Eliminar gasto?')) {
+          const newExpenses = expenses.filter(e => e.id !== id);
+          setExpenses(newExpenses);
+          saveStoredExpenses(newExpenses);
       }
-      return colors[avatar] || 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300';
+  };
+
+  const handleAddPromotion = (promo: Promotion) => {
+      const newPromos = [...promotions, promo];
+      setPromotions(newPromos);
+      saveStoredPromotions(newPromos);
+  };
+
+  const handleDeletePromotion = (id: string) => {
+      if (window.confirm('¿Eliminar promoción?')) {
+          const newPromos = promotions.filter(p => p.id !== id);
+          setPromotions(newPromos);
+          saveStoredPromotions(newPromos);
+      }
+  };
+
+  const handleImportData = (newProducts: Product[]) => {
+      handleUpdateProducts(newProducts);
+      // Also reset movements history as it might be inconsistent with new data
+      // For now, let's keep it simple.
+  };
+
+  const handleClearData = () => {
+      handleUpdateProducts([]);
+      setSales([]); saveStoredSales([]);
+      setMovements([]); saveStoredMovements([]);
+      // Maybe clear others too if requested
+  };
+
+  // -- User Management --
+  const handleAddUser = (user: User) => {
+      const newUsers = [...users, user];
+      setUsers(newUsers);
+      saveStoredUsers(newUsers);
+  };
+
+  const handleUpdateUser = (user: User) => {
+      const newUsers = users.map(u => u.id === user.id ? user : u);
+      setUsers(newUsers);
+      saveStoredUsers(newUsers);
+      if (currentUser?.id === user.id) {
+          setCurrentUser(user);
+      }
+  };
+
+  const handleDeleteUser = (id: string) => {
+      if (window.confirm('¿Eliminar usuario?')) {
+          const newUsers = users.filter(u => u.id !== id);
+          setUsers(newUsers);
+          saveStoredUsers(newUsers);
+      }
+  };
+
+  // -- Views Rendering --
+
+  if (!currentUser) {
+      return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} />;
   }
 
+  const renderContent = () => {
+      switch (currentView) {
+          case View.DASHBOARD:
+              return (
+                <Dashboard 
+                    products={products} 
+                    isDark={isDark} 
+                    onToggleTheme={() => setIsDark(!isDark)}
+                    onOpenDataManagement={() => setShowDataManagement(true)}
+                />
+              );
+          case View.INVENTORY:
+              return (
+                  <InventoryList 
+                      products={products} 
+                      onEdit={(p) => { setEditingProduct(p); setShowProductForm(true); }}
+                      onDelete={handleDeleteProduct}
+                      onAdd={(barcode) => { setEditingProduct(null); setNewProductBarcode(barcode || ''); setShowProductForm(true); }}
+                      isDark={isDark}
+                      onToggleTheme={() => setIsDark(!isDark)}
+                  />
+              );
+          case View.SALES:
+              return (
+                  <SalesDashboard 
+                    sales={sales} 
+                    onNewSale={() => setCurrentView(View.POS)} // Temporary switch to POS view
+                    isDark={isDark} 
+                    onToggleTheme={() => setIsDark(!isDark)}
+                  />
+              );
+          case View.POS:
+              // POS is handled as a view here, but it looks like a modal in its own component sometimes. 
+              // Based on Sidebar navigation, it's a main view.
+              return (
+                  <POS 
+                      products={products} 
+                      customers={customers}
+                      promotions={promotions}
+                      onCompleteSale={handleCompleteSale}
+                      onCancel={() => setCurrentView(View.SALES)} // Go back to dashboard
+                      isDark={isDark}
+                  />
+              );
+          case View.CUSTOMERS:
+              return (
+                  <CustomerList 
+                      customers={customers} 
+                      sales={sales}
+                      onAdd={() => { setEditingCustomer(null); setShowCustomerForm(true); }}
+                      onEdit={(c) => { setEditingCustomer(c); setShowCustomerForm(true); }}
+                      onDelete={handleDeleteCustomer}
+                      isDark={isDark}
+                      onToggleTheme={() => setIsDark(!isDark)}
+                  />
+              );
+          case View.SUPPLIERS:
+              return (
+                  <SupplierList 
+                      suppliers={suppliers} 
+                      onAdd={() => { setEditingSupplier(null); setShowSupplierForm(true); }}
+                      onEdit={(s) => { setEditingSupplier(s); setShowSupplierForm(true); }}
+                      onDelete={handleDeleteSupplier}
+                      isDark={isDark}
+                      onToggleTheme={() => setIsDark(!isDark)}
+                  />
+              );
+          case View.FINANCE:
+              return (
+                  <FinancialAnalysis 
+                      products={products} 
+                      sales={sales} 
+                      expenses={expenses}
+                      onAddExpense={() => setShowExpenseForm(true)}
+                      onDeleteExpense={handleDeleteExpense}
+                      isDark={isDark}
+                      onToggleTheme={() => setIsDark(!isDark)}
+                      onUpdatePrices={handleUpdateProducts}
+                  />
+              );
+          case View.ANALYSIS:
+              return <AIAssistant products={products} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
+          case View.HISTORY: // Not in sidebar but good to have
+              return <StockHistory movements={movements} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
+          case View.PROMOTIONS:
+              return (
+                  <Promotions 
+                      promotions={promotions} 
+                      products={products} 
+                      onAddPromotion={handleAddPromotion} 
+                      onDeletePromotion={handleDeletePromotion}
+                      isDark={isDark}
+                      onToggleTheme={() => setIsDark(!isDark)}
+                  />
+              );
+          case View.SECURITY:
+              return <SecurityPanel user={currentUser} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
+          case View.TEAM:
+              return (
+                  <TeamManagement 
+                      users={users} 
+                      onAddUser={handleAddUser}
+                      onUpdateUser={handleUpdateUser}
+                      onDeleteUser={handleDeleteUser}
+                      currentUser={currentUser}
+                      isDark={isDark}
+                      onToggleTheme={() => setIsDark(!isDark)}
+                  />
+              );
+          case View.PROFILE:
+              return <UserProfile user={currentUser} onUpdateUser={handleUpdateUser} isDark={isDark} />;
+          default:
+              return (
+                <Dashboard 
+                    products={products} 
+                    isDark={isDark} 
+                    onToggleTheme={() => setIsDark(!isDark)}
+                />
+              );
+      }
+  };
+
   return (
-    <div className="h-full w-full flex flex-col bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-300">
+    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
       
-      {/* Top Bar for System Status */}
-      <div className="flex justify-between items-center px-4 py-2 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-20">
-         <div className="flex items-center gap-3">
-            <button 
-                onClick={() => setCurrentView(View.PROFILE)}
-                className="flex items-center gap-2 group"
-            >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${getAvatarColor(currentUser.avatar)} ring-2 ring-transparent group-hover:ring-blue-400 transition-all`}>
-                    <UserIcon size={16} />
-                </div>
-                <div className="flex flex-col items-start">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors">{currentUser.name}</span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">{currentUser.role}</span>
-                </div>
-            </button>
+      {/* Sidebar */}
+      <Sidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)} 
+          onNavigate={setCurrentView} 
+          currentView={currentView}
+          currentUser={currentUser}
+          onLogout={() => setCurrentUser(null)}
+          onOpenDataManagement={() => setShowDataManagement(true)}
+          isDark={isDark}
+      />
 
-            {deferredPrompt && (
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full w-full relative">
+          
+          {/* Mobile Top Bar (Only visible if not in POS/Fullscreen modes ideally, but keeping simple) */}
+          {currentView !== View.POS && (
+             <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                 <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300">
+                     <Menu size={24} />
+                 </button>
+                 <span className="font-bold text-lg text-slate-800 dark:text-slate-100">StockArg</span>
+                 <div className="w-8"></div> {/* Spacer */}
+             </div>
+          )}
+
+          {/* View Content */}
+          <main className="flex-1 overflow-hidden relative">
+              {renderContent()}
+          </main>
+
+          {/* Bottom Navigation (Mobile) */}
+          {currentView !== View.POS && (
+            <div className="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-center h-16 pb-safe z-30">
                 <button 
-                    onClick={handleInstallClick}
-                    className="flex items-center gap-1 bg-blue-600 text-white px-2 py-0.5 rounded-full hover:bg-blue-700 transition-colors ml-2"
+                  onClick={() => setCurrentView(View.DASHBOARD)}
+                  className={`flex-1 flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.DASHBOARD ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
                 >
-                    <Download size={10} /> App
+                  <div className={`p-1.5 rounded-xl ${currentView === View.DASHBOARD ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}>
+                    <LayoutDashboard size={22} strokeWidth={currentView === View.DASHBOARD ? 2.5 : 2} />
+                  </div>
+                  <span className="text-[10px] font-medium">Inicio</span>
                 </button>
-            )}
-         </div>
 
-         <div className="flex items-center gap-4">
-             <NetworkStatus isOnline={isOnline} isSyncing={isSyncing} />
-             <div className="h-6 w-px bg-slate-200 dark:bg-slate-700"></div>
-             <button 
-                onClick={() => setCurrentUser(null)} 
-                title="Cerrar Sesión" 
-                className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-            >
-                <LogOut size={18} />
-            </button>
-         </div>
+                <button 
+                  onClick={() => setCurrentView(View.INVENTORY)}
+                  className={`flex-1 flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.INVENTORY ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
+                >
+                  <div className={`p-1.5 rounded-xl ${currentView === View.INVENTORY ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}>
+                    <PackageSearch size={22} strokeWidth={currentView === View.INVENTORY ? 2.5 : 2} />
+                  </div>
+                  <span className="text-[10px] font-medium">Stock</span>
+                </button>
+
+                <button 
+                  onClick={() => setCurrentView(View.SALES)}
+                  className={`flex-1 flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.SALES ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
+                >
+                  <div className={`p-1.5 rounded-xl ${currentView === View.SALES ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}>
+                     <ShoppingBag size={22} strokeWidth={currentView === View.SALES ? 2.5 : 2} />
+                  </div>
+                  <span className="text-[10px] font-medium">Ventas</span>
+                </button>
+
+                <button 
+                  onClick={() => setCurrentView(View.CUSTOMERS)}
+                  className={`flex-1 flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.CUSTOMERS ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
+                >
+                  <div className={`p-1.5 rounded-xl ${currentView === View.CUSTOMERS ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}>
+                     <Users size={22} strokeWidth={currentView === View.CUSTOMERS ? 2.5 : 2} />
+                  </div>
+                  <span className="text-[10px] font-medium">Clientes</span>
+                </button>
+            </div>
+          )}
+
       </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-hidden relative">
-        {renderContent()}
-      </main>
-
-      {/* Bottom Navigation (Android Style) */}
-      <nav className="h-16 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center px-1 z-30 fixed bottom-0 w-full shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-colors duration-300 overflow-x-auto no-scrollbar">
-        <button 
-          onClick={() => setCurrentView(View.DASHBOARD)}
-          className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.DASHBOARD ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-        >
-          <LayoutDashboard size={20} strokeWidth={currentView === View.DASHBOARD ? 2.5 : 2} />
-          <span className="text-[9px] font-medium">Inicio</span>
-        </button>
-        
-        <button 
-          onClick={() => setCurrentView(View.INVENTORY)}
-          className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.INVENTORY ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-        >
-          <PackageSearch size={20} strokeWidth={currentView === View.INVENTORY ? 2.5 : 2} />
-          <span className="text-[9px] font-medium">Items</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentView(View.SALES)}
-          className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.SALES ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-        >
-          <ShoppingBag size={20} strokeWidth={currentView === View.SALES ? 2.5 : 2} />
-          <span className="text-[9px] font-medium">Ventas</span>
-        </button>
-        
-        <button 
-          onClick={() => setCurrentView(View.PROMOTIONS)}
-          className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.PROMOTIONS ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-        >
-          <Tag size={20} strokeWidth={currentView === View.PROMOTIONS ? 2.5 : 2} />
-          <span className="text-[9px] font-medium">Ofertas</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentView(View.CUSTOMERS)}
-          className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.CUSTOMERS ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-        >
-          <Users size={20} strokeWidth={currentView === View.CUSTOMERS ? 2.5 : 2} />
-          <span className="text-[9px] font-medium">Clientes</span>
-        </button>
-
-        {canViewFinance && (
-            <button 
-            onClick={() => setCurrentView(View.FINANCE)}
-            className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.FINANCE ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-            >
-            <DollarSign size={20} strokeWidth={currentView === View.FINANCE ? 2.5 : 2} />
-            <span className="text-[9px] font-medium">Finanzas</span>
-            </button>
-        )}
-
-        {isAdmin && (
-            <button 
-            onClick={() => setCurrentView(View.TEAM)}
-            className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.TEAM ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
-            >
-            <Shield size={20} strokeWidth={currentView === View.TEAM ? 2.5 : 2} />
-            <span className="text-[9px] font-medium">Equipo</span>
-            </button>
-        )}
-
-        {canViewAnalysis && (
-            <button 
-            onClick={() => setCurrentView(View.ANALYSIS)}
-            className={`flex-1 min-w-[60px] flex flex-col items-center justify-center h-full space-y-1 ${currentView === View.ANALYSIS ? 'text-purple-600 dark:text-purple-400' : 'text-slate-400 dark:text-slate-500'}`}
-            >
-            <Sparkles size={20} strokeWidth={currentView === View.ANALYSIS ? 2.5 : 2} />
-            <span className="text-[9px] font-medium">IA</span>
-            </button>
-        )}
-      </nav>
-
-      {/* Forms & Overlays */}
-      
-      {isProductFormOpen && (
-        <ProductForm 
-          initialProduct={editingProduct} 
-          onSave={handleSaveProduct} 
-          onCancel={() => setIsProductFormOpen(false)}
-          suppliers={suppliers}
-          initialBarcode={scannedBarcodeForNew}
-        />
+      {/* Modals */}
+      {showProductForm && (
+          <ProductForm 
+              initialProduct={editingProduct} 
+              onSave={handleSaveProduct} 
+              onCancel={() => setShowProductForm(false)} 
+              suppliers={suppliers}
+              initialBarcode={newProductBarcode}
+          />
       )}
 
-      {isSupplierFormOpen && (
-        <SupplierForm
-            initialSupplier={editingSupplier}
-            onSave={handleSaveSupplier}
-            onCancel={() => setIsSupplierFormOpen(false)}
-        />
+      {showSupplierForm && (
+          <SupplierForm
+              initialSupplier={editingSupplier}
+              onSave={handleSaveSupplier}
+              onCancel={() => setShowSupplierForm(false)}
+          />
       )}
 
-      {isCustomerFormOpen && (
+      {showCustomerForm && (
           <CustomerForm
-            initialCustomer={editingCustomer}
-            onSave={handleSaveCustomer}
-            onCancel={() => setIsCustomerFormOpen(false)}
+              initialCustomer={editingCustomer}
+              onSave={handleSaveCustomer}
+              onCancel={() => setShowCustomerForm(false)}
           />
       )}
 
-      {isPOSOpen && (
-        <POS
-            products={products}
-            customers={customers}
-            promotions={promotions}
-            onCompleteSale={handleCompleteSale}
-            onCancel={() => setIsPOSOpen(false)}
-            isDark={isDark}
-        />
+      {showExpenseForm && (
+          <ExpenseForm
+              onSave={handleSaveExpense}
+              onCancel={() => setShowExpenseForm(false)}
+          />
       )}
 
-      {isExpenseFormOpen && (
-        <ExpenseForm
-            onSave={handleSaveExpense}
-            onCancel={() => setIsExpenseFormOpen(false)}
-        />
-      )}
-
-      {isDataManagementOpen && currentUser && (
+      {showDataManagement && (
           <DataManagement 
-             products={products}
-             currentUser={currentUser}
-             onImport={handleImportProducts}
-             onClearData={handleClearProducts}
-             onClose={() => setIsDataManagementOpen(false)}
+              products={products} 
+              currentUser={currentUser}
+              onImport={handleImportData} 
+              onClearData={handleClearData} 
+              onClose={() => setShowDataManagement(false)} 
           />
       )}
+
     </div>
   );
-}
+};
+
+export default App;
