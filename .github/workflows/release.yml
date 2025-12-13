@@ -1,0 +1,106 @@
+name: Release APK & Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Tipo de release'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - beta
+          - stable
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 🔧 Setup Java (for Android build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Web
+        run: npm run build:web
+
+      - name: 📝 Bump version
+        run: npm run release:version
+        env:
+          RELEASE_TYPE: ${{ github.event.inputs.release_type }}
+
+      - name: 📖 Extract version
+        id: extract_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: 🔐 Commit changes
+        run: |
+          git config --local user.email "leo@inventariando.app"
+          git config --local user.name "Inventariando Bot"
+          git add -A
+          git commit -m "chore: Release v${{ steps.extract_version.outputs.version }}" || true
+
+      - name: 📤 Push changes
+        run: |
+          git push origin main --force-with-lease || true
+
+      - name: 📦 Create GitHub Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.extract_version.outputs.version }}
+          release_name: Inventariando v${{ steps.extract_version.outputs.version }}
+          body: |
+            # 🚀 Inventariando v${{ steps.extract_version.outputs.version }}
+
+            **Tipo de Release:** ${{ github.event.inputs.release_type }}
+
+            ## 📝 Cambios
+            - Consulta el CHANGELOG.md para detalles completos
+            - Actualización automática mediante GitHub Actions
+
+            ## 📥 Instalación (Android)
+            1. Descarga el archivo `.apk` desde este release
+            2. En tu teléfono, ve a Configuración > Seguridad > Permitir instalación de fuentes desconocidas
+            3. Abre el archivo APK y sigue las instrucciones
+
+            ## 🔗 Enlaces
+            - [GitHub Repository](https://github.com/LEO-UNAHUR/Inventariando)
+            - [Documentación](https://github.com/LEO-UNAHUR/Inventariando/blob/main/README.md)
+
+            ---
+            *Build automático: ${{ github.run_id }}*
+          draft: false
+          prerelease: ${{ github.event.inputs.release_type == 'beta' }}
+
+      - name: 📊 Build Summary
+        run: |
+          echo "✅ Release completado exitosamente"
+          echo "🔖 Tag: v${{ steps.extract_version.outputs.version }}"
+          echo "📦 APK disponible en: APK/v${{ steps.extract_version.outputs.version }}/"
+          echo "🔗 GitHub Release: https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v${{ steps.extract_version.outputs.version }}"
