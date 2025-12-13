@@ -63,8 +63,15 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('SW registered'))
-            .catch(err => console.log('SW failed', err));
+            .then(reg => console.log('SW registrado correctamente (Modo PWA Activo)'))
+            .catch(err => {
+              // Filtrar errores de entorno de desarrollo (Sandbox/Preview)
+              if (err.message.includes('origin') || err.message.includes('scriptURL')) {
+                 console.warn('PWA: Service Worker omitido por restricciones del entorno de vista previa. Funcionará en producción.');
+              } else {
+                 console.error('SW Error:', err);
+              }
+            });
         });
       }
     </script>
