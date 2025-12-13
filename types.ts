@@ -253,4 +253,5 @@ export interface DataLog {
   date: number;
   recordCount: number; // How many items were affected/exported
   format: 'JSON' | 'CSV';
+  backupId?: string; // Links to a backup created just before this action
 }

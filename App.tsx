@@ -703,9 +703,10 @@ export default function App() {
         />
       )}
 
-      {isDataManagementOpen && (
+      {isDataManagementOpen && currentUser && (
           <DataManagement 
              products={products}
+             currentUser={currentUser}
              onImport={handleImportProducts}
              onClearData={handleClearProducts}
              onClose={() => setIsDataManagementOpen(false)}
