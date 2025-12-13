@@ -7,11 +7,16 @@
  * Uso: npm run release:build (llamado automáticamente)
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
-async function organizeAPK() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function organizeAPK() {
   try {
     // 1. Leer versión del package.json
     const packageJson = JSON.parse(
@@ -120,7 +125,6 @@ Repositorio: https://github.com/LEO-UNAHUR/Inventariando
     
     // 7. Crear archivo CHECKSUMS.txt para verificación
     if (apkPath) {
-      const crypto = require('crypto');
       const fileBuffer = fs.readFileSync(path.join(versionDir, `Inventariando-${version}.apk`));
       const hashSum = crypto.createHash('sha256');
       hashSum.update(fileBuffer);
