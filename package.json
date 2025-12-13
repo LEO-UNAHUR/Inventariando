@@ -21,7 +21,8 @@
     "cap:open": "npx cap open android",
     "release:version": "node scripts/bump-version.js",
     "release:build": "npm run build:android && node scripts/organize-apk.js",
-    "release": "npm run release:version && npm run release:build"
+    "release": "npm run release:version && npm run release:build",
+    "release:auto": "node scripts/release-auto.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
