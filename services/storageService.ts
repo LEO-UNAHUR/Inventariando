@@ -12,6 +12,8 @@ const PROMOTIONS_KEY = 'stockarg_promotions_v1';
 const BACKUPS_KEY = 'stockarg_backups_v1';
 const USERS_KEY = 'stockarg_users_v1';
 const DATA_LOGS_KEY = 'stockarg_data_logs_v1';
+const NOTIFICATIONS_DISMISSED_KEY = 'stockarg_notif_dismissed_v1';
+const NOTIFICATIONS_READ_KEY = 'stockarg_notif_read_v1';
 
 export const getStoredProducts = (): Product[] => {
   try {
@@ -204,6 +206,30 @@ export const saveLog = (log: DataLog): void => {
     } catch (error) {
         console.error("Error saving data log", error);
     }
+};
+
+// --- NOTIFICATIONS ---
+
+export const getDismissedNotifications = (): string[] => {
+    try {
+        const stored = localStorage.getItem(NOTIFICATIONS_DISMISSED_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+};
+
+export const saveDismissedNotifications = (ids: string[]) => {
+    localStorage.setItem(NOTIFICATIONS_DISMISSED_KEY, JSON.stringify(ids));
+};
+
+export const getReadNotifications = (): string[] => {
+    try {
+        const stored = localStorage.getItem(NOTIFICATIONS_READ_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+};
+
+export const saveReadNotifications = (ids: string[]) => {
+    localStorage.setItem(NOTIFICATIONS_READ_KEY, JSON.stringify(ids));
 };
 
 // --- BACKUP SYSTEM ---

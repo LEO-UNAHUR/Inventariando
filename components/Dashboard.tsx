@@ -4,8 +4,8 @@ import { Product, InventoryStats, AppNotification, NotificationSeverity } from '
 import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield } from 'lucide-react';
-import { getStoredMovements } from '../services/storageService';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield, Trash2, Check, CheckCheck } from 'lucide-react';
+import { getStoredMovements, getDismissedNotifications, saveDismissedNotifications, getReadNotifications, saveReadNotifications } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
 
 interface DashboardProps {
@@ -21,16 +21,25 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
+  
+  // Notification State
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  const [readIds, setReadIds] = useState<string[]>([]);
 
-  // Load movements independently here to calculate velocity alerts
+  // Load persistence
   useEffect(() => {
     setMovements(getStoredMovements());
+    setDismissedIds(getDismissedNotifications());
+    setReadIds(getReadNotifications());
   }, []);
 
   // Recalculate notifications whenever products or movements change
   useEffect(() => {
-    setNotifications(generateNotifications(products, movements));
-  }, [products, movements]);
+    const generated = generateNotifications(products, movements);
+    // Filter out dismissed ones
+    const active = generated.filter(n => !dismissedIds.includes(n.id));
+    setNotifications(active);
+  }, [products, movements, dismissedIds]);
 
   const stats: InventoryStats = useMemo(() => {
     return {
@@ -48,7 +57,39 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
     return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
   }, [products]);
 
-  const unreadCount = notifications.length;
+  const handleDismiss = (id: string) => {
+      const newDismissed = [...dismissedIds, id];
+      setDismissedIds(newDismissed);
+      saveDismissedNotifications(newDismissed);
+  };
+
+  const handleMarkAsRead = (id: string) => {
+      if (!readIds.includes(id)) {
+          const newRead = [...readIds, id];
+          setReadIds(newRead);
+          saveReadNotifications(newRead);
+      }
+  };
+
+  const handleMarkAllRead = () => {
+      const allIds = notifications.map(n => n.id);
+      // Merge with existing
+      const newRead = Array.from(new Set([...readIds, ...allIds]));
+      setReadIds(newRead);
+      saveReadNotifications(newRead);
+  };
+
+  const handleClearAll = () => {
+      if (window.confirm("¿Estás seguro de eliminar todas las notificaciones?")) {
+          const allIds = notifications.map(n => n.id);
+          const newDismissed = Array.from(new Set([...dismissedIds, ...allIds]));
+          setDismissedIds(newDismissed);
+          saveDismissedNotifications(newDismissed);
+      }
+  };
+
+  // Count unread (exists in notifications but NOT in readIds)
+  const unreadCount = notifications.filter(n => !readIds.includes(n.id)).length;
 
   return (
     <div className="h-full overflow-y-auto no-scrollbar p-4 pb-24 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative">
@@ -91,23 +132,43 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
         <div className="fixed inset-0 z-50 flex justify-end">
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowNotifications(false)}></div>
             <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 h-full shadow-2xl animate-slide-left border-l border-slate-200 dark:border-slate-800 flex flex-col">
+                
+                {/* Drawer Header */}
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
-                    <h2 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                        <Bell size={18} className="text-blue-600" /> Notificaciones
-                    </h2>
-                    <button onClick={() => setShowNotifications(false)} className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-                        <X size={20} />
-                    </button>
+                    <div>
+                        <h2 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                            <Bell size={18} className="text-blue-600" /> Notificaciones
+                        </h2>
+                        {unreadCount > 0 && <p className="text-xs text-slate-500">{unreadCount} nuevas</p>}
+                    </div>
+                    <div className="flex gap-1">
+                         {notifications.length > 0 && (
+                             <>
+                                <button onClick={handleMarkAllRead} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full" title="Marcar todo leído">
+                                    <CheckCheck size={18} />
+                                </button>
+                                <button onClick={handleClearAll} className="p-2 text-slate-400 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/20 rounded-full" title="Borrar todo">
+                                    <Trash2 size={18} />
+                                </button>
+                             </>
+                         )}
+                        <button onClick={() => setShowNotifications(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full">
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
+
+                {/* List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950">
                     {notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-40 text-slate-400 text-center">
+                        <div className="flex flex-col items-center justify-center h-60 text-slate-400 text-center">
                             <Bell size={32} className="mb-2 opacity-50" />
                             <p className="text-sm">Todo está en orden.</p>
                             <p className="text-xs">No tienes alertas pendientes.</p>
                         </div>
                     ) : (
                         notifications.map(notif => {
+                            const isRead = readIds.includes(notif.id);
                             let icon = <AlertTriangle size={18} />;
                             let colorClass = 'bg-slate-100 text-slate-600 border-slate-200';
                             
@@ -121,15 +182,45 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
                                 icon = <Activity size={18} />;
                             }
 
+                            // If read, make it distinct but subtler
+                            if (isRead) {
+                                colorClass = 'bg-white dark:bg-slate-900 text-slate-500 border-slate-100 dark:border-slate-800 opacity-70';
+                            }
+
                             return (
-                                <div key={notif.id} className={`p-3 rounded-xl border ${colorClass} flex gap-3`}>
-                                    <div className="mt-0.5">{icon}</div>
-                                    <div>
-                                        <h4 className="font-semibold text-sm">{notif.title}</h4>
+                                <div key={notif.id} className={`p-3 rounded-xl border ${colorClass} flex gap-3 relative group transition-all`}>
+                                    {!isRead && <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full"></div>}
+                                    
+                                    <div className="mt-0.5 flex-shrink-0">{icon}</div>
+                                    <div className="flex-1">
+                                        <h4 className={`font-semibold text-sm ${isRead ? 'font-normal' : ''}`}>{notif.title}</h4>
                                         <p className="text-xs opacity-90 mt-0.5">{notif.message}</p>
-                                        <p className="text-[10px] opacity-70 mt-2 text-right">
-                                            {new Date(notif.date).toLocaleDateString('es-AR')}
-                                        </p>
+                                        
+                                        <div className="flex justify-between items-center mt-2">
+                                            <p className="text-[10px] opacity-70">
+                                                {new Date(notif.date).toLocaleDateString('es-AR')}
+                                            </p>
+                                            
+                                            {/* Actions */}
+                                            <div className="flex gap-2">
+                                                {!isRead && (
+                                                    <button 
+                                                        onClick={() => handleMarkAsRead(notif.id)}
+                                                        className="p-1 hover:bg-black/5 rounded text-inherit"
+                                                        title="Marcar como leído"
+                                                    >
+                                                        <Check size={14} />
+                                                    </button>
+                                                )}
+                                                <button 
+                                                    onClick={() => handleDismiss(notif.id)}
+                                                    className="p-1 hover:bg-black/5 rounded text-inherit"
+                                                    title="Eliminar"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             );
