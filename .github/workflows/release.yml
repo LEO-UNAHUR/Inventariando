@@ -58,8 +58,8 @@ jobs:
 
       - name: 🔐 Commit changes
         run: |
-          git config --local user.email "leo@inventariando.app"
-          git config --local user.name "Inventariando Bot"
+          git config --local user.email "leonardo@inventariando.app"
+          git config --local user.name "Leonardo Esteves"
           git add -A
           git commit -m "chore: Release v${{ steps.extract_version.outputs.version }}" || true
 
