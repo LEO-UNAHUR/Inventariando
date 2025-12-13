@@ -132,7 +132,7 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
   };
 
   try {
-    // 1) Obtener ID del workflow por filename usando fetch (sin PowerShell/curl para evitar prompts del vault)
+    // 1) Obtener ID del workflow por filename usando fetch
     const wfResp = await fetch(`${base}/actions/workflows`, { headers });
     if (!wfResp.ok) throw new Error(`Error al listar workflows: ${wfResp.status}`);
     const wfJson = await wfResp.json();
