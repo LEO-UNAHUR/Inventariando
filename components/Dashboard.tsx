@@ -4,7 +4,7 @@ import { Product, InventoryStats, AppNotification, NotificationSeverity } from '
 import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield, Trash2, Check, CheckCheck } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield, Trash2, Check, CheckCheck, Download, ChevronRight, FileSpreadsheet } from 'lucide-react';
 import { getStoredMovements, getDismissedNotifications, saveDismissedNotifications, getReadNotifications, saveReadNotifications } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
 
@@ -21,6 +21,9 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
+  
+  // Interactive Chart State
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   // Notification State
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
@@ -57,6 +60,23 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
     return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
   }, [products]);
 
+  // --- Filtered Data for Modal ---
+  const selectedCategoryProducts = useMemo(() => {
+      if (!selectedCategory) return [];
+      return products.filter(p => p.category === selectedCategory);
+  }, [selectedCategory, products]);
+
+  const selectedCategoryStats = useMemo(() => {
+      const items = selectedCategoryProducts;
+      return {
+          count: items.length,
+          value: items.reduce((acc, curr) => acc + (curr.price * curr.stock), 0),
+          stock: items.reduce((acc, curr) => acc + curr.stock, 0)
+      };
+  }, [selectedCategoryProducts]);
+
+  // --- Actions ---
+
   const handleDismiss = (id: string) => {
       const newDismissed = [...dismissedIds, id];
       setDismissedIds(newDismissed);
@@ -86,6 +106,29 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
           setDismissedIds(newDismissed);
           saveDismissedNotifications(newDismissed);
       }
+  };
+
+  const handleExportCategory = () => {
+      if (!selectedCategory || selectedCategoryProducts.length === 0) return;
+
+      const fileName = `categoria_${selectedCategory.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+      const headers = ['Nombre', 'Precio', 'Costo', 'Stock', 'Valor Total'];
+      const rows = selectedCategoryProducts.map(p => [
+          `"${p.name.replace(/"/g, '""')}"`,
+          p.price,
+          p.cost,
+          p.stock,
+          p.price * p.stock
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
   };
 
   // Count unread (exists in notifications but NOT in readIds)
@@ -126,6 +169,193 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
             </button>
         </div>
       </header>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
+          <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg w-fit mb-2">
+            <DollarSign className="text-blue-600 dark:text-blue-400" size={20} />
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Valor Total (Venta)</p>
+          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">
+            {formatCurrency(stats.totalValue)}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
+          <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg w-fit mb-2">
+            <AlertTriangle className="text-orange-600 dark:text-orange-400" size={20} />
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Stock Bajo</p>
+          <p className="text-lg font-bold text-orange-600 dark:text-orange-400 leading-tight">
+            {stats.lowStockCount} <span className="text-xs font-normal text-slate-400 dark:text-slate-500">productos</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors">
+         <div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Total Unidades</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats.totalItems}</p>
+         </div>
+         <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
+            <Package className="text-emerald-600 dark:text-emerald-400" size={24} />
+         </div>
+      </div>
+
+      {/* Chart Section */}
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+        <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+            <TrendingUp size={18} className="text-slate-500 dark:text-slate-400"/>
+            Distribución por Categoría
+            </h3>
+            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">Interactivo</span>
+        </div>
+        
+        {/* Chart Container */}
+        <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+          {categoryData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={5}
+                  dataKey="value"
+                  stroke={isDark ? '#0f172a' : '#fff'}
+                  onClick={(data) => setSelectedCategory(data.name)}
+                  cursor="pointer"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS[index % COLORS.length]} 
+                        className="hover:opacity-80 transition-opacity cursor-pointer outline-none"
+                    />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number) => [`${value} items`, 'Cantidad']}
+                  contentStyle={{ 
+                      borderRadius: '12px', 
+                      border: 'none', 
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      backgroundColor: isDark ? '#1e293b' : '#fff',
+                      color: isDark ? '#fff' : '#000'
+                  }}
+                  itemStyle={{ color: isDark ? '#cbd5e1' : '#334155' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+             <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500 text-sm">
+                No hay datos suficientes
+             </div>
+          )}
+        </div>
+        
+        {/* Interactive Legend */}
+        <div className="flex flex-wrap gap-2 mt-6 justify-center">
+          {categoryData.map((entry, index) => (
+            <button 
+                key={entry.name}
+                onClick={() => setSelectedCategory(entry.name)}
+                className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors active:scale-95"
+            >
+              <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+              <span className="font-medium">{entry.name}</span>
+              <span className="text-slate-400 dark:text-slate-500">({entry.value})</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Category Detail Modal (Bottom Sheet Style) */}
+      {selectedCategory && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none">
+              <div 
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto transition-opacity"
+                onClick={() => setSelectedCategory(null)}
+              ></div>
+              
+              <div className="bg-white dark:bg-slate-900 w-full sm:max-w-lg h-[80vh] sm:h-[85vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col animate-slide-up pointer-events-auto transform transition-transform border border-slate-100 dark:border-slate-800">
+                  
+                  {/* Header */}
+                  <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50 rounded-t-2xl">
+                      <div>
+                          <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Categoría</span>
+                          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                              {selectedCategory}
+                              <span className="text-sm font-normal text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                                  {selectedCategoryStats.count} items
+                              </span>
+                          </h2>
+                      </div>
+                      <button 
+                        onClick={() => setSelectedCategory(null)}
+                        className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      >
+                          <X size={20} className="text-slate-600 dark:text-slate-300" />
+                      </button>
+                  </div>
+
+                  {/* Stats Bar */}
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800">
+                      <div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Valor de Inventario</p>
+                          <p className="text-lg font-bold text-slate-800 dark:text-slate-100">{formatCurrency(selectedCategoryStats.value)}</p>
+                      </div>
+                      <div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Stock Total</p>
+                          <p className="text-lg font-bold text-slate-800 dark:text-slate-100">{selectedCategoryStats.stock} <span className="text-xs font-normal">unidades</span></p>
+                      </div>
+                  </div>
+
+                  {/* List */}
+                  <div className="flex-1 overflow-y-auto p-2">
+                      <table className="w-full text-sm text-left">
+                          <thead className="text-xs text-slate-500 uppercase bg-slate-50 dark:bg-slate-800 sticky top-0">
+                              <tr>
+                                  <th className="px-4 py-3 rounded-tl-lg">Producto</th>
+                                  <th className="px-4 py-3 text-right">Stock</th>
+                                  <th className="px-4 py-3 text-right rounded-tr-lg">Precio</th>
+                              </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                              {selectedCategoryProducts.map(product => (
+                                  <tr key={product.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                      <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
+                                          {product.name}
+                                      </td>
+                                      <td className={`px-4 py-3 text-right font-medium ${product.stock <= product.minStock ? 'text-orange-500' : 'text-slate-600 dark:text-slate-400'}`}>
+                                          {product.stock}
+                                      </td>
+                                      <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-300">
+                                          {formatCurrency(product.price)}
+                                      </td>
+                                  </tr>
+                              ))}
+                          </tbody>
+                      </table>
+                  </div>
+
+                  {/* Footer Action */}
+                  <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+                      <button 
+                        onClick={handleExportCategory}
+                        className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+                      >
+                          <FileSpreadsheet size={20} />
+                          Descargar Reporte {selectedCategory}
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
 
       {/* Notifications Drawer/Modal */}
       {showNotifications && (
@@ -230,100 +460,6 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
             </div>
         </div>
       )}
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
-          <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg w-fit mb-2">
-            <DollarSign className="text-blue-600 dark:text-blue-400" size={20} />
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Valor Total (Venta)</p>
-          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">
-            {formatCurrency(stats.totalValue)}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
-          <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg w-fit mb-2">
-            <AlertTriangle className="text-orange-600 dark:text-orange-400" size={20} />
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Stock Bajo</p>
-          <p className="text-lg font-bold text-orange-600 dark:text-orange-400 leading-tight">
-            {stats.lowStockCount} <span className="text-xs font-normal text-slate-400 dark:text-slate-500">productos</span>
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors">
-         <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Total Unidades</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats.totalItems}</p>
-         </div>
-         <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
-            <Package className="text-emerald-600 dark:text-emerald-400" size={24} />
-         </div>
-      </div>
-
-      {/* Chart */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-          <TrendingUp size={18} className="text-slate-500 dark:text-slate-400"/>
-          Distribución por Categoría
-        </h3>
-        
-        {/* Chart Container - Using explicit inline styles to guarantee dimensions for Recharts */}
-        <div style={{ width: '100%', height: 300, minHeight: 300 }}>
-          {categoryData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke={isDark ? '#0f172a' : '#fff'}
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [`${value} items`, 'Cantidad']}
-                  contentStyle={{ 
-                      borderRadius: '12px', 
-                      border: 'none', 
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                      backgroundColor: isDark ? '#1e293b' : '#fff',
-                      color: isDark ? '#fff' : '#000'
-                  }}
-                  itemStyle={{ color: isDark ? '#cbd5e1' : '#334155' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-             <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500 text-sm">
-                No hay datos suficientes
-             </div>
-          )}
-        </div>
-        
-        {/* Legend */}
-        <div className="flex flex-wrap gap-2 mt-6 justify-center">
-          {categoryData.map((entry, index) => (
-            <div 
-                key={entry.name} 
-                className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700"
-            >
-              <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-              <span className="font-medium">{entry.name}</span>
-              <span className="text-slate-400 dark:text-slate-500">({entry.value})</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
