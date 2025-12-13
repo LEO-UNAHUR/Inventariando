@@ -223,26 +223,58 @@ function dispatchGitHubActionsWorkflow(releaseType) {
   }
   
   try {
-    const payload = JSON.stringify({
+    // Usar PowerShell si estamos en Windows, sino curl
+    const isWindows = process.platform === 'win32';
+    
+    const payload = {
       ref: 'main',
       inputs: {
         release_type: releaseType,
       },
-    });
+    };
     
-    execSync(
-      `curl -s -X POST \\
-        -H "Authorization: token ${token}" \\
-        -H "Content-Type: application/json" \\
-        -d '${payload}' \\
-        https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/release.yml/dispatches`,
-      { stdio: 'pipe' }
-    );
+    if (isWindows) {
+      // PowerShell command para Windows
+      const psCommand = `
+        $headers = @{
+          'Authorization' = 'token ${token}'
+          'Content-Type' = 'application/json'
+        }
+        $body = '${JSON.stringify(payload)}' | ConvertTo-Json -Compress
+        try {
+          $response = Invoke-WebRequest -Uri 'https://api.github.com/repos/LEO-UNAHUR/Inventariando/actions/workflows/release.yml/dispatches' \`
+            -Method POST \`
+            -Headers $headers \`
+            -Body $body \`
+            -UseBasicParsing \`
+            -ErrorAction Stop
+          exit 0
+        } catch {
+          Write-Host "Error: $($_.Exception.Message)"
+          exit 1
+        }
+      `;
+      
+      execSync(`powershell -Command "${psCommand.replace(/"/g, '\\"')}"`, {
+        stdio: 'pipe',
+      });
+    } else {
+      // curl for Linux/Mac
+      execSync(
+        `curl -s -X POST \\
+          -H "Authorization: token ${token}" \\
+          -H "Content-Type: application/json" \\
+          -d '${JSON.stringify(payload)}' \\
+          https://api.github.com/repos/LEO-UNAHUR/Inventariando/actions/workflows/release.yml/dispatches`,
+        { stdio: 'pipe' }
+      );
+    }
     
     log.success('GitHub Actions workflow disparado');
     return true;
   } catch (error) {
-    log.warning('No se pudo disparar el workflow. Verificar token.');
+    log.warning('No se pudo disparar el workflow. Intenta desde GitHub Actions manualmente.');
+    log.info('https://github.com/LEO-UNAHUR/Inventariando/actions');
     return false;
   }
 }
