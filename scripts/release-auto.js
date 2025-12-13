@@ -17,6 +17,7 @@
  * Uso:
  *   node scripts/release-auto.js beta
  *   node scripts/release-auto.js stable
+ *   node scripts/release-auto.js dispatch [stable|beta]
  */
 
 import fs from 'fs';
@@ -98,229 +99,120 @@ function parseVersion(versionString) {
   };
 }
 
-function calculateNextVersion(currentVersion, releaseType) {
-  const parsed = parseVersion(currentVersion);
-  
-  if (releaseType === 'beta') {
-    // Si ya es beta: mantén versión, actualiza prerelease
-    // Si no es beta: bumpea minor y agrega -beta
-    if (parsed.prerelease === 'beta') {
-      // Ya está en beta, mantenemos versión pero refrescamos
-      return `${parsed.major}.${parsed.minor}.${parsed.patch}-beta`;
-    } else {
-      // Pasar de stable a beta siguiente
-      return `${parsed.major}.${parsed.minor + 1}.0-beta`;
-    }
-  } else if (releaseType === 'stable') {
-    // Si es beta: quita -beta
-    // Si no es beta: bumpea patch
-    if (parsed.prerelease === 'beta') {
-      return `${parsed.major}.${parsed.minor}.${parsed.patch}`;
-    } else {
-      return `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`;
-    }
-  }
-  
-  throw new Error(`Release type inválido: ${releaseType}`);
-}
-
-function validateVersionConflict(newVersion, latestGitHubRelease) {
-  if (!latestGitHubRelease) {
-    return true; // Sin releases previas, sin conflicto
-  }
-  
-  const current = parseVersion(latestGitHubRelease.version);
-  const next = parseVersion(newVersion);
-  
-  // Comparar versiones
-  if (next.major < current.major) return false;
-  if (next.major === current.major) {
-    if (next.minor < current.minor) return false;
-    if (next.minor === current.minor) {
-      if (next.patch < current.patch) return false;
-      if (next.patch === current.patch && !next.prerelease && current.prerelease) {
-        // OK: pasar de beta a stable de la misma versión
-        return true;
-      }
-      if (next.patch === current.patch && next.prerelease && current.prerelease) {
-        return true; // Permitir refresh de prerelease
-      }
-    }
-  }
-  
-  return true;
-}
-
-function updatePackageJson(newVersion) {
-  const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
-  pkg.version = newVersion;
-  fs.writeFileSync(PACKAGE_JSON, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
-}
-
-function generateChangelogEntry(version, releaseType) {
-  const date = new Date().toISOString().split('T')[0];
-  const entry = `## [${version}] - ${date}
-
-### Added
-- Actualización automática mediante GitHub Actions
-- Mejoras de estabilidad y rendimiento
-
-### Changed
-- Release type: ${releaseType}
-
----
-
-`;
-  return entry;
-}
-
-function updateChangelog(version) {
-  const changelogPath = path.join(PROJECT_ROOT, 'CHANGELOG.md');
-  if (!fs.existsSync(changelogPath)) {
-    log.warning('CHANGELOG.md no encontrado. Saltando actualización.');
-    return;
-  }
-  
-  let changelog = fs.readFileSync(changelogPath, 'utf8');
-  const entry = generateChangelogEntry(version, 'release');
-  
-  // Insertar después de la línea "# Changelog"
-  changelog = changelog.replace(
-    /# Changelog\n/,
-    `# Changelog\n\n${entry}`
-  );
-  
-  fs.writeFileSync(changelogPath, changelog, 'utf8');
-  log.success('CHANGELOG.md actualizado');
-}
-
-function commitAndPush(newVersion) {
-  try {
-    execSync('git add -A', { cwd: PROJECT_ROOT, stdio: 'pipe' });
-    execSync(
-      `git commit -m "chore(release): v${newVersion}"`,
-      { cwd: PROJECT_ROOT, stdio: 'pipe' }
-    );
-    log.success('Cambios commiteados');
-    
-    execSync('git push origin main', { cwd: PROJECT_ROOT, stdio: 'pipe' });
-    log.success('Push a GitHub completado');
-  } catch (error) {
-    log.error(`Error en git: ${error.message}`);
-    throw error;
-  }
-}
-
 async function dispatchGitHubActionsWorkflow(releaseType) {
-  // Necesita GITHUB_TOKEN en variable de entorno
-  const token = process.env.GITHUB_TOKEN;
+  // Token via env var o fallback a gh auth token para evitar setearlo cada sesión
+  const getGithubToken = () => {
+    if (process.env.GITHUB_TOKEN) return process.env.GITHUB_TOKEN;
+    try {
+      const ghToken = execSync('gh auth token', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      if (ghToken) {
+        log.info('Usando token obtenido desde GitHub CLI (gh auth token).');
+        return ghToken;
+      }
+    } catch (err) {
+      log.debug('No se pudo obtener token desde gh auth token.');
+    }
+    return null;
+  };
+
+  const token = getGithubToken();
   if (!token) {
-    log.warning(
-      'GITHUB_TOKEN no configurado. No se disparará el workflow automáticamente.'
-    );
-    log.info('Configura: export GITHUB_TOKEN=tu_token');
+    log.warning('GITHUB_TOKEN no configurado y gh auth token no disponible.');
+    log.info('Solución rápida: export GITHUB_TOKEN=tu_token (repo + workflow).');
+    log.info('Alternativa persistente: gh auth login y luego gh auth token queda almacenado.');
     return false;
   }
-  
+
+  const base = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+  const headers = {
+    'Authorization': `token ${token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'inventariando-release-script'
+  };
+
   try {
-    const isWindows = process.platform === 'win32';
-    const base = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
-
-    // 1) Obtener ID del workflow por filename
-    let workflowId = null;
-    if (isWindows) {
-      const psGetId = `
-        $headers = @{
-          'Authorization' = 'token ${token}'
-          'Accept' = 'application/vnd.github.v3+json'
-        }
-        $resp = Invoke-WebRequest -Uri '${base}/actions/workflows' -Headers $headers -UseBasicParsing
-        $json = $resp.Content | ConvertFrom-Json
-        ($json.workflows | Where-Object { $_.path -eq '.github/workflows/release.yml' }).id
-      `;
-      const out = execSync(`powershell -Command "${psGetId.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim();
-      workflowId = out || null;
-    } else {
-      const out = execSync(
-        `curl -s -H 'Authorization: token ${token}' -H 'Accept: application/vnd.github.v3+json' ${base}/actions/workflows | jq -r '.workflows[] | select(.path==".github/workflows/release.yml") | .id'`,
-        { encoding: 'utf8' }
-      ).trim();
-      workflowId = out || null;
+    // 1) Obtener ID del workflow por filename usando fetch (sin PowerShell/curl para evitar prompts del vault)
+    const wfResp = await fetch(`${base}/actions/workflows`, { headers });
+    if (!wfResp.ok) throw new Error(`Error al listar workflows: ${wfResp.status}`);
+    const wfJson = await wfResp.json();
+    const wf = (wfJson.workflows || []).find(w => w.path === '.github/workflows/release.yml');
+    const workflowId = wf ? wf.id : 'release.yml';
+    if (!wf) {
+      log.warning('No se encontró release.yml en la lista; se intentará con el filename.');
     }
-
-    if (!workflowId || workflowId === '') {
-      log.warning('No se encontró el workflow release.yml vía API. Intentando dispatch por filename...');
-    }
-
-    const payloadStr = JSON.stringify({ ref: 'main', inputs: { release_type: releaseType } });
 
     // 2) Dispatch
-    if (isWindows) {
-      const psDispatch = `
-        $headers = @{
-          'Authorization' = 'token ${token}'
-          'Accept' = 'application/vnd.github.v3+json'
-          'Content-Type' = 'application/json'
-        }
-        $body = '${payloadStr}'
-        $url = '${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/dispatches'
-        Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $body -UseBasicParsing -ErrorAction Stop
-      `;
-      execSync(`powershell -Command "${psDispatch.replace(/"/g, '\\"')}"`, { stdio: 'pipe' });
-    } else {
-      execSync(
-        `curl -s -X POST -H 'Authorization: token ${token}' -H 'Accept: application/vnd.github.v3+json' -H 'Content-Type: application/json' -d '${payloadStr}' ${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/dispatches`,
-        { stdio: 'pipe' }
-      );
+    const payload = { ref: 'main', inputs: { release_type: releaseType } };
+    const dispatchResp = await fetch(`${base}/actions/workflows/${workflowId}/dispatches`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
+    if (!dispatchResp.ok) {
+      throw new Error(`Dispatch failed: ${dispatchResp.status} ${dispatchResp.statusText}`);
     }
 
     log.success('GitHub Actions workflow disparado');
 
     // 3) Poll de estado hasta ver el run
-    try {
-      const start = Date.now();
-      const timeoutMs = 90_000; // 90s
-      const intervalMs = 5000;
-      let found = false;
-      while (Date.now() - start < timeoutMs && !found) {
-        let runsJson = '';
-        if (isWindows) {
-          const psRuns = `
-            $headers = @{
-              'Authorization' = 'token ${token}'
-              'Accept' = 'application/vnd.github.v3+json'
-            }
-            $url = '${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/runs?per_page=5'
-            (Invoke-WebRequest -Uri $url -Headers $headers -UseBasicParsing).Content
-          `;
-          runsJson = execSync(`powershell -Command "${psRuns.replace(/"/g, '\\"')}"`, { encoding: 'utf8' });
-        } else {
-          runsJson = execSync(`curl -s -H 'Authorization: token ${token}' -H 'Accept: application/vnd.github.v3+json' ${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/runs?per_page=5`, { encoding: 'utf8' });
-        }
-        const runs = JSON.parse(runsJson).workflow_runs || [];
+    const start = Date.now();
+    const timeoutStartMs = 90_000;
+    const intervalMs = 5000;
+    let runId = null;
+
+    // Esperar a que aparezca el run
+    while (Date.now() - start < timeoutStartMs && !runId) {
+      const runsResp = await fetch(`${base}/actions/workflows/${workflowId}/runs?per_page=5`, { headers });
+      if (runsResp.ok) {
+        const runsJson = await runsResp.json();
+        const runs = runsJson.workflow_runs || [];
         if (runs.length > 0) {
           const latest = runs[0];
-          log.info(`Workflow run: status=${latest.status}, conclusion=${latest.conclusion || 'n/a'}, id=${latest.id}`);
-          found = true;
+          log.info(`Workflow run detectado: status=${latest.status}, conclusion=${latest.conclusion || 'n/a'}, id=${latest.id}`);
+          runId = latest.id;
           break;
         }
-        log.info('Esperando inicio del workflow...');
-        await new Promise(r => setTimeout(r, intervalMs));
       }
-      if (!found) {
-        log.warning('No se pudo detectar el run en tiempo de espera, revisa Actions manualmente.');
+      log.info('Esperando inicio del workflow...');
+      await new Promise(r => setTimeout(r, intervalMs));
+    }
+    if (!runId) {
+      log.warning('No se pudo detectar el run en tiempo de espera, revisa Actions manualmente.');
+      return true; // dispatch fue OK pero sin monitor
+    }
+
+    // Monitorear hasta conclusión
+    const timeoutRunMs = 15 * 60_000; // 15 minutos
+    const startRun = Date.now();
+    while (Date.now() - startRun < timeoutRunMs) {
+      const runResp = await fetch(`${base}/actions/runs/${runId}`, { headers });
+      if (runResp.ok) {
+        const run = await runResp.json();
+        log.info(`Run ${runId}: status=${run.status}, conclusion=${run.conclusion || 'n/a'}`);
+        if (run.status === 'completed') {
+          if (run.conclusion === 'success') {
+            log.success('Workflow completado con éxito.');
+          } else {
+            log.warning(`Workflow finalizó con estado: ${run.conclusion}`);
+          }
+          break;
+        }
       }
-    } catch (e) {
-      log.warning('No se pudo monitorizar el workflow automáticamente.');
+      await new Promise(r => setTimeout(r, intervalMs));
+    }
+    if (Date.now() - startRun >= timeoutRunMs) {
+      log.warning('Tiempo de espera agotado monitoreando el run, revisa Actions.');
     }
 
     return true;
   } catch (error) {
-    log.warning('No se pudo disparar/monitorizar el workflow. Revisa token y permisos repo.');
+    log.warning(`No se pudo disparar/monitorizar el workflow: ${error.message}`);
     log.info('https://github.com/LEO-UNAHUR/Inventariando/actions');
     return false;
   }
 }
+
 
 function printSummary(currentVersion, newVersion, releaseType, latestRelease) {
   log.divider();
@@ -359,12 +251,31 @@ ${colors.cyan}╚═════════════════════
 // ========== MAIN ==========
 
 async function main() {
-  const releaseType = process.argv[2];
-  
-  if (!releaseType || !['beta', 'stable'].includes(releaseType)) {
-    log.error('Uso: node scripts/release-auto.js [beta|stable]');
+  const arg = process.argv[2];
+  const dispatchTarget = process.argv[3];
+
+  if (!arg || !['beta', 'stable', 'dispatch'].includes(arg)) {
+    log.error('Uso: node scripts/release-auto.js [beta|stable|dispatch] [stable|beta]');
     process.exit(1);
   }
+
+  // Modo solo dispatch: evita bump/commit y dispara el workflow.
+  if (arg === 'dispatch') {
+    const releaseType = ['beta', 'stable'].includes(dispatchTarget) ? dispatchTarget : 'stable';
+    log.divider();
+    console.log(`${colors.cyan}🚀 INVENTARIANDO - DISPATCH ONLY${colors.reset}`);
+    log.divider();
+    log.info(`Disparando workflow sin modificar versión (target=${releaseType})...`);
+    const ok = await dispatchGitHubActionsWorkflow(releaseType);
+    if (ok) {
+      log.success('Workflow disparado correctamente (dispatch-only).');
+    } else {
+      log.warning('No se pudo disparar el workflow en modo dispatch-only.');
+    }
+    return;
+  }
+
+  const releaseType = arg;
   
   try {
     log.divider();
