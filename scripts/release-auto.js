@@ -211,7 +211,7 @@ function commitAndPush(newVersion) {
   }
 }
 
-function dispatchGitHubActionsWorkflow(releaseType) {
+async function dispatchGitHubActionsWorkflow(releaseType) {
   // Necesita GITHUB_TOKEN en variable de entorno
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
@@ -408,7 +408,7 @@ async function main() {
     
     // 6. Disparar GitHub Actions
     log.info('Disparando GitHub Actions workflow...');
-    dispatchGitHubActionsWorkflow(releaseType);
+    await dispatchGitHubActionsWorkflow(releaseType);
     
     // 7. Resumen
     printSummary(currentVersion, newVersion, releaseType, latestRelease);
