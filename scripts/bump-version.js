@@ -7,16 +7,17 @@
  * Uso: npm run release:version
  */
 
-const fs = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
-const util = require('util');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
-const execPromise = util.promisify(exec);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const packagePath = path.join(__dirname, '../package.json');
 
-async function bumpVersion() {
+function bumpVersion() {
   try {
     // 1. Leer versión actual
     const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
@@ -62,8 +63,8 @@ async function bumpVersion() {
     }
     
     // 5. Git commit
-    await execPromise(`git add -A`);
-    await execPromise(`git commit -m "chore: Bump version to ${newVersion}"`);
+    execSync(`git add -A`, { stdio: 'pipe' });
+    execSync(`git commit -m "chore: Bump version to ${newVersion}"`, { stdio: 'pipe' });
     
     console.log(`✅ Versión bumpeada y commiteada`);
     process.exit(0);
