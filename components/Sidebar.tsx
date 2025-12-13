@@ -16,11 +16,12 @@ interface SidebarProps {
   onLogout: () => void;
   onOpenDataManagement: () => void;
   isDark: boolean;
+  isDesktop: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
   isOpen, onClose, onNavigate, currentView, currentUser, 
-  onLogout, onOpenDataManagement, isDark 
+  onLogout, onOpenDataManagement, isDark, isDesktop 
 }) => {
   
   const menuItems = [
@@ -53,12 +54,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Overlay */}
       <div 
-        className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 backdrop-blur-sm ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 backdrop-blur-sm ${isOpen && !isDesktop ? 'opacity-100' : 'opacity-0 pointer-events-none'} ${isDesktop ? 'hidden' : ''}`}
         onClick={onClose}
       />
 
       {/* Sidebar Panel */}
-      <div className={`fixed top-0 left-0 h-full w-[80%] max-w-xs bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed lg:static top-0 left-0 h-full w-[80%] max-w-xs lg:w-72 bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl lg:shadow-none flex flex-col ${isDesktop ? 'translate-x-0' : isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
         {/* Header Profile */}
         <div className="p-6 bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4">
