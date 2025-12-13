@@ -223,57 +223,100 @@ function dispatchGitHubActionsWorkflow(releaseType) {
   }
   
   try {
-    // Usar PowerShell si estamos en Windows, sino curl
     const isWindows = process.platform === 'win32';
-    
-    const payload = {
-      ref: 'main',
-      inputs: {
-        release_type: releaseType,
-      },
-    };
-    
+    const base = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+
+    // 1) Obtener ID del workflow por filename
+    let workflowId = null;
     if (isWindows) {
-      // PowerShell command para Windows
-      const psCommand = `
+      const psGetId = `
         $headers = @{
           'Authorization' = 'token ${token}'
+          'Accept' = 'application/vnd.github.v3+json'
+        }
+        $resp = Invoke-WebRequest -Uri '${base}/actions/workflows' -Headers $headers -UseBasicParsing
+        $json = $resp.Content | ConvertFrom-Json
+        ($json.workflows | Where-Object { $_.path -eq '.github/workflows/release.yml' }).id
+      `;
+      const out = execSync(`powershell -Command "${psGetId.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim();
+      workflowId = out || null;
+    } else {
+      const out = execSync(
+        `curl -s -H 'Authorization: token ${token}' -H 'Accept: application/vnd.github.v3+json' ${base}/actions/workflows | jq -r '.workflows[] | select(.path==".github/workflows/release.yml") | .id'`,
+        { encoding: 'utf8' }
+      ).trim();
+      workflowId = out || null;
+    }
+
+    if (!workflowId || workflowId === '') {
+      log.warning('No se encontró el workflow release.yml vía API. Intentando dispatch por filename...');
+    }
+
+    const payloadStr = JSON.stringify({ ref: 'main', inputs: { release_type: releaseType } });
+
+    // 2) Dispatch
+    if (isWindows) {
+      const psDispatch = `
+        $headers = @{
+          'Authorization' = 'token ${token}'
+          'Accept' = 'application/vnd.github.v3+json'
           'Content-Type' = 'application/json'
         }
-        $body = '${JSON.stringify(payload)}' | ConvertTo-Json -Compress
-        try {
-          $response = Invoke-WebRequest -Uri 'https://api.github.com/repos/LEO-UNAHUR/Inventariando/actions/workflows/release.yml/dispatches' \`
-            -Method POST \`
-            -Headers $headers \`
-            -Body $body \`
-            -UseBasicParsing \`
-            -ErrorAction Stop
-          exit 0
-        } catch {
-          Write-Host "Error: $($_.Exception.Message)"
-          exit 1
-        }
+        $body = '${payloadStr}'
+        $url = '${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/dispatches'
+        Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $body -UseBasicParsing -ErrorAction Stop
       `;
-      
-      execSync(`powershell -Command "${psCommand.replace(/"/g, '\\"')}"`, {
-        stdio: 'pipe',
-      });
+      execSync(`powershell -Command "${psDispatch.replace(/"/g, '\\"')}"`, { stdio: 'pipe' });
     } else {
-      // curl for Linux/Mac
       execSync(
-        `curl -s -X POST \\
-          -H "Authorization: token ${token}" \\
-          -H "Content-Type: application/json" \\
-          -d '${JSON.stringify(payload)}' \\
-          https://api.github.com/repos/LEO-UNAHUR/Inventariando/actions/workflows/release.yml/dispatches`,
+        `curl -s -X POST -H 'Authorization: token ${token}' -H 'Accept: application/vnd.github.v3+json' -H 'Content-Type: application/json' -d '${payloadStr}' ${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/dispatches`,
         { stdio: 'pipe' }
       );
     }
-    
+
     log.success('GitHub Actions workflow disparado');
+
+    // 3) Poll de estado hasta ver el run
+    try {
+      const start = Date.now();
+      const timeoutMs = 90_000; // 90s
+      const intervalMs = 5000;
+      let found = false;
+      while (Date.now() - start < timeoutMs && !found) {
+        let runsJson = '';
+        if (isWindows) {
+          const psRuns = `
+            $headers = @{
+              'Authorization' = 'token ${token}'
+              'Accept' = 'application/vnd.github.v3+json'
+            }
+            $url = '${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/runs?per_page=5'
+            (Invoke-WebRequest -Uri $url -Headers $headers -UseBasicParsing).Content
+          `;
+          runsJson = execSync(`powershell -Command "${psRuns.replace(/"/g, '\\"')}"`, { encoding: 'utf8' });
+        } else {
+          runsJson = execSync(`curl -s -H 'Authorization: token ${token}' -H 'Accept: application/vnd.github.v3+json' ${base}/actions/workflows/${workflowId ? workflowId : 'release.yml'}/runs?per_page=5`, { encoding: 'utf8' });
+        }
+        const runs = JSON.parse(runsJson).workflow_runs || [];
+        if (runs.length > 0) {
+          const latest = runs[0];
+          log.info(`Workflow run: status=${latest.status}, conclusion=${latest.conclusion || 'n/a'}, id=${latest.id}`);
+          found = true;
+          break;
+        }
+        log.info('Esperando inicio del workflow...');
+        await new Promise(r => setTimeout(r, intervalMs));
+      }
+      if (!found) {
+        log.warning('No se pudo detectar el run en tiempo de espera, revisa Actions manualmente.');
+      }
+    } catch (e) {
+      log.warning('No se pudo monitorizar el workflow automáticamente.');
+    }
+
     return true;
   } catch (error) {
-    log.warning('No se pudo disparar el workflow. Intenta desde GitHub Actions manualmente.');
+    log.warning('No se pudo disparar/monitorizar el workflow. Revisa token y permisos repo.');
     log.info('https://github.com/LEO-UNAHUR/Inventariando/actions');
     return false;
   }
