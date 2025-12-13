@@ -1,8 +1,8 @@
 
 # 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.1.0_beta-blue?style=for-the-badge&logo=appveyor)
-![Status](https://img.shields.io/badge/status-Beta-yellow?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.3.0_beta-blue?style=for-the-badge&logo=appveyor)
+![Status](https://img.shields.io/badge/status-Active%20Development-cyan?style=for-the-badge)
 ![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
 > **La solución definitiva para PyMEs argentinas.**  
@@ -208,6 +208,6 @@ Distribuido bajo la licencia MIT. Ver `LICENSE` para más información.
 ---
 
 <div align="center">
-  <p>Desarrollado con ❤️ y 🧉 en Argentina.</p>
-  <p>2023 - 2025 Inventariando Team</p>
+  <p>Desarrollado por Leonardo Esteves con ❤️ y 🧉 en Argentina.</p>
+  <p>2023 - 2025 Inventariando</p>
 </div>
