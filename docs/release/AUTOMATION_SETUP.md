@@ -330,4 +330,11 @@ npm run release:create stable
    - Completamente sincronizado con package.json
    - Ideal para mantener historial de cada versión
 
+6. **✅ Despliegue automático de PWA a GitHub Pages (Releases Stable)**
+   - La PWA se despliega automáticamente en cada **release stable**
+   - URL de producción: https://LEO-UNAHUR.github.io/Inventariando/
+   - Configurado para publicar desde rama `gh-pages`
+   - Workflow construye `dist/` y publica automáticamente
+   - Sin necesidad de configuración manual tras el primer setup
+
 **Resultado:** Sistema de release completamente autónomo sin intervención manual

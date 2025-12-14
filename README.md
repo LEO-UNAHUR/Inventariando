@@ -5,6 +5,8 @@
 ![Status](https://img.shields.io/badge/status-Active%20Development-cyan?style=for-the-badge)
 ![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
+**🌐 [Prueba la PWA en vivo](https://LEO-UNAHUR.github.io/Inventariando/)** | 📱 [Descarga APK](https://github.com/LEO-UNAHUR/Inventariando/releases)
+
 > **La solución definitiva para PyMEs argentinas.**  
 > Gestión de stock, punto de venta (POS) y análisis financiero potenciado por Inteligencia Artificial, todo en tu bolsillo.
 
@@ -104,7 +106,12 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
     ```
     Genera archivos optimizados en la carpeta `dist/`.
 
-6.  **Build APK Android (Requiere Java 17+):**
+6.  **Desplegar PWA:**
+    - La PWA se despliega automáticamente a GitHub Pages en cada **release stable**
+    - URL de producción: https://LEO-UNAHUR.github.io/Inventariando/
+    - Configuración en `.github/workflows/release.yml`
+
+7.  **Build APK Android (Requiere Java 21+):**
     ```bash
     npm run build:android
     ```
@@ -112,19 +119,35 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
 
 ---
 
-## 📥 Descargas
+## 📥 Acceso a la App
 
-### APK (Android)
+### 🌐 PWA (Web App - Recomendado)
+**Acceso directo sin instalación:**
+- **URL:** https://LEO-UNAHUR.github.io/Inventariando/
+- Compatible con cualquier navegador moderno (Chrome, Firefox, Safari, Edge)
+- Funciona en escritorio, tablet y móvil
+- **Instalable como app nativa:**
+  1. Abre la URL en tu navegador
+  2. Toca el menú (⋮) > "Instalar app" o "Agregar a pantalla de inicio"
+  3. La PWA se instalará como una app independiente
+
+**Ventajas:**
+- ✅ Sin descargas, acceso instantáneo
+- ✅ Actualizaciones automáticas
+- ✅ Funciona offline después de la primera carga
+- ✅ Multiplataforma (Android, iOS, Windows, macOS, Linux)
+
+### 📱 APK (Android Nativo)
 Descarga la última versión compilada desde:
 - **GitHub Releases:** https://github.com/LEO-UNAHUR/Inventariando/releases
 - **Carpeta Local:** `APK/v[version]/` en el repositorio
 
 **Requisitos:** Android 6.0+
 
-### Web (PWA)
-Puedes usar la versión web directamente en cualquier navegador o instalarla como PWA:
-1. Abre la app en tu navegador
-2. Toca el menú (⋮) > "Instalar app"
+**Instalación:**
+1. Descarga el archivo `.apk`
+2. Habilita "Fuentes desconocidas" en Configuración > Seguridad
+3. Abre el APK y sigue las instrucciones
 
 ---
 
