@@ -6,13 +6,13 @@ Carpeta para almacenar releases de APK versionados de Inventariando.
 
 ```
 APK/
-├── v1.1.0-beta/
-│   ├── Inventariando-1.1.0-beta.apk
-│   ├── Inventariando-1.1.0-beta.aab
+├── v1.0.1-beta/
+│   ├── Inventariando-1.0.1-beta.apk
+│   ├── Inventariando-1.0.1-beta.aab
 │   ├── INFO.txt
 │   └── CHECKSUMS.txt
-├── v1.1.0/
-│   ├── Inventariando-1.1.0.apk
+├── v1.0.1/
+│   ├── Inventariando-1.0.1.apk
 │   ├── INFO.txt
 │   └── CHECKSUMS.txt
 └── README.md
@@ -29,7 +29,7 @@ Los APK se generan automáticamente en cada release y están disponibles en:
 Cada APK incluye un archivo `CHECKSUMS.txt` con el hash SHA256. Para verificar:
 
 ```bash
-sha256sum Inventariando-1.1.0.apk
+sha256sum Inventariando-1.0.1-beta.apk
 # Comparar con el valor en CHECKSUMS.txt
 ```
 

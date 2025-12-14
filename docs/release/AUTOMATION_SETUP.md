@@ -74,24 +74,24 @@ RELEASE_TYPE=stable npm run release:auto dispatch
 
 ## Flujo de Versiones
 
-### Beta Release (vX.Y.0-beta)
-- Bumpa minor version
+### Beta Release (vX.Y.Z-beta)
+- Bumpa patch version
 - Añade sufijo `-beta`
-- Ejemplo: 1.0.0 → 1.1.0-beta
+- Ejemplo: 1.0.0 → 1.0.1-beta
 
 ### Stable Release (vX.Y.Z)
 - Si tiene `-beta`, lo quita
 - Si ya es estable, bumpa patch
-- Ejemplo: 1.1.0-beta → 1.1.0
-- O: 1.1.0 → 1.1.1
+- Ejemplo: 1.0.1-beta → 1.0.1
+- O: 1.0.1 → 1.0.2
 
 ## Archivos Generados
 
 Después de un release exitoso:
 
 ```
-APK/v1.1.0/
-├── Inventariando-1.1.0.apk       # APK para instalar
+APK/v1.0.1-beta/
+├── Inventariando-1.0.1-beta.apk    # APK para instalar
 ├── INFO.txt                        # Metadata y instrucciones
 └── CHECKSUMS.txt                   # SHA256 del APK
 ```
