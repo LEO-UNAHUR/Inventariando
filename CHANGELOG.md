@@ -2,30 +2,19 @@
 
 Todos los cambios notables en Inventariando serán documentados en este archivo.
 
-## [1.1.0-beta] - 2025-12-13
+## [1.0.1-beta] - 2025-12-14
 
 ### Added
-- ✅ **Capacitor Integration**: Soporte para APK Android nativo
-- ✅ **GitHub Actions**: Workflow automático de release y build
-- ✅ **Tailwind Build System**: Migración de CDN a compilación local
-- ✅ **Responsive Design**: Sidebar dinámico, hamburguesa en móviles
-- ✅ **Versionado Automático**: Scripts para bump version y organizar APK
-- ✅ **APK Distribution**: Estructura de carpetas versionadas y releases
+- ✅ **Release Automation**: Sistema completo de release automatizado
+- ✅ **Version Bump Script**: Script mejorado para bump de versiones
+- ✅ **GitHub Actions**: Workflow para build y release automático de APK
 
 ### Changed
-- 🔄 **PostCSS Config**: Cambio a CommonJS para compatibilidad con Vite
-- 🔄 **Package.json**: Metadata completa, scripts de build optimizados
-- 🔄 **README**: Documentación actualizada con instrucciones de descargas
-
-### Fixed
-- 🐛 **Estilos Tailwind**: Restaurados colores y diseños tras migración
-- 🐛 **Responsive Breakpoints**: Corrección de breakpoints lg/md para tablets
-- 🐛 **HTML Meta Tags**: Eliminadas deprecadas, añadido favicon
+- 🔄 **Bump Version Logic**: Corregida lógica para bumpar patch en lugar de minor para releases beta
+- 🔄 **Release Scripts**: Completadas funciones faltantes en release-auto.js
 
 ### Documentation
-- 📚 **PM Analysis**: Documento completo de análisis y roadmap v1.1.0
-- 📚 **APK README**: Guía de descarga e instalación
-- 📚 **Workflow Guide**: Instrucciones de release automático
+- 📚 **Release Process**: Validación del flujo de releases automatizado
 
 ---
 

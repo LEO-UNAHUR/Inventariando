@@ -55,8 +55,8 @@ function bumpVersion() {
         newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`;
       }
     } else if (releaseType === 'beta') {
-      // Para beta: bumpar minor y añadir -beta
-      newVersion = `${parsed.major}.${parsed.minor + 1}.0-beta`;
+      // Para beta: bumpar patch y añadir -beta
+      newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch + 1}-beta`;
     } else {
       throw new Error(`Invalid RELEASE_TYPE: ${releaseType}`);
     }

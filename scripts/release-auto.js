@@ -214,6 +214,124 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
 }
 
 
+function calculateNextVersion(currentVersion, releaseType) {
+  const parsed = parseVersion(currentVersion);
+  let newVersion;
+  
+  if (releaseType === 'stable') {
+    // Si es estable y tiene prerelease, solo remover el sufijo
+    if (parsed.prerelease) {
+      newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
+    } else {
+      // Si ya es estable, bumpar patch
+      newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`;
+    }
+  } else if (releaseType === 'beta') {
+    // Para beta: bumpar patch y añadir -beta
+    newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch + 1}-beta`;
+  } else {
+    throw new Error(`Invalid releaseType: ${releaseType}`);
+  }
+  
+  return newVersion;
+}
+
+function validateVersionConflict(newVersion, latestRelease) {
+  if (!latestRelease) {
+    return true; // No hay releases previos, cualquier versión es válida
+  }
+  
+  const newParsed = parseVersion(newVersion);
+  const latestParsed = parseVersion(latestRelease.version);
+  
+  // Comparar major.minor.patch
+  if (newParsed.major > latestParsed.major) return true;
+  if (newParsed.major < latestParsed.major) return false;
+  
+  if (newParsed.minor > latestParsed.minor) return true;
+  if (newParsed.minor < latestParsed.minor) return false;
+  
+  if (newParsed.patch > latestParsed.patch) return true;
+  if (newParsed.patch < latestParsed.patch) return false;
+  
+  // Si son iguales en major.minor.patch, verificar prerelease
+  // Una versión sin prerelease es mayor que una con prerelease
+  if (!newParsed.prerelease && latestParsed.prerelease) return true;
+  if (newParsed.prerelease && !latestParsed.prerelease) return false;
+  
+  return true; // Versiones idénticas o nueva >= latest
+}
+
+function updatePackageJson(newVersion) {
+  const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
+  pkg.version = newVersion;
+  fs.writeFileSync(PACKAGE_JSON, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+}
+
+function updateChangelog(newVersion) {
+  const changelogPath = path.join(PROJECT_ROOT, 'CHANGELOG.md');
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  // Leer CHANGELOG actual
+  let changelog = fs.readFileSync(changelogPath, 'utf8');
+  
+  // Preparar nueva entrada
+  const newEntry = `## [${newVersion}] - ${dateStr}
+
+### Added
+- ✅ Release automatizado v${newVersion}
+- ✅ Validación del flujo de releases con GitHub Actions
+
+### Changed
+- 🔄 Sistema de versionado automático
+
+---
+
+`;
+  
+  // Insertar después de la primera sección (después del título y descripción)
+  const sections = changelog.split('\n## ');
+  if (sections.length > 1) {
+    changelog = sections[0] + '\n## ' + newEntry + sections.slice(1).join('\n## ');
+  } else {
+    // Si no hay secciones, añadir al final
+    changelog = changelog + '\n\n' + newEntry;
+  }
+  
+  fs.writeFileSync(changelogPath, changelog, 'utf8');
+  log.success('CHANGELOG.md actualizado');
+}
+
+function commitAndPush(newVersion) {
+  try {
+    // Verificar si hay cambios
+    const status = execSync('git status --porcelain', { encoding: 'utf8' });
+    if (!status.trim()) {
+      log.info('No hay cambios para commitear');
+      return;
+    }
+    
+    // Configurar git si no está configurado
+    try {
+      execSync('git config user.email', { encoding: 'utf8', stdio: 'ignore' });
+    } catch {
+      execSync('git config user.email "leonardo@inventariando.app"');
+      execSync('git config user.name "Leonardo Esteves"');
+    }
+    
+    // Commit y push
+    execSync('git add -A', { cwd: PROJECT_ROOT });
+    execSync(`git commit -m "chore: Bump version to ${newVersion}"`, { cwd: PROJECT_ROOT });
+    execSync('git push origin main', { cwd: PROJECT_ROOT });
+    
+    log.success('Cambios commiteados y pusheados');
+  } catch (error) {
+    log.warning(`Error en commit/push: ${error.message}`);
+    log.info('Los cambios están staged, puedes commitear manualmente');
+  }
+}
+
 function printSummary(currentVersion, newVersion, releaseType, latestRelease) {
   log.divider();
   console.log(`
