@@ -39,6 +39,26 @@ npm run release:create beta
     ↓
 ✅ COMPLETADO (3-5 minutos)
 ```
+[1] Calcula versión automáticamente (1.0.0 → 1.0.1-beta)
+  ↓
+[2] Dispara el workflow en GitHub
+  ↓
+[3] Compila el APK (Java 21, Gradle, Capacitor 8)
+  ↓
+[4] Descarga APK desde GitHub Releases
+  ↓
+[5] Guarda en APK/v{version}/ (local)
+  ↓
+[6] Actualiza README.md con nueva versión
+  ↓
+[7] Actualiza README_APK.md con estructura
+  ↓
+[8] Genera documento de versión en docs/{product beta|product stable}/
+  ↓
+[9] Crea release en GitHub con assets
+  ↓
+✅ COMPLETADO (3-5 minutos)
+```
 
 ---
 
@@ -74,11 +94,35 @@ APK/v1.0.1-beta/
 ```
 
 **Ubicaciones del APK:**
-- **Local**: `APK/v{version}/` (descargado automáticamente del release)
-- **GitHub**: https://github.com/LEO-UNAHUR/Inventariando/releases
-- **Documentación**: `README_APK.md` (actualizado automáticamente)
 
 ### Automatizaciones Incluidas
+
+✅ **Descarga automática del APK**
+✅ **Generación automática de documentación de versión (NUEVA)**
+- Crea un documento `.md` con resumen completo de la versión
+- Se guarda en `docs/product beta/` o `docs/product stable/`
+- Nombre: `v{version}.md`
+- Incluye:
+  - Stack tecnológico (React, Vite, Capacitor, Java, etc.)
+  - Características principales
+  - Cambios en esta versión
+  - Requisitos técnicos
+  - Instrucciones de instalación
+  - Roadmap de próximas versiones
+  - Información de contacto para bugs
+
+Ejemplo de estructura:
+```
+docs/product beta/
+├── v1.1.0-beta.md    ← Resumen de la versión beta
+├── v1.0.1-beta.md
+└── ...
+
+docs/product stable/
+├── v1.1.0.md         ← Resumen de la versión stable
+├── v1.0.1.md
+└── ...
+```
 
 ✅ **Descarga automática del APK**
 - Tras completar el workflow, el script descarga el APK desde GitHub Releases
@@ -270,5 +314,14 @@ npm run release:create stable
    - Todos los commits usan: `Leonardo Esteves <leoeze83@gmail.com>`
    - Configurado a nivel global y local de git
    - Los futuros commits respetarán esta configuración
+
+**Resultado:** Sistema de release completamente autónomo sin intervención manual
+
+5. **✅ Generación automática de documentación de versiones (NUEVA)**
+   - Documento `.md` generado para cada release
+   - Ubicación automática en `docs/product beta/` o `docs/product stable/`
+   - Incluye stack completo, características, cambios y requisitos
+   - Completamente sincronizado con package.json
+   - Ideal para mantener historial de cada versión
 
 **Resultado:** Sistema de release completamente autónomo sin intervención manual
