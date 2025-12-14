@@ -51,7 +51,30 @@ El proyecto está configurado para automatizar completamente la creación de rel
 
 ## Cómo Hacer un Release
 
-### Opción 1: Desde la interfaz de GitHub
+### Opción 1: Asignarle a GitHub Copilot (Recomendado - La forma más fácil)
+
+1. Crea una **issue** en el repositorio con:
+   - **Título**: `Release v1.X.Y-beta` o `Release v1.X.Y (stable)`
+   - **Etiquetas (labels)**: `release`, `automation`
+   - **Descripción**: Especifica si es beta o stable
+
+2. Asigna Copilot a la issue:
+   - Ve a la issue
+   - Click en "Assignees" (derecha)
+   - Busca y selecciona "GitHub Copilot"
+   - Copilot ejecutará automáticamente todo el flujo
+
+3. Copilot ejecutará:
+   - Crear la release directamente
+   - Generar el APK
+   - Subir a GitHub
+   - Cerrar la issue
+
+**Ventaja**: Es la forma más automática. Solo creas la issue, asignas Copilot, y listo.
+
+---
+
+### Opción 2: Desde la interfaz de GitHub (Manual)
 
 1. Ve a: https://github.com/LEO-UNAHUR/Inventariando/actions
 2. Click en "Release APK & Build"
@@ -62,7 +85,9 @@ El proyecto está configurado para automatizar completamente la creación de rel
 5. Click "Run workflow"
 6. Monitorea la ejecución
 
-### Opción 2: Desde la línea de comandos (local)
+---
+
+### Opción 3: Desde la línea de comandos (CLI)
 
 ```bash
 # Beta release
