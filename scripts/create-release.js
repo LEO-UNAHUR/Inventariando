@@ -324,6 +324,185 @@ Los APK se generan automáticamente en cada release y están disponibles en:
   }
 }
 
+function generateVersionDocument(version, releaseType) {
+  try {
+    const pkgJson = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Información del stack
+    const stack = {
+      react: pkgJson.dependencies.react || 'N/A',
+      vite: pkgJson.devDependencies.vite || 'N/A',
+      capacitor: pkgJson.dependencies['@capacitor/core'] || 'N/A',
+      tailwind: pkgJson.devDependencies.tailwindcss || 'N/A',
+      gemini: pkgJson.dependencies['@google/generative-ai'] || 'N/A',
+    };
+
+    const content = `# Inventariando v${version} - ${releaseType === 'beta' ? 'BETA' : 'STABLE'}
+
+**Fecha**: ${today}  
+**Tipo**: ${releaseType === 'beta' ? 'Beta (Pre-release)' : 'Stable (Release)'}  
+**Desarrollador**: Leonardo Esteves
+
+---
+
+## 📊 Información General
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Versión** | ${version} |
+| **Estado** | ${releaseType === 'beta' ? '🧪 En pruebas' : '✅ Estable'} |
+| **Plataforma** | Android 6.0+ |
+| **Descarga** | [GitHub Releases](https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${version}) |
+
+---
+
+## 🛠️ Stack Tecnológico
+
+\`\`\`
+Frontend:
+  • React ${stack.react}
+  • Vite ${stack.vite}
+  • Tailwind CSS ${stack.tailwind}
+
+Mobile:
+  • Capacitor ${stack.capacitor}
+  • Gradle 8.14
+  • Android SDK (Nivel 36)
+
+IA:
+  • Google Gemini AI ${stack.gemini}
+
+Base de Datos:
+  • LocalStorage (Almacenamiento local)
+  • PWA (Offline-first)
+\`\`\`
+
+---
+
+## ✨ Características Principales
+
+### 🤖 Inteligencia Artificial
+- Asistente Gemini integrado
+- Sugerencias automáticas de precios
+- Predicción de tendencias de compra
+- Análisis de inventario inteligente
+
+### 📈 Gestión Financiera
+- Escudo anti-inflación (re-ajuste masivo de precios)
+- Cálculo de márgenes de rentabilidad
+- Análisis de ganancia latente
+- Reportes de caja en tiempo real
+
+### 🛒 Punto de Venta (POS)
+- Escaneo de códigos de barras
+- Soporte para cuenta corriente (Fiado)
+- Múltiples métodos de pago (Efectivo, QR, Transferencia)
+- Selectores fiscales (Factura A/B/C)
+
+### 📊 Inteligencia de Negocio
+- Dashboard interactivo
+- Métricas en tiempo real
+- Productos de alta rotación
+- Alertas de stock bajo
+
+### 🔐 Seguridad
+- RBAC (Admin, Encargado, Vendedor)
+- PINs de acceso rápido
+- Simulación de 2FA
+- Control de sesiones activas
+
+### ☁️ Almacenamiento
+- Importación/Exportación (JSON/CSV)
+- Puntos de restauración automáticos
+- Sincronización local
+
+---
+
+## 🔄 Cambios en Esta Versión
+
+${releaseType === 'beta' ? `
+### Beta v${version}
+- Primera versión beta del ciclo ${version.split('.')[0]}.${version.split('.')[1]}
+- Enfoque en validación con usuarios finales
+- Reporte de bugs y mejoras de UX
+- Pruebas de estabilidad en ambiente real
+` : `
+### Stable v${version}
+- Release estable completamente testeada
+- Fixes de bugs encontrados en beta
+- Optimizaciones de performance
+- Documentación actualizada
+`}
+
+---
+
+## 📱 Instalación
+
+### Android
+1. Descarga el APK desde [GitHub Releases](https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${version})
+2. Habilita "Fuentes desconocidas" en Configuración > Seguridad
+3. Abre el archivo y sigue las instrucciones
+
+### Web (PWA)
+- Compatible con cualquier navegador moderno
+- Instalable como app nativa en Android
+
+---
+
+## 📋 Requisitos Técnicos
+
+- **Android**: 6.0 o superior
+- **RAM**: Mínimo 2 GB (recomendado 4 GB)
+- **Espacio**: 100 MB libres
+- **Internet**: Requerido para funciones de IA (Gemini)
+
+---
+
+## 🚀 Roadmap Próximas Versiones
+
+- [ ] Sincronización multi-dispositivo (Cloud)
+- [ ] Exportación de facturas a PDF
+- [ ] Analytics avanzado
+- [ ] Programa piloto con comercios reales
+- [ ] Integración con sistemas bancarios
+
+---
+
+## 🐛 Reporte de Bugs
+
+Si encuentras algún problema, reporta en:
+- **GitHub Issues**: https://github.com/${REPO_OWNER}/${REPO_NAME}/issues
+- **Email**: leonardo@inventariando.app
+
+---
+
+## 📝 Licencia
+
+Distribuido bajo licencia MIT. Ver [LICENSE](https://github.com/${REPO_OWNER}/${REPO_NAME}/blob/main/LICENSE) para detalles.
+
+---
+
+**Desarrollado con ❤️ y 🧉 en Argentina**
+`;
+
+    // Guardar en la carpeta correspondiente
+    const folder = releaseType === 'beta' ? 'product beta' : 'product stable';
+    const docDir = path.join(PROJECT_ROOT, 'docs', folder);
+    
+    if (!fs.existsSync(docDir)) {
+      fs.mkdirSync(docDir, { recursive: true });
+    }
+
+    const docPath = path.join(docDir, `v${version}.md`);
+    fs.writeFileSync(docPath, content);
+    
+    log.success(`Documento de versión generado: docs/${folder}/v${version}.md`);
+  } catch (error) {
+    log.warning(`Error generando documento de versión: ${error.message}`);
+  }
+}
+
 async function main() {
   const releaseType = process.argv[2];
 
@@ -382,6 +561,29 @@ ${colors.cyan}📱 Para instalar:${colors.reset}
    1. Descarga desde GitHub Releases o carpeta local APK/v${next}/
    2. En Android: Configuración > Seguridad > Fuentes desconocidas
    3. Abre el APK
+    
+     // 6. Generar documento de versión
+     log.step(6, 'Generando documento de versión...');
+     generateVersionDocument(next, releaseType);
+
+     // 7. Éxito
+     log.step(7, 'Proceso completado');
+     console.log(`
+  ${colors.green}${colors.bold}✅ RELEASE CREADO EXITOSAMENTE${colors.reset}
+
+  ${colors.cyan}📦 El APK está disponible en:${colors.reset}
+    Local:   ${colors.bold}APK/v${next}/${colors.reset}
+    GitHub:  ${colors.bold}https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${next}${colors.reset}
+
+  ${colors.cyan}📚 Documentación de versión:${colors.reset}
+    ${colors.bold}docs/${releaseType === 'beta' ? 'product beta' : 'product stable'}/v${next}.md${colors.reset}
+
+  ${colors.cyan}📱 Para instalar:${colors.reset}
+    1. Descarga desde GitHub Releases o carpeta local APK/v${next}/
+    2. En Android: Configuración > Seguridad > Fuentes desconocidas
+    3. Abre el APK
+
+  ${colors.cyan}🎉 ¡Listo!${colors.reset}
 
 ${colors.cyan}🎉 ¡Listo!${colors.reset}
     `);
