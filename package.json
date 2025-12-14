@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "npm run build:web && npm run build:android",
     "build:web": "vite build",
-    "build:android": "npm run build:web && npx cap sync android && npx cap build android",
+    "build:android": "npm run build:web && npx cap sync android && npx cap build android --keystorepath android/app/inventariando.keystore --keystorepass inventariando2024 --keystorealias inventariando --keystorealiaspass inventariando2024 --androidreleasetype APK",
     "preview": "vite preview",
     "cap:add": "npx cap add android",
     "cap:sync": "npx cap sync",
