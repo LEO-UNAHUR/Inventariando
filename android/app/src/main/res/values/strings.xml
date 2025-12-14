@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">inventariando</string>
+    <string name="title_activity_main">inventariando</string>
+    <string name="package_name">ar.inventariando.app</string>
+    <string name="custom_url_scheme">ar.inventariando.app</string>
+</resources>
