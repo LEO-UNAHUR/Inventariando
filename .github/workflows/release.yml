@@ -51,10 +51,7 @@ jobs:
           git config --global pull.rebase false
           git config --global init.defaultBranch main
 
-      - name: 📦 Build Android & APK
-        run: npm run release:build
-
-      - name: 📝 Bump version
+      - name: � Bump version
         run: npm run release:version
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release_type }}
@@ -65,6 +62,9 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+
+      - name: 📦 Build Android & APK
+        run: npm run release:build
 
       - name: 🔐 Commit changes
         run: |
