@@ -18,6 +18,9 @@ dist-ssr
 .idea
 .DS_Store
 *.suo
+
+# Android keystore (generated during build)
+android/app/*.keystore
 *.ntvs*
 *.njsproj
 *.sln
