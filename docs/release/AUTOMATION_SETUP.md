@@ -25,13 +25,17 @@ npm run release:create beta
     ↓
 [2] Dispara el workflow en GitHub
     ↓
-[3] Genera el APK firmado (Inventariando-1.0.1-beta.apk)
+[3] Compila el APK (Java 21, Gradle, Capacitor 8)
     ↓
-[4] Guarda en APK/v1.0.1-beta/
+[4] Descarga APK desde GitHub Releases
     ↓
-[5] Crea release en GitHub
+[5] Guarda en APK/v{version}/ (local)
     ↓
-[6] Sube APK como asset
+[6] Actualiza README.md con nueva versión
+    ↓
+[7] Actualiza README_APK.md con estructura
+    ↓
+[8] Crea release en GitHub con assets
     ↓
 ✅ COMPLETADO (3-5 minutos)
 ```
@@ -63,14 +67,36 @@ npm run release:create beta
 
 ```
 APK/v1.0.1-beta/
-├── Inventariando-1.0.1-beta.apk     ← El APK para instalar
-├── INFO.txt                           ← Instrucciones
-└── CHECKSUMS.txt                      ← Verificación
+├── Inventariando-1.0.1-beta.apk     ← El APK para instalar (descargado automáticamente)
+├── INFO.txt                           ← Instrucciones y metadatos
+├── CHECKSUMS.txt                      ← Hash SHA256 para verificación
+└── README_APK.md                      ← Actualizado automáticamente
 ```
 
-El APK está disponible en:
-- **Local**: `APK/v{version}/`
+**Ubicaciones del APK:**
+- **Local**: `APK/v{version}/` (descargado automáticamente del release)
 - **GitHub**: https://github.com/LEO-UNAHUR/Inventariando/releases
+- **Documentación**: `README_APK.md` (actualizado automáticamente)
+
+### Automatizaciones Incluidas
+
+✅ **Descarga automática del APK**
+- Tras completar el workflow, el script descarga el APK desde GitHub Releases
+- Lo guarda en `APK/v{version}/`
+- Genera automáticamente `INFO.txt` con metadatos
+
+✅ **Actualización automática de README.md**
+- Badge de versión se actualiza automáticamente
+- Se agrega sección de changelog con fecha
+- Visible al abrir el README principal
+
+✅ **Actualización automática de README_APK.md**
+- Estructura de carpetas se actualiza
+- Información de descarga siempre actual
+
+✅ **Metadata generado automáticamente**
+- `INFO.txt`: Instrucciones, requisitos, fecha de release
+- `CHECKSUMS.txt`: Verificación de integridad SHA256
 
 ---
 
@@ -103,11 +129,50 @@ El APK está disponible en:
 
 ## Información Técnica (Para referencia)
 
-- **Script**: `scripts/create-release.js`
-- **Workflow**: `.github/workflows/release.yml`
-- **Plataforma**: Android (Capacitor 8.0)
+- **Script Maestro**: `scripts/create-release.js` (gestiona todo el pipeline)
+- **GitHub Workflow**: `.github/workflows/release.yml` (compila APK en Ubuntu)
+- **Plataforma**: Android (Capacitor 8.0 + Gradle 8.14)
+- **Java**: OpenJDK 21 (requerido para Capacitor 8)
 - **Firma**: Keystore generado dinámicamente en GitHub Actions
-- **Almacenamiento**: GitHub Releases + Carpeta local APK/
+- **Compilación**: `./gradlew assembleRelease` (genera APK firmado)
+- **Descargas**: Automático via GitHub API (fetch desde release assets)
+- **Almacenamiento**: 
+  - GitHub Releases (oficial, con assets)
+  - Carpeta local `APK/v{version}/` (copia de respaldo)
+
+### Flujo Detallado del Release
+
+```
+[LOCAL] npm run release:create beta
+  ↓
+[LOCAL] Calcula: 1.0.0 → 1.0.1-beta
+  ↓
+[LOCAL] Bump package.json + git push
+  ↓
+[GITHUB] Dispara workflow `.github/workflows/release.yml`
+  ↓
+[GITHUB] Setup: Java 21 + Android SDK + Gradle
+  ↓
+[GITHUB] Build: vite build (React) → npx cap sync → ./gradlew assembleRelease
+  ↓
+[GITHUB] Firma: APK automáticamente (keystore en secrets)
+  ↓
+[GITHUB] Crea tag v1.0.1-beta + release con APK
+  ↓
+[LOCAL] Script monitorea workflow (15 min timeout)
+  ↓
+[LOCAL] Descarga APK desde release assets via GitHub API
+  ↓
+[LOCAL] Guarda en APK/v1.0.1-beta/
+  ↓
+[LOCAL] Crea INFO.txt + CHECKSUMS.txt
+  ↓
+[LOCAL] Actualiza README.md (badge + changelog)
+  ↓
+[LOCAL] Actualiza README_APK.md
+  ↓
+[LOCAL] Done ✅
+```
 
 ---
 
@@ -163,7 +228,9 @@ $ npm run release:create beta
 ✅ **No tienes que hacer commits manualmente**
 ✅ **No tienes que crear tags**
 ✅ **No tienes que subir a GitHub**
-✅ **No tienes que hacer nada excepto ejecutar UN comando**
+✅ **No tienes que descargar APK manualmente desde web**
+✅ **No tienes que actualizar documentación manualmente**
+✅ **No tienes que nada excepto ejecutar UN comando**
 
 Solo:
 ```bash
@@ -174,4 +241,34 @@ o
 npm run release:create stable
 ```
 
-¡Y listo!
+¡Y el sistema se encarga de TODO automáticamente!
+
+---
+
+## Cambios Recientes (Diciembre 2025)
+
+### v1.1.0 - Release Automation Complete
+
+**Nuevas Automatizaciones Agregadas:**
+
+1. **✅ Descarga automática de APK desde GitHub Releases**
+   - El script descarga el APK al completarse el workflow
+   - Se guarda en `APK/v{version}/` para respaldo local
+   - Incluye INFO.txt y CHECKSUMS.txt generados automáticamente
+
+2. **✅ Actualización automática de README.md**
+   - Badge de versión se actualiza tras cada release
+   - Se agrega entrada de changelog con fecha
+   - No requiere edición manual
+
+3. **✅ Actualización automática de README_APK.md**
+   - Estructura de directorios siempre actualizada
+   - Información de descargas siempre correcta
+   - Ideal para usuarios que instalan desde repos locales
+
+4. **✅ Configuración correcta de autor en commits**
+   - Todos los commits usan: `Leonardo Esteves <leoeze83@gmail.com>`
+   - Configurado a nivel global y local de git
+   - Los futuros commits respetarán esta configuración
+
+**Resultado:** Sistema de release completamente autónomo sin intervención manual
