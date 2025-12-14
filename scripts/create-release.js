@@ -191,6 +191,139 @@ async function triggerWorkflow(releaseType) {
   }
 }
 
+async function downloadAndCopyAPK(version) {
+  try {
+    const token = await getGithubToken();
+    const headers = token ? { 'Authorization': `token ${token}` } : {};
+
+    const base = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+    const releaseResp = await fetch(`${base}/releases/tags/v${version}`, { headers });
+
+    if (!releaseResp.ok) {
+      log.warning(`No se pudo descargar el APK automáticamente (Release no encontrada aún)`);
+      return;
+    }
+
+    const release = await releaseResp.json();
+    const apkAsset = release.assets?.find(a => a.name.endsWith('.apk'));
+
+    if (!apkAsset) {
+      log.warning('No se encontró APK en los assets del release');
+      return;
+    }
+
+    // Crear carpeta local
+    const apkDir = path.join(PROJECT_ROOT, 'APK', `v${version}`);
+    if (!fs.existsSync(apkDir)) {
+      fs.mkdirSync(apkDir, { recursive: true });
+    }
+
+    // Descargar APK
+    const apkPath = path.join(apkDir, apkAsset.name);
+    log.info(`Descargando ${apkAsset.name}...`);
+
+    const fileResp = await fetch(apkAsset.browser_download_url);
+    const buffer = await fileResp.arrayBuffer();
+    fs.writeFileSync(apkPath, Buffer.from(buffer));
+
+    log.success(`APK guardado en: ${apkDir}`);
+
+    // Crear archivo INFO.txt
+    const infoPath = path.join(apkDir, 'INFO.txt');
+    const infoContent = `Inventariando v${version}
+Fecha: ${new Date().toISOString().split('T')[0]}
+Archivo: ${apkAsset.name}
+Tamaño: ${(apkAsset.size / 1024 / 1024).toFixed(2)} MB
+Descargado desde: https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${version}
+
+Requisitos:
+- Android 6.0 o superior
+- Mínimo 100 MB de espacio libre
+
+Instalación:
+1. Habilita "Fuentes desconocidas" en Configuración > Seguridad
+2. Abre el archivo APK
+3. Sigue las instrucciones en pantalla
+`;
+    fs.writeFileSync(infoPath, infoContent);
+    log.success('INFO.txt creado');
+  } catch (error) {
+    log.warning(`Error descargando APK: ${error.message}`);
+  }
+}
+
+function updateReadme(releaseType, version) {
+  try {
+    const readmePath = path.join(PROJECT_ROOT, 'README.md');
+    let content = fs.readFileSync(readmePath, 'utf8');
+
+    // Encontrar la sección de versión y actualizar
+    const versionRegex = /## \[\d+\.\d+\.\d+(-\w+)?\] - \d{4}-\d{2}-\d{2}/;
+    const today = new Date().toISOString().split('T')[0];
+    const newVersionEntry = `## [${version}] - ${today}`;
+
+    // Si existe una sección de versión, actualizar la más reciente
+    if (versionRegex.test(content)) {
+      content = content.replace(versionRegex, newVersionEntry);
+    } else {
+      // Insertar después del título del proyecto
+      const insertPoint = content.indexOf('\n---\n');
+      if (insertPoint > 0) {
+        content = content.slice(0, insertPoint + 5) + `\n\n${newVersionEntry}\n\n### Changed\n- Release automático via GitHub Actions\n- APK generado y firmado correctamente\n- Documentación actualizada automáticamente\n` + content.slice(insertPoint + 5);
+      }
+    }
+
+    // Actualizar la versión del badge
+    content = content.replace(
+      /!\[Version\]\(.*?\)/,
+      `![Version](https://img.shields.io/badge/version-${version}-blue?style=for-the-badge&logo=appveyor)`
+    );
+
+    fs.writeFileSync(readmePath, content);
+    log.success('README.md actualizado');
+  } catch (error) {
+    log.warning(`Error actualizando README: ${error.message}`);
+  }
+}
+
+function updateAPKReadme(version) {
+  try {
+    const apkReadmePath = path.join(PROJECT_ROOT, 'APK', 'README_APK.md');
+    let content = fs.readFileSync(apkReadmePath, 'utf8');
+
+    // Actualizar la tabla de estructura
+    const newEntry = `├── v${version}/
+│   ├── Inventariando-${version}.apk
+│   ├── INFO.txt
+│   └── CHECKSUMS.txt`;
+
+    const structureRegex = /├── v[\d.]+-?[\w]*\/[\s\S]*?(?=├──|└──|\n\n)/;
+
+    if (structureRegex.test(content)) {
+      content = content.replace(structureRegex, newEntry + '\n');
+    }
+
+    // Agregar nota de última versión
+    const noteRegex = /## Descarga[\s\S]*?(?=## Verificación)/;
+    const newNote = `## Descarga
+
+Los APK se generan automáticamente en cada release y están disponibles en:
+- **GitHub Releases**: https://github.com/${REPO_OWNER}/${REPO_NAME}/releases
+- **Carpeta local**: \`APK/v${version}/\`
+
+## Verificación`;
+
+    if (noteRegex.test(content)) {
+      content = content.replace(noteRegex, newNote + '\n\n');
+    }
+
+    fs.writeFileSync(apkReadmePath, content);
+    log.success('README_APK.md actualizado');
+  } catch (error) {
+    log.warning(`Error actualizando README_APK: ${error.message}`);
+  }
+}
+
 async function main() {
   const releaseType = process.argv[2];
 
@@ -227,8 +360,17 @@ ${colors.bold}Resumen:${colors.reset}
       process.exit(1);
     }
 
-    // 4. Éxito
-    log.step(4, 'Proceso completado');
+    // 4. Descargar APK desde GitHub Releases y copiar a carpeta local
+    log.step(4, 'Descargando APK desde GitHub Releases...');
+    await downloadAndCopyAPK(next);
+
+    // 5. Actualizar README.md
+    log.step(5, 'Actualizando documentación...');
+    updateReadme(releaseType, next);
+    updateAPKReadme(next);
+
+    // 6. Éxito
+    log.step(6, 'Proceso completado');
     console.log(`
 ${colors.green}${colors.bold}✅ RELEASE CREADO EXITOSAMENTE${colors.reset}
 
@@ -237,7 +379,7 @@ ${colors.cyan}📦 El APK está disponible en:${colors.reset}
    GitHub:  ${colors.bold}https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${next}${colors.reset}
 
 ${colors.cyan}📱 Para instalar:${colors.reset}
-   1. Descarga desde GitHub Releases
+   1. Descarga desde GitHub Releases o carpeta local APK/v${next}/
    2. En Android: Configuración > Seguridad > Fuentes desconocidas
    3. Abre el APK
 
