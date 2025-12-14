@@ -44,6 +44,9 @@ jobs:
       - name: 🔑 Generate Android Keystore
         run: bash scripts/generate-keystore.sh
 
+      - name: 🔐 Fix Gradle Permissions
+        run: chmod +x ./android/gradlew
+
       - name: 🪪 Configure git identity
         run: |
           git config --global user.email "leonardo@inventariando.app"
