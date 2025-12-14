@@ -1,7 +1,7 @@
 
 # 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge&logo=appveyor)
+![Version](https://img.shields.io/badge/version-1.1.0-blue?style=for-the-badge&logo=appveyor)
 ![Status](https://img.shields.io/badge/status-Active%20Development-cyan?style=for-the-badge)
 ![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
@@ -9,7 +9,7 @@
 > Gestión de stock, punto de venta (POS) y análisis financiero potenciado por Inteligencia Artificial, todo en tu bolsillo.
 
 
-## [1.0.0] - 2025-12-13
+## [1.1.0] - 2025-12-14
 
 ### Changed
 - Release automático via GitHub Actions (MVP)
