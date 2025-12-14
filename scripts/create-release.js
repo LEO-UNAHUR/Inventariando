@@ -548,20 +548,6 @@ ${colors.bold}Resumen:${colors.reset}
     updateReadme(releaseType, next);
     updateAPKReadme(next);
 
-    // 6. Éxito
-    log.step(6, 'Proceso completado');
-    console.log(`
-${colors.green}${colors.bold}✅ RELEASE CREADO EXITOSAMENTE${colors.reset}
-
-${colors.cyan}📦 El APK está disponible en:${colors.reset}
-   Local:   ${colors.bold}APK/v${next}/${colors.reset}
-   GitHub:  ${colors.bold}https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${next}${colors.reset}
-
-${colors.cyan}📱 Para instalar:${colors.reset}
-   1. Descarga desde GitHub Releases o carpeta local APK/v${next}/
-   2. En Android: Configuración > Seguridad > Fuentes desconocidas
-   3. Abre el APK
-    
      // 6. Generar documento de versión
      log.step(6, 'Generando documento de versión...');
      generateVersionDocument(next, releaseType);
@@ -584,9 +570,7 @@ ${colors.cyan}📱 Para instalar:${colors.reset}
     3. Abre el APK
 
   ${colors.cyan}🎉 ¡Listo!${colors.reset}
-
-${colors.cyan}🎉 ¡Listo!${colors.reset}
-    `);
+     `);
 
     process.exit(0);
   } catch (error) {
