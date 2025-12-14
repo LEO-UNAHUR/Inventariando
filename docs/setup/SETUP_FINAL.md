@@ -90,62 +90,24 @@ node scripts/release-auto.js beta
 
 ## 🚀 CUANDO QUIERAS HACER UN RELEASE
 
-Solo dime una de estas cosas:
+Usa el nuevo comando simplificado:
 
-### Opción 1: "Release Beta"
-```
-Yo ejecutaré:
-npm run release:auto beta
-```
+- Beta: `npm run release:create beta`
+- Stable: `npm run release:create stable`
 
-### Opción 2: "Release Stable"
-```
-Yo ejecutaré:
-npm run release:auto stable
-```
-
-### Opción 3: Otro tipo de release
-```
-Dime el tipo exacto que quieres y yo lo haré
-```
+Esto calcula la versión, dispara el workflow y genera/sube el APK automáticamente.
 
 ---
 
-## ✨ Lo que YO haré automáticamente
+## ✨ Flujo automático
 
-Cuando me digas "release beta":
+Con `release:create` el sistema:
 
-```
-1️⃣  Leer package.json
-    ↓ Version actual: 1.1.0-beta
-
-2️⃣  Consultar GitHub API
-    ↓ Última versión: 1.0.0
-
-3️⃣  Calcular siguiente versión
-    ↓ Nueva versión: 1.1.0-beta (mantener/refresh)
-
-4️⃣  Validar correlatividad
-    ↓ ✅ Válida (no hay conflictos)
-
-5️⃣  Actualizar archivos
-    ↓ package.json → 1.1.0-beta
-    ↓ CHANGELOG.md → nueva entrada
-
-6️⃣  Commit y Push
-    ↓ git commit -m "chore(release): v1.1.0-beta"
-    ↓ git push origin main
-
-7️⃣  Disparar GitHub Actions
-    ↓ Envía API request a GitHub
-    ↓ Workflow comienza a compilar APK
-
-8️⃣  Reportar resultado
-    ↓ ✅ Release completado
-    ↓ 📊 Versión: 1.1.0-beta
-    ↓ 🔗 Monitorea: https://github.com/LEO-UNAHUR/Inventariando/actions
-    ↓ 📥 APK: https://github.com/LEO-UNAHUR/Inventariando/releases
-```
+1. Calcula la versión (beta o stable)
+2. Dispara el workflow en GitHub
+3. Genera y firma el APK
+4. Organiza el APK en `APK/v{version}/`
+5. Crea la release y sube el asset
 
 ---
 
