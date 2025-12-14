@@ -18,6 +18,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
@@ -228,6 +229,14 @@ async function downloadAndCopyAPK(version) {
 
     log.success(`APK guardado en: ${apkDir}`);
 
+    // Generar CHECKSUMS.txt con SHA256 para integridad
+    const hash = crypto.createHash('sha256');
+    hash.update(fs.readFileSync(apkPath));
+    const checksum = hash.digest('hex');
+    const checksumPath = path.join(apkDir, 'CHECKSUMS.txt');
+    fs.writeFileSync(checksumPath, `${checksum}  ${apkAsset.name}\n`);
+    log.success('CHECKSUMS.txt generado');
+
     // Crear archivo INFO.txt
     const infoPath = path.join(apkDir, 'INFO.txt');
     const infoContent = `Inventariando v${version}
@@ -244,6 +253,10 @@ Instalación:
 1. Habilita "Fuentes desconocidas" en Configuración > Seguridad
 2. Abre el archivo APK
 3. Sigue las instrucciones en pantalla
+
+Verificación:
+- Ejecuta: sha256sum ${apkAsset.name}
+- Compara con CHECKSUMS.txt
 `;
     fs.writeFileSync(infoPath, infoContent);
     log.success('INFO.txt creado');

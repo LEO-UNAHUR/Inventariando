@@ -139,3 +139,17 @@ jobs:
           echo "🔖 Tag: v${{ steps.extract_version.outputs.version }}"
           echo "📦 APK disponible en: APK/v${{ steps.extract_version.outputs.version }}/"
           echo "🔗 GitHub Release: https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v${{ steps.extract_version.outputs.version }}"
+
+      - name: 🌐 Build PWA (stable only)
+        if: ${{ github.event.inputs.release_type == 'stable' }}
+        run: |
+          npm run build:web
+
+      - name: 🚀 Deploy to GitHub Pages (stable only)
+        if: ${{ github.event.inputs.release_type == 'stable' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true

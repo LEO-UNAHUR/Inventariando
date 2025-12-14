@@ -93,6 +93,12 @@ APK/v1.0.1-beta/
 └── README_APK.md                      ← Actualizado automáticamente
 ```
 
+Para validar integridad localmente:
+```
+cd APK/v1.0.1-beta
+sha256sum Inventariando-1.0.1-beta.apk  # Debe coincidir con CHECKSUMS.txt
+```
+
 **Ubicaciones del APK:**
 
 ### Automatizaciones Incluidas
