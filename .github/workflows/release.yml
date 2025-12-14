@@ -69,6 +69,34 @@ jobs:
       - name: 📦 Build Android & APK
         run: npm run release:build
 
+      - name: 🔐 Sign APK with jarsigner
+        run: |
+          APK_PATH="android/app/build/outputs/apk/release/app-release-unsigned.apk"
+          SIGNED_APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
+          KEYSTORE_PATH="android/app/inventariando.keystore"
+          
+          if [ -f "$APK_PATH" ]; then
+            echo "Signing APK..."
+            jarsigner -verbose \
+              -sigalg SHA256withRSA \
+              -digestalg SHA256 \
+              -keystore "$KEYSTORE_PATH" \
+              -storepass inventariando2024 \
+              -keypass inventariando2024 \
+              "$APK_PATH" \
+              inventariando
+            
+            if [ -f "$SIGNED_APK_PATH" ]; then
+              echo "✅ APK signed successfully"
+            else
+              echo "❌ APK signing failed"
+              exit 1
+            fi
+          else
+            echo "❌ Unsigned APK not found at $APK_PATH"
+            exit 1
+          fi
+
       - name: 🔐 Commit changes
         run: |
           git config --local user.email "leonardo@inventariando.app"
