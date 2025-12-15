@@ -7,7 +7,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield, Trash2, Check, CheckCheck, Download, ChevronRight, FileSpreadsheet, LifeBuoy } from 'lucide-react';
 import { getStoredMovements, getDismissedNotifications, saveDismissedNotifications, getReadNotifications, saveReadNotifications } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
-import OnboardingTour from './OnboardingTour';
 import { trackEvent } from '../services/analyticsService';
 
 interface DashboardProps {
@@ -16,11 +15,13 @@ interface DashboardProps {
   onToggleTheme: () => void;
   onOpenDataManagement?: () => void;
   onNavigate?: (view: View) => void;
+  onShowTour?: () => void;
+  onHideTour?: () => void;
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
 
-const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement, onNavigate }) => {
+const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement, onNavigate, onShowTour, onHideTour }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
@@ -31,7 +32,6 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
   // Notification State
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
   const [readIds, setReadIds] = useState<string[]>([]);
-    const [showTour, setShowTour] = useState(false);
 
   // Load persistence
   useEffect(() => {
@@ -157,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
         </div>
         <div className="flex gap-2">
             <button 
-                onClick={() => setShowTour(true)}
+                onClick={() => onShowTour?.()}
                 className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 title="Guía Rápida"
             >
@@ -480,7 +480,6 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
             </div>
         </div>
       )}
-            <OnboardingTour open={showTour} onClose={() => setShowTour(false)} onNavigate={onNavigate} />
     </div>
   );
 };

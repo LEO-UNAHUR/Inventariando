@@ -128,18 +128,21 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ open, onClose, onNaviga
 
   if (highlightRect) {
     const padding = 20;
+    const tooltipWidth = Math.min(320, window.innerWidth - 32);
+    const tooltipHeight = 250; // Estimado
+    
     if (current.highlightPosition === 'bottom') {
       tooltipStyle.top = highlightRect.bottom + padding;
-      tooltipStyle.left = Math.max(16, highlightRect.left - 100);
+      tooltipStyle.left = Math.max(16, Math.min(highlightRect.left - 100, window.innerWidth - tooltipWidth - 16));
     } else if (current.highlightPosition === 'top') {
       tooltipStyle.bottom = window.innerHeight - highlightRect.top + padding;
-      tooltipStyle.left = Math.max(16, highlightRect.left - 100);
+      tooltipStyle.left = Math.max(16, Math.min(highlightRect.left - 100, window.innerWidth - tooltipWidth - 16));
     } else if (current.highlightPosition === 'right') {
-      tooltipStyle.top = highlightRect.top;
-      tooltipStyle.left = highlightRect.right + padding;
+      tooltipStyle.top = Math.max(16, Math.min(highlightRect.top, window.innerHeight - tooltipHeight - 16));
+      tooltipStyle.left = Math.min(highlightRect.right + padding, window.innerWidth - tooltipWidth - 16);
     } else if (current.highlightPosition === 'left') {
-      tooltipStyle.top = highlightRect.top;
-      tooltipStyle.right = window.innerWidth - highlightRect.left + padding;
+      tooltipStyle.top = Math.max(16, Math.min(highlightRect.top, window.innerHeight - tooltipHeight - 16));
+      tooltipStyle.left = Math.max(16, highlightRect.left - tooltipWidth - padding);
     }
   } else {
     // Centrado si no hay elemento

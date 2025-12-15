@@ -28,6 +28,7 @@ import SupplierForm from './components/SupplierForm';
 import CustomerList from './components/CustomerList';
 import CustomerForm from './components/CustomerForm';
 import Promotions from './components/Promotions';
+import OnboardingTour from './components/OnboardingTour';
 import AIAssistant from './components/AIAssistant';
 import SecurityPanel from './components/SecurityPanel';
 import TeamManagement from './components/TeamManagement';
@@ -74,6 +75,7 @@ const App: React.FC = () => {
 
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showDataManagement, setShowDataManagement] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   // -- Initialization --
   useEffect(() => {
@@ -353,6 +355,8 @@ const App: React.FC = () => {
                     onToggleTheme={() => setIsDark(!isDark)}
                     onOpenDataManagement={() => setShowDataManagement(true)}
                     onNavigate={setCurrentView}
+                    onShowTour={() => setShowTour(true)}
+                    onHideTour={() => setShowTour(false)}
                 />
               );
           case View.INVENTORY:
@@ -591,6 +595,14 @@ const App: React.FC = () => {
               onImport={handleImportData} 
               onClearData={handleClearData} 
               onClose={() => setShowDataManagement(false)} 
+          />
+      )}
+
+      {showTour && (
+          <OnboardingTour 
+              open={showTour} 
+              onClose={() => setShowTour(false)} 
+              onNavigate={setCurrentView} 
           />
       )}
 
