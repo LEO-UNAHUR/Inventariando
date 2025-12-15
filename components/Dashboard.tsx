@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { Product, InventoryStats, AppNotification, NotificationSeverity } from '../types';
+import { Product, InventoryStats, AppNotification, NotificationSeverity, View } from '../types';
 import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -15,11 +15,12 @@ interface DashboardProps {
   isDark: boolean;
   onToggleTheme: () => void;
   onOpenDataManagement?: () => void;
+  onNavigate?: (view: View) => void;
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
 
-const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement }) => {
+const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement, onNavigate }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
@@ -149,7 +150,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
   return (
     <div className="h-full overflow-y-auto no-scrollbar p-4 pb-24 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative">
       {/* Header */}
-      <header className="mb-6 flex justify-between items-start">
+      <header className="mb-6 flex justify-between items-start" data-tour="dashboard-header">
         <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Resumen del Negocio</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Estado actual de tu inventario</p>
@@ -479,7 +480,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
             </div>
         </div>
       )}
-            <OnboardingTour open={showTour} onClose={() => setShowTour(false)} />
+            <OnboardingTour open={showTour} onClose={() => setShowTour(false)} onNavigate={onNavigate} />
     </div>
   );
 };

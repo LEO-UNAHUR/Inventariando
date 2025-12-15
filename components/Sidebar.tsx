@@ -59,7 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       />
 
       {/* Sidebar Panel */}
-      <div className={`fixed lg:static top-0 left-0 h-full w-[80%] max-w-xs lg:w-72 bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl lg:shadow-none flex flex-col ${isDesktop ? 'translate-x-0' : isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed lg:static top-0 left-0 h-full w-[80%] max-w-xs lg:w-72 bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl lg:shadow-none flex flex-col ${isDesktop ? 'translate-x-0' : isOpen ? 'translate-x-0' : '-translate-x-full'}`} data-tour="sidebar">
         
         {/* Header Profile */}
         <div className="p-6 bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4">

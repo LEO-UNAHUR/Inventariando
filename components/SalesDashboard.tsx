@@ -170,6 +170,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ sales, onNewSale, isDar
                 <button 
                     onClick={onNewSale}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-2xl shadow-lg shadow-blue-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-between group"
+                    data-tour="new-sale-btn"
                 >
                     <div className="flex items-center gap-3">
                         <div className="bg-white/20 p-2 rounded-lg">

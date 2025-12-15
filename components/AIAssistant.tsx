@@ -48,7 +48,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleThe
   };
 
   return (
-    <div className="h-full flex flex-col pb-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="h-full flex flex-col pb-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300" data-tour="ai-section">
       <header className="sticky top-0 bg-slate-50 dark:bg-slate-950 z-10 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center transition-colors">
         <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">

@@ -352,6 +352,7 @@ const App: React.FC = () => {
                     isDark={isDark} 
                     onToggleTheme={() => setIsDark(!isDark)}
                     onOpenDataManagement={() => setShowDataManagement(true)}
+                    onNavigate={setCurrentView}
                 />
               );
           case View.INVENTORY:
@@ -460,6 +461,8 @@ const App: React.FC = () => {
                     products={products} 
                     isDark={isDark} 
                     onToggleTheme={() => setIsDark(!isDark)}
+                    onOpenDataManagement={() => setShowDataManagement(true)}
+                    onNavigate={setCurrentView}
                 />
               );
       }
