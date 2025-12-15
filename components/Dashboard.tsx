@@ -8,6 +8,7 @@ import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Cal
 import { getStoredMovements, getDismissedNotifications, saveDismissedNotifications, getReadNotifications, saveReadNotifications } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
 import OnboardingTour from './OnboardingTour';
+import { trackEvent } from '../services/analyticsService';
 
 interface DashboardProps {
   products: Product[];
@@ -129,6 +130,15 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
       link.setAttribute("href", encodedUri);
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
+            // Analytics: export category
+            try {
+                trackEvent('export_category', {
+                    category: selectedCategory,
+                    count: selectedCategoryProducts.length,
+                    totalValue: selectedCategoryStats.value,
+                    totalStock: selectedCategoryStats.stock,
+                });
+            } catch {}
       link.click();
       document.body.removeChild(link);
   };

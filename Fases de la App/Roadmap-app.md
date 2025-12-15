@@ -19,7 +19,7 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 **Objetivo:** validar product-market fit con datos reales y pilotos controlados.
 
 **Funcionalidades nuevas**
-- Analytics (PostHog/Mixpanel) con eventos críticos (registro, producto añadido, venta completada, IA usada, backup creado, vistas clave).
+- Analytics (PostHog/Mixpanel) con eventos críticos (registro, producto añadido, inventario actualizado, exportación de categoría, venta completada, IA usada, backup creado, vistas clave).
 - Feedback widget in-app (rating + texto + contexto de vista).
 - Programa piloto 10 comercios (onboarding guiado, canal de soporte, seguimiento semanal).
 - Quick wins: landing simple con demo, tour guiado, exportar factura PDF, templates WhatsApp, toggle dark mode visible, indicador de sync/backup.
@@ -31,7 +31,7 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 - Alertas básicas de errores (Sentry/LogRocket opcional en beta tardía).
 
 **Betas**
-- Beta.1: eventos mínimos + tour guiado + feedback widget + instrumentación Gestión de Datos (export/import/backup/clear).
+- Beta.1: eventos mínimos + tour guiado + feedback widget + instrumentación Gestión de Datos (export/import/backup/clear) + exportación por categoría + edición de inventario.
 - Beta.2: PDF/WhatsApp + indicador de sync.
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
 

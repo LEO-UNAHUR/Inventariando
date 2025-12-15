@@ -11,6 +11,7 @@ export type AnalyticsEvent =
   | 'data_exported'
   | 'data_cleared'
   | 'inventory_updated'
+  | 'export_category'
   | 'ai_suggestion_used'
   | 'backup_created';
 

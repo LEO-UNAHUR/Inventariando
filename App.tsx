@@ -144,6 +144,16 @@ const App: React.FC = () => {
           const diff = product.stock - exists.stock;
           logMovement(product.id, product.name, MovementType.ADJUSTMENT, diff, 'Ajuste manual en edición');
       }
+            try {
+                const stockDiff = product.stock - exists.stock;
+                trackEvent('inventory_updated', {
+                    productId: product.id,
+                    name: product.name,
+                    stockDiff,
+                    priceChanged: exists.price !== product.price,
+                    costChanged: exists.cost !== product.cost,
+                });
+            } catch {}
     } else {
       newProducts = [...products, product];
       logMovement(product.id, product.name, MovementType.IN, product.stock, 'Inventario Inicial');
