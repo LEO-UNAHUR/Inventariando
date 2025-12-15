@@ -21,21 +21,24 @@ Todos los cambios han sido **validados, ajustados y pusheados a main**.
 4. ✅ **Modales** - Z-index corregido y posicionamiento mejorado
 5. ✅ **OAuth** - Documentación completa
 
-### Ajustes Post-Validación: **2**
-1. ✅ **Métricas Internas** - Desplazado a la derecha, mejor separación del sidebar
-2. ✅ **Footer Sidebar** - Tamaño de texto aumentado, visible en ambos temas
+### Ajustes Post-Validación: **3**
+1. ✅ **Métricas Internas (Iteración 1)** - Z-index corregido
+2. ✅ **Métricas Internas (Iteración 2)** - Desplazamiento a la derecha
+3. ✅ **Métricas Internas (Iteración 3)** - Centrado considerando ancho del sidebar (FINAL)
+4. ✅ **Footer Sidebar** - Formato de dos líneas para mejor legibilidad
 
 ---
 
 ## 📊 Estadísticas de Cambios
 
 ```
-Commit Hash:     1a49a485
-Archivos:        17 changed
+**Commit Hash:**     1a49a485 (inicial) + 4 mejoras posteriores
+Commits adicionales: fefb1cb1, bb3a0d00, 69bc71bb, 9146638a
+Archivos:        17 changed (inicial) + 2 adicionales (ajustes)
   - Nuevos:      10
-  - Modificados: 7
-Inserciones:     1,978
-Cambios:         +9
+  - Modificados: 9 (con iteraciones)
+Inserciones:     1,978+ (inicial)
+Cambios:         Múltiples iteraciones de validación
 Errores:         0
 TypeScript:      Clean ✓
 ```
@@ -44,10 +47,11 @@ TypeScript:      Clean ✓
 - `components/OnboardingTour.tsx`
 - `components/Dashboard.tsx`
 - `components/Sidebar.tsx`
-- `components/AnalyticsInternalDashboard.tsx`
+- `components/AnalyticsInternalDashboard.tsx` (3 ajustes iterativos)
 - `components/DataManagement.tsx`
 - `components/SystemConfig.tsx`
 - `components/UserSettings.tsx`
+- `services/appMetadataService.ts` (1 ajuste final del footer)
 
 ### Archivos Nuevos:
 - `services/appMetadataService.ts`
@@ -86,21 +90,37 @@ Inventariando v1.2
 (pequeño, no se veía bien)
 ```
 
-**Después:**
+**Después (Formato Final):**
 ```
-Inventariando v1.4.1 • © 2025 
+Inventariando v1.4.1 • © 2025
 Leonardo Esteves 🧉 🇦🇷
-(legible, con todos los iconos visibles)
+(legible en dos líneas, todos los iconos visibles)
 ```
 **Archivo:** `components/Sidebar.tsx` (línea 168-170)
+**Archivo:** `services/appMetadataService.ts` (línea 69) - Salto de línea añadido
 
-### 4. Métricas Internas ✅
+### 4. Métricas Internas ✅ (3 Iteraciones)
+**Iteración 1: Z-Index**
 ```diff
-- Modal centrado en toda la pantalla (conflicto con sidebar)
-+ Modal centrado en el área disponible a la derecha
-  (justify-center → justify-end)
-  (rounded-2xl → rounded-l-2xl)
+- z-50 (conflictos)
++ z-[60] (siempre visible)
 ```
+
+**Iteración 2: Desplazamiento Derecha**
+```diff
+- justify-center (conflicto con sidebar)
++ justify-end (a la derecha)
+```
+
+**Iteración 3 (FINAL): Centrado Considerando Sidebar**
+```diff
+- justify-center (no considera sidebar)
++ justify-center pl-64 (considera ancho sidebar)
++ max-w-6xl → max-w-5xl (mejor proporción)
++ rounded-l-2xl → rounded-2xl (bordes completos)
+```
+**Resultado:** Modal centrado en área disponible con márgenes correctos
+
 **Archivo:** `components/AnalyticsInternalDashboard.tsx` (línea 88-93)
 
 ### 5. Z-Index Consistente ✅

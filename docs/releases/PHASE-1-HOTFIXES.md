@@ -49,24 +49,23 @@
 
 ### 2. ❌ Métricas Internas Superpuesta por Sidebar
 **Ubicación:** `components/AnalyticsInternalDashboard.tsx` + Sidebar  
-**Descripción:** Al seleccionar "Métricas Internas" en el menú Sistema, el modal/panel se superpone con la barra lateral.  
-**Causa:** Z-index insuficiente en modal (z-50), además modal estaba centrado en toda la pantalla
+**Descripción:** Al seleccionar "Métricas Internas" en el menú Sistema, el modal/panel no se posicionaba correctamente considerando el espacio del sidebar.  
+**Causa:** Z-index insuficiente + posicionamiento no consideraba ancho del sidebar
 
-**Corrección Aplicada:**
-- Aumentado z-index de `AnalyticsInternalDashboard` a `z-[60]`
-- Cambiado `justify-center` a `justify-end` para desplazar modal a la derecha
-- Cambiado `rounded-2xl` a `rounded-l-2xl` para bordes solo a la izquierda (separación visual)
-- Añadido `mr-0` para que esté contra el borde derecho
-- Actualizado z-index en otros modales principales (DataManagement, SystemConfig, UserSettings) a `z-[60]` para consistencia
-- Asegurado que modales aparezcan centrados en el área disponible sin interferencia del sidebar
+**Corrección Aplicada (Iterativa):**
+1. **Primera iteración:** Aumentado z-index de `z-50` a `z-[60]` ✓
+2. **Segunda iteración:** Cambiar a `justify-end` para desplazar a la derecha ✓
+3. **Tercera iteración:** Volver a centrado pero descuidaba el sidebar ✓
+4. **Corrección Final:**
+   - Agregado `pl-64` (padding-left) al contenedor flex para desplazar el área de centrado considerando el ancho del sidebar
+   - Centrado ahora ocurre en el área disponible después del sidebar
+   - Reducido `max-w-6xl` a `max-w-5xl` para mejor proporción
+   - Bordes redondeados completos: `rounded-2xl` ✓
 
 **Archivos Modificados:**
-- `components/AnalyticsInternalDashboard.tsx` (línea 88-93)
-- `components/DataManagement.tsx` (línea 264)
-- `components/SystemConfig.tsx` (línea 30)
-- `components/UserSettings.tsx` (línea 89)
+- `components/AnalyticsInternalDashboard.tsx` (línea 88-93) - 3 ajustes finales
 
-**Status:** ✅ **COMPLETADO** - Z-index y posicionamiento mejorados
+**Status:** ✅ **COMPLETADO** - Centrado correctamente considerando márgenes laterales
 
 ---
 
@@ -89,7 +88,7 @@
 
 ### 4. 📌 Actualizar Versión en Footer Sidebar
 **Ubicación:** `components/Sidebar.tsx` línea ~170  
-**Descripción:** Footer actualizado para mostrar versión dinámica con mejor visualización.
+**Descripción:** Footer actualizado para mostrar versión dinámica con mejor visualización y formato de dos líneas.
 
 **Cambios Implementados:**
 1. Creado `services/appMetadataService.ts` con funciones:
@@ -104,22 +103,32 @@
 2. Actualizado `components/Sidebar.tsx`:
    - Agregado `useState` y `useEffect` para cargar footer dinámico
    - Importado `getFooterText` desde appMetadataService
-   - **CORRECCIÓN:** Aumentado tamaño de texto de `text-[10px]` a `text-xs` (12px)
-   - **CORRECCIÓN:** Removidas restricciones de ancho (eliminado `whitespace-nowrap overflow-hidden text-ellipsis`)
-   - **CORRECCIÓN:** Agregado `px-2` para margen horizontal
-   - **CORRECCIÓN:** Agregado `leading-relaxed` para mejor espaciado
-   - **CORRECCIÓN:** Agregado color oscuro en dark mode (`dark:text-slate-500`)
+   - **CORRECCIÓN 1:** Aumentado tamaño de texto de `text-[10px]` a `text-xs` (12px)
+   - **CORRECCIÓN 2:** Removidas restricciones de ancho (eliminado `whitespace-nowrap overflow-hidden text-ellipsis`)
+   - **CORRECCIÓN 3:** Agregado `px-2` para margen horizontal
+   - **CORRECCIÓN 4:** Agregado `leading-relaxed` para mejor espaciado
+   - **CORRECCIÓN 5:** Agregado color oscuro en dark mode (`dark:text-slate-500`)
+   - **CORRECCIÓN FINAL:** Formato de dos líneas con salto (`\n`):
 
 **Formato Final:**
 ```
-Inventariando v1.4.1 • © 2025 Leonardo Esteves 🧉 🇦🇷
+Inventariando v1.4.1 • © 2025
+Leonardo Esteves 🧉 🇦🇷
 ```
+
+✅ Ahora se ve claramente:
+- Versión correcta (1.4.1)
+- Año y copyright (© 2025)
+- Nombre del desarrollador en segunda línea
+- Emoji 🧉 visible
+- Bandera 🇦🇷 visible
+- Texto legible en ambos temas (claro/oscuro)
 
 **Archivos:** 
 - `components/Sidebar.tsx` (línea 2-8, 29-33, 168-171)
 - `services/appMetadataService.ts` (nuevo)
 
-**Status:** ✅ **COMPLETADO** - Footer dinámico con mejor visualización y legibilidad
+**Status:** ✅ **COMPLETADO** - Footer dinámico, legible y bien formateado
 
 ---
 
