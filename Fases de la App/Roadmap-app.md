@@ -32,7 +32,12 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 
 **Betas**
 - Beta.1: eventos mínimos + tour guiado + feedback widget + instrumentación Gestión de Datos (export/import/backup/clear) + exportación por categoría + edición de inventario.
+  - ✅ Completada: 2025-12-15
+  - Tag: `phase-1-beta.1`
 - Beta.2: PDF/WhatsApp + indicador de sync.
+  - ✅ Completada: 2025-12-15
+  - Tag: `phase-1-beta.2`
+  - Notas: SyncIndicator, PDF export (jsPDF), WhatsApp templates integrados en ventas/productos
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
 
 ### Estado Beta.1 (completada)
