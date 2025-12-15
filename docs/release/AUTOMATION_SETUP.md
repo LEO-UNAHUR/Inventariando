@@ -6,10 +6,10 @@
 
 ```bash
 # Beta
-npm run release:create beta
+npm run release:beta
 
 # Stable
-npm run release:create stable
+npm run release:stable
 ```
 
 **¡Eso es todo!** El resto ocurre automáticamente.
@@ -19,44 +19,24 @@ npm run release:create stable
 ## ¿Qué pasa cuando ejecutas el comando?
 
 ```
-npm run release:create beta
+npm run release:beta
     ↓
-[1] Calcula versión automáticamente (1.0.0 → 1.0.1-beta)
+[1] Calcula versión automáticamente (semver beta/stable)
     ↓
-[2] Dispara el workflow en GitHub
+[2] Dispara el workflow en GitHub (build y firmado)
     ↓
-[3] Compila el APK (Java 21, Gradle, Capacitor 8)
+[3] Descarga APK desde GitHub Releases
     ↓
-[4] Descarga APK desde GitHub Releases
+[4] Guarda en APK/v{version}/ (local) + CHECKSUMS/INFO
     ↓
-[5] Guarda en APK/v{version}/ (local)
+[5] Actualiza package.json + CHANGELOG.md
     ↓
-[6] Actualiza README.md con nueva versión
+[6] Actualiza README.md y README_APK.md
     ↓
-[7] Actualiza README_APK.md con estructura
+[7] Genera docs de versión (docs/product beta|stable)
     ↓
-[8] Crea release en GitHub con assets
+[8] Commit + push automático de documentación
     ↓
-✅ COMPLETADO (3-5 minutos)
-```
-[1] Calcula versión automáticamente (1.0.0 → 1.0.1-beta)
-  ↓
-[2] Dispara el workflow en GitHub
-  ↓
-[3] Compila el APK (Java 21, Gradle, Capacitor 8)
-  ↓
-[4] Descarga APK desde GitHub Releases
-  ↓
-[5] Guarda en APK/v{version}/ (local)
-  ↓
-[6] Actualiza README.md con nueva versión
-  ↓
-[7] Actualiza README_APK.md con estructura
-  ↓
-[8] Genera documento de versión en docs/{product beta|product stable}/
-  ↓
-[9] Crea release en GitHub con assets
-  ↓
 ✅ COMPLETADO (3-5 minutos)
 ```
 
@@ -162,7 +142,7 @@ docs/product stable/
 
 ## Troubleshooting
 
-### "Command not found: npm run release:create"
+### "Command not found: npm run release:beta/stable"
 - Asegúrate de estar en la carpeta del proyecto
 - Verifica que `node_modules` existe (ejecuta `npm install`)
 

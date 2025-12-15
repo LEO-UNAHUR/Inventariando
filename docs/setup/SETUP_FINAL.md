@@ -90,24 +90,25 @@ node scripts/release-auto.js beta
 
 ## 🚀 CUANDO QUIERAS HACER UN RELEASE
 
-Usa el nuevo comando simplificado:
+Usa el flujo unificado:
 
-- Beta: `npm run release:create beta`
-- Stable: `npm run release:create stable`
+- Beta: `npm run release:beta`
+- Stable: `npm run release:stable`
 
-Esto calcula la versión, dispara el workflow y genera/sube el APK automáticamente.
+Esto calcula la versión, dispara el workflow, descarga el APK, actualiza docs/README/CHANGELOG y commitea/pushea automáticamente.
 
 ---
 
 ## ✨ Flujo automático
 
-Con `release:create` el sistema:
+Con `release:beta` o `release:stable` el sistema:
 
 1. Calcula la versión (beta o stable)
 2. Dispara el workflow en GitHub
-3. Genera y firma el APK
-4. Organiza el APK en `APK/v{version}/`
-5. Crea la release y sube el asset
+3. Descarga y organiza el APK en `APK/v{version}/` con INFO/CHECKSUMS
+4. Actualiza `package.json`, `CHANGELOG.md`, `README.md`, `README_APK.md`
+5. Genera doc de versión en `docs/product {beta|stable}/`
+6. Hace commit y push automático de la documentación
 
 ---
 
