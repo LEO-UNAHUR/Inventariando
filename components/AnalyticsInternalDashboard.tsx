@@ -89,7 +89,7 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
     <div className={`fixed inset-0 z-[60] flex items-center justify-center ${
       isDark ? 'bg-black/50' : 'bg-black/30'
     }`}>
-      <div className={`w-full max-w-6xl max-h-[90vh] overflow-auto rounded-2xl ${
+      <div className={`w-full max-w-6xl max-h-[90vh] overflow-auto rounded-2xl mr-32 ${
         isDark ? 'bg-slate-900' : 'bg-white'
       } shadow-2xl`}>
         {/* Header */}
