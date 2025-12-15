@@ -35,6 +35,12 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 - Beta.2: PDF/WhatsApp + indicador de sync.
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
 
+### Estado Beta.1 (completada)
+- Fecha: 2025-12-15
+- Rama: `phase-1-validation`
+- Tag: `phase-1-beta.1`
+- Notas de release: ver `docs/releases/PHASE-1-BETA.1.md`
+
 **Criterios stable (v1.1.0)**
 - D7 ≥ 25%, D30 ≥ 15% en piloto; NPS ≥ 30.
 - Errores críticos conocidos resueltos o mitigados.
