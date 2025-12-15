@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, User, Role } from '../types';
 import { 
     ChevronsLeft, LayoutDashboard, PackageSearch, ShoppingBag, Users, 
     DollarSign, Shield, Sparkles, Truck, Tag, UserCircle, 
     Database, LogOut, ChevronRight, BarChart3, Settings
 } from 'lucide-react';
+import { getFooterText } from '../services/appMetadataService';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -26,6 +27,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     isOpen, onClose, onNavigate, currentView, currentUser, 
     onLogout, onOpenDataManagement, onOpenUserSettings, onOpenAnalyticsDashboard, onOpenSystemConfig, isDark, isDesktop 
 }) => {
+  const [footerText, setFooterText] = useState('Inventariando');
+
+  // Cargar información del footer al montar
+  useEffect(() => {
+    const loadFooter = async () => {
+      const text = await getFooterText();
+      setFooterText(text);
+    };
+    loadFooter();
+  }, []);
   
   const menuItems = [
     { view: View.DASHBOARD, label: 'Inicio', icon: LayoutDashboard },
@@ -154,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
                 <LogOut size={18} /> Cerrar Sesión
             </button>
-            <p className="text-[10px] text-center text-slate-400 mt-3">Inventariando v1.2</p>
+            <p className="text-xs text-center text-slate-400 dark:text-slate-500 mt-3 leading-relaxed px-2">{footerText}</p>
         </div>
       </div>
     </>

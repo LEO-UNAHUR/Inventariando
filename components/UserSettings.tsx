@@ -86,7 +86,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center animate-fade-in">
+    <div className="fixed inset-0 bg-black/50 z-[60] flex items-end md:items-center justify-center animate-fade-in">
       <div
         className={`w-full md:w-96 rounded-t-3xl md:rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto ${
           isDark ? 'bg-slate-900' : 'bg-white'

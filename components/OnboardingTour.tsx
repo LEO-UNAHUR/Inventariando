@@ -49,7 +49,7 @@ const steps: Step[] = [
   },
   {
     title: 'IA y Análisis',
-    description: 'En Análisis, el asistente de IA (Gemini, con tu login) te ayuda con insights de precios y reposición, sin usar claves del proyecto.',
+    description: 'En Análisis, el asistente de IA (Gemini) te ayuda con insights de precios, sugerencias de reposición y análisis inteligente del inventario.',
     view: View.ANALYSIS,
     highlightSelector: '[data-tour="ai-section"]',
     highlightPosition: 'left',

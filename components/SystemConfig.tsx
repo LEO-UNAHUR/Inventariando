@@ -27,7 +27,7 @@ const SystemConfig: React.FC<SystemConfigProps> = ({ isDark, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center animate-fade-in">
+    <div className="fixed inset-0 bg-black/50 z-[60] flex items-end md:items-center justify-center animate-fade-in">
       <div className={`w-full md:w-[520px] rounded-t-3xl md:rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto ${isDark ? 'bg-slate-900' : 'bg-white'} transition-colors`}>
         <div className={`sticky top-0 flex items-center justify-between p-4 border-b ${isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-100 bg-white'}`}>
           <div>

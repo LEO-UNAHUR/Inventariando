@@ -154,7 +154,9 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
       <header className="mb-6 flex justify-between items-start" data-tour="dashboard-header">
         <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Resumen del Negocio</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Estado actual de tu inventario</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
+              Estado actual de tu inventario • {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+            </p>
         </div>
         <div className="flex gap-2">
             <button 
