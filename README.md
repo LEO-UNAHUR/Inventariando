@@ -1,7 +1,7 @@
 
 # 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.4.3-blue?style=for-the-badge&logo=appveyor)
+![Version](https://img.shields.io/badge/version-1.4.4-blue?style=for-the-badge&logo=appveyor)
 ![Status](https://img.shields.io/badge/status-Phase%201%20Complete-green?style=for-the-badge)
 ![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
@@ -15,18 +15,21 @@
 
 | Fase | Versión | Estado | Fecha |
 |------|---------|--------|-------|
-| **Phase 1 - Stable** | 1.4.2 | ✅ **COMPLETADO** | Dec 15, 2025 |
+| **Phase 1 - Stable** | 1.4.4 | ✅ **COMPLETADO** | Dec 15, 2025 |
 | Phase 2 (Planificado) | TBD | 📋 Planning | Q1 2026 |
 
 ---
 
 ## 🎉 Phase 1 Completado
 
-### 🔥 Novedades 1.4.2 (2025-12-15)
-- Release automático estable operativo (`npm run release:auto -- stable`) con bump + changelog + workflow Actions ✅
-- APK y PWA publicadas para 1.4.2 (Releases + GitHub Pages)
-- UX afinada: Métricas Internas centrado con pl-64 y z-index 60, footer 2 líneas legible, dashboard muestra fecha/hora, Tour IA con texto claro
-- Documentación actualizada (OAuth setup, hotfixes Phase 1, completion report)
+### 🔥 Novedades 1.4.4 (2025-12-15)
+- Arquitectura de Builds Duales implementada ✅
+  - Web App compilada automáticamente para GitHub Pages (base: /Inventariando/)
+  - APK compilado para Android (base: /)
+  - Ambas versiones generadas en cada release
+- Pantalla blanca en Android solucionada ✅
+- Service Worker básico agregado ✅
+- Documentación completa actualizada ✅
 
 ### ✅ Phase 1 - Beta.3 (2025-12-15)
 - Verificación de WhatsApp con código de 6 dígitos y caducidad

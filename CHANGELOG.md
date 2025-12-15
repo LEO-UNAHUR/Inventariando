@@ -1,3 +1,23 @@
+## [1.4.4] - 2025-12-15
+
+### Added
+- Arquitectura de Builds Duales (PWA + Android)
+- Soporte dual para vite.config.ts (base: / para Android, base: /Inventariando/ para GitHub Pages)
+- Script automatizado build:web:pages para compilación independiente de Web App
+- Compilación automática de Web App en cada release
+- Nueva sección de documentación sobre arquitectura dual
+
+### Fixed
+- Pantalla blanca en Android - Solución de ruta base incorrecta en Capacitor
+- Service Worker básico agregado para compatibilidad
+
+### Documentation
+- README.md: Nueva sección sobre arquitectura de builds duales
+- AUTOMATION_SETUP.md: Actualizado con paso [7] de compilación Web App
+- BRANCH_STRATEGY.md: Menciona builds duales en release automático
+- PROJECT_DOCUMENTATION.md: Nueva sección 5.1 "Arquitectura de Builds Duales"
+- DUAL_BUILDS_IMPLEMENTATION.md: Documento detallado de implementación
+
 ## [1.4.3] - 2025-12-15
 
 ### Added
