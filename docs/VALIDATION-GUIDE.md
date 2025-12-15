@@ -191,8 +191,8 @@ git commit -m "Hotfix: Phase 1 correcciones (Tour, Dashboard, Sidebar, Modales, 
 # 2. Push a main
 git push origin main
 
-# 3. (Opcional) Crear release
-npm run release:create stable
+# 3. (Opcional) Crear release (APK + docs automáticos)
+npm run release:stable
 ```
 
 ---

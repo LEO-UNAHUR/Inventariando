@@ -90,29 +90,31 @@ phase-1-validation
 ### Beta (dentro de fase)
 ```bash
 # En rama phase-1-validation (u otra fase)
-npm run release:create beta
+npm run release:beta
 
 # Resultado:
-# 1. Calcula v1.1.0-beta.N (incrementa N si ya existe)
-# 2. Updates package.json
-# 3. Commit + push a phase-1-validation
-# 4. GitHub Actions compila APK, despliega PWA draft
-# 5. Tag v1.1.0-beta.N creado
+# 1. Calcula versión automáticamente (beta)
+# 2. Updates package.json + CHANGELOG
+# 3. Dispara GitHub Actions (build APK)
+# 4. Descarga APK y lo organiza en APK/v{version}/
+# 5. Actualiza documentación (README, docs/)
+# 6. Commit + push automático
 ```
 
 ### Stable (cierre de fase)
 ```bash
 # En rama phase-1-validation
-npm run release:create stable
+npm run release:stable
 
 # Resultado:
-# 1. Calcula v1.1.0 (quita -beta)
-# 2. Updates package.json
-# 3. Commit + push a phase-1-validation
-# 4. Tag v1.1.0 creado
-# 5. Crear PR: phase-1-validation → main
-# 6. Aprobación + merge a main
-# 7. GitHub Pages actualiza PWA
+# 1. Calcula versión stable (quita -beta)
+# 2. Updates package.json + CHANGELOG
+# 3. Dispara GitHub Actions (build APK)
+# 4. Descarga APK y lo organiza en APK/v{version}/
+# 5. Actualiza README, docs/, README_APK
+# 6. Commit + push automático
+# 7. Crear PR: phase-1-validation → main
+# 8. Aprobación + merge a main
 ```
 
 ### Hotfix (desde main)
@@ -120,11 +122,12 @@ npm run release:create stable
 # Si hay bug crítico en main (v1.4.0)
 git checkout -b hotfix/critical-bug main
 # Fix code...
-npm run release:create stable  # Calcula v1.4.1
+npm run release:stable  # Calcula v1.4.1
 
 # Resultado:
 # v1.4.1 tag creado
-# GitHub Actions genera APK/PWA
+# GitHub Actions genera APK
+# APK descargado + docs actualizados
 # Merge automático a main
 ```
 
@@ -141,12 +144,13 @@ npm run release:create stable  # Calcula v1.4.1
 | `phase-*` | ✅ Build | Recomendado PR, CI verde | ❌ Force-push |
 | `hotfix/*` | ✅ Build | PR a main | ❌ N/A |
 
-**Release automation (`npm run release:create`):**
-- ✅ Valida versión no duplicada (consulta GitHub API)
-- ✅ Valida incrementos correlatividad (ej: no saltea versiones)
-- ✅ Valida rama de origen (dev desde rama de fase, stable desde phase-*→main)
-- ✅ Encripta credenciales (no expone GITHUB_TOKEN)
-- ✅ Rollback si falla workflow (limpia tag si AP falla)
+**Release automation (`npm run release:beta/stable`):**
+- ✅ Calcula versión automáticamente (semver)
+- ✅ Dispara workflow en GitHub (build + sign APK)
+- ✅ Descarga APK desde GitHub Releases
+- ✅ Organiza APK en APK/v{version}/ con INFO/CHECKSUMS
+- ✅ Actualiza documentación (README, CHANGELOG, docs/)
+- ✅ Commit + push automático de cambios
 
 ---
 
@@ -179,14 +183,14 @@ npm run release:create stable  # Calcula v1.4.1
 Al cierre de Fase 1 (cuando tienes v1.1.0 stable):
 ```bash
 # En fase-1-validation:
-npm run release:create stable  # Genera v1.1.0 tag
+npm run release:stable  # Genera v1.1.0 tag + APK/docs
 
 # Luego creas PR:
 git push origin phase-1-validation
 # Abre GitHub → New Pull Request → phase-1-validation → main
 
 # Después de revisar y mergear:
-# main automáticamente sube a v1.1.0
+# main automáticamente sube a v1.1.0 con APK ya disponible
 ```
 
 ### ¿Y si necesito hacer un fix rápido en `main` ahora?
@@ -194,7 +198,7 @@ Si es un bug crítico de v1.4.0:
 ```bash
 git checkout -b hotfix/nombre main
 # Fix...
-npm run release:create stable  # Genera v1.4.1
+npm run release:stable  # Genera v1.4.1 con APK/docs
 ```
 
 ### ¿Qué pasa si alguien pushea directo a `main`?

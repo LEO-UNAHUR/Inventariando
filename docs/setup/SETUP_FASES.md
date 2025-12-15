@@ -54,7 +54,7 @@ GitHub Repository (Inventariando)
 - Todas las versiones anteriores preservadas: v1.1.0, v1.2.0-beta, v1.3.0-beta, v1.4.0, v1.4.0-beta
 
 ### 5. ✅ Release Automation Preservado
-- **Sistema:** `npm run release:create beta/stable` (sin cambios, totalmente funcional)
+- **Sistema:** `npm run release:beta` y `npm run release:stable` (flujo completo automatizado: APK + docs)
 - **Flujo:** Automático validación → commit → GitHub Actions → APK → PWA
 - **Protección:** API key segura, no expuesta, rate-limits implementados
 
@@ -166,7 +166,7 @@ git tag --list
 **Para desarrolladores:**
 - [BRANCH_STRATEGY.md](../setup/BRANCH_STRATEGY.md) — Guía completa de estrategia
 - [Roadmap-app.md](../../Fases%20de%20la%20App/Roadmap-app.md) — Phases, betas, criterios de stable
-- [RELEASE_AUTO_GUIDE.md](./RELEASE_AUTO_GUIDE.md) — Cómo usar `npm run release:create`
+- [AUTOMATION_SETUP.md](../release/AUTOMATION_SETUP.md) — Cómo usar `npm run release:beta/stable`
 
 **Para stakeholders:**
 - [README.md](../../README.md) — Visión general, plan de fases
@@ -189,18 +189,18 @@ git tag --list
 - [ ] Beta.1 testing
 
 ### Release
-- [ ] `npm run release:create beta` → v1.1.0-beta.1
+- [ ] `npm run release:beta` → v1.1.0-beta.1 (APK + docs automáticos)
 - [ ] Piloto con 10 comercios
 - [ ] Recolección de métricas y feedback
 - [ ] Iteraciones y beta.2, beta.3
-- [ ] `npm run release:create stable` → v1.1.0 (cuando métricas cumplan)
+- [ ] `npm run release:stable` → v1.1.0 (APK + docs automáticos)
 
 ---
 
 ## 🎓 Notas Finales
 
 ✅ **Sistema seguro:** MVP congelado en `main`, desarrollo aislado en `phase-*`  
-✅ **Releases automáticos:** Cero pasos manuales, todo via `npm run release:create`  
+✅ **Releases automáticos:** Cero pasos manuales, todo via `npm run release:beta/stable` (APK + docs sincronizados)  
 ✅ **Versionado claro:** Correlatividad validada (no saltea versiones)  
 ✅ **Colaboración:** Feature branches + PRs para code review antes de mergear  
 

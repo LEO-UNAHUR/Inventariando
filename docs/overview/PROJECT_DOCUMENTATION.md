@@ -90,7 +90,7 @@ El proyecto utiliza un modelo de desarrollo basado en fases, cada una con su pro
 - **Stable:** `vX.Y.0` (merge a `main`, tag, despliegue amplio)
 - **Hotfix:** rama `hotfix/*` desde `main`, si aplica patch
 
-**Automatización:** Sistema de releases completamente automatizado via scripts (`npm run release:create beta/stable`)
+**Automatización:** Sistema de releases completamente automatizado via `npm run release:beta/stable` (calcula versión, dispara Actions, descarga APK, actualiza docs/README/CHANGELOG, commitea automáticamente)
 
 ---
 
@@ -128,16 +128,18 @@ El proyecto utiliza un modelo de desarrollo basado en fases, cada una con su pro
 
 ### Releases (Completamente Automatizado)
 ```bash
-# Beta (aprendizaje/validación)
-npm run release:create beta
+# Beta (aprendizaje/validación - APK + docs automáticos)
+npm run release:beta
 
-# Stable (despliegue amplio)
-npm run release:create stable
+# Stable (despliegue amplio - APK + docs automáticos)
+npm run release:stable
 ```
 
 El sistema:
-- ✅ Valida versiones sin conflictos
-- ✅ Actualiza package.json automáticamente
+- ✅ Calcula versión automáticamente (semver)
+- ✅ Dispara GitHub Actions (build + sign APK)
+- ✅ Descarga APK a APK/v{version}/
+- ✅ Actualiza package.json, CHANGELOG, README, docs/
 - ✅ Commit + push
 - ✅ Dispara GitHub Actions workflow
 - ✅ Compila APK y genera Release
