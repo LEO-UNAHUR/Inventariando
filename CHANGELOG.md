@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Fixed
+- GitHub Actions workflow: Corregido deployment a GitHub Pages para usar `build:web:pages`
+- El workflow ahora compila correctamente con base: '/Inventariando/' para Pages
+- APK continúa usando base: '/' correctamente
+
 ## [1.4.4] - 2025-12-15
 
 ### Added
