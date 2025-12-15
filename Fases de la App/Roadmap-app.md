@@ -30,8 +30,8 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 - Alertas básicas de errores (Sentry/LogRocket opcional en beta tardía).
 
 **Betas**
-- Beta.1: eventos mínimos + landing + tour guiado.
-- Beta.2: feedback widget + PDF/WhatsApp + indicador de sync.
+- Beta.1: eventos mínimos + tour guiado + feedback widget.
+- Beta.2: PDF/WhatsApp + indicador de sync.
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
 
 **Criterios stable (v1.1.0)**

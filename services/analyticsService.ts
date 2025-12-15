@@ -6,6 +6,7 @@ export type AnalyticsEvent =
   | 'feature_accessed'
   | 'product_added'
   | 'sale_completed'
+  | 'feedback_submitted'
   | 'inventory_updated'
   | 'ai_suggestion_used'
   | 'backup_created';

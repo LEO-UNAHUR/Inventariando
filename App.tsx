@@ -35,6 +35,7 @@ import UserProfile from './components/UserProfile';
 import DataManagement from './components/DataManagement';
 import Sidebar from './components/Sidebar';
 import ExpenseForm from './components/ExpenseForm';
+import FeedbackWidget from './components/FeedbackWidget';
 import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -119,6 +120,13 @@ const App: React.FC = () => {
     }
   }, [isDark]);
 
+    // Track feature access on navigation (Phase 1 - Beta.1)
+    useEffect(() => {
+        if (currentUser) {
+            trackEvent('feature_accessed', { view: currentView });
+        }
+    }, [currentView, currentUser]);
+
   // -- Data Handlers --
 
   const handleUpdateProducts = (updatedProducts: Product[]) => {
@@ -175,6 +183,17 @@ const App: React.FC = () => {
       const newSales = [...sales, sale];
       setSales(newSales);
       saveStoredSales(newSales);
+
+            // Analytics: sale completed
+            try {
+                    trackEvent('sale_completed', {
+                        total: sale.total,
+                        items: sale.items?.reduce((acc, i) => acc + i.quantity, 0) || 0,
+                        paymentMethod: sale.paymentMethod,
+                        hasCustomer: !!sale.customerId,
+                        fiscalType: sale.fiscalType,
+                    });
+            } catch {}
 
       // 2. Update Stock & Log Movements
       let currentProducts = [...products];
@@ -561,6 +580,9 @@ const App: React.FC = () => {
               onClose={() => setShowDataManagement(false)} 
           />
       )}
+
+            {/* Feedback Widget (floating) */}
+            <FeedbackWidget currentView={currentView} />
 
     </div>
   );
