@@ -256,3 +256,20 @@ export interface DataLog {
   format: 'JSON' | 'CSV';
   backupId?: string; // Links to a backup created just before this action
 }
+export enum IAProvider {
+  GEMINI = 'GEMINI',
+  OPENAI = 'OPENAI',
+  ANTHROPIC = 'ANTHROPIC',
+}
+
+export interface UserSettings {
+  userId: string;
+  whatsappPhone?: string; // Número de teléfono para compartir por WhatsApp (con código país)
+  iaProvider: IAProvider; // Proveedor de IA elegido
+  iaApiKey?: string; // Clave API encriptada (solo para OpenAI/Anthropic)
+  googleAccessToken?: string; // Token de acceso encriptado (para Gemini)
+  notificationsEnabled: boolean;
+  darkMode: boolean;
+  language: 'es' | 'en';
+  lastUpdated: number;
+}

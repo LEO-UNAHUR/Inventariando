@@ -15,13 +15,14 @@ interface SidebarProps {
   currentUser: User;
   onLogout: () => void;
   onOpenDataManagement: () => void;
+  onOpenUserSettings?: () => void;
   isDark: boolean;
   isDesktop: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
   isOpen, onClose, onNavigate, currentView, currentUser, 
-  onLogout, onOpenDataManagement, isDark, isDesktop 
+  onLogout, onOpenDataManagement, onOpenUserSettings, isDark, isDesktop 
 }) => {
   
   const menuItems = [
@@ -113,8 +114,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                     className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                     <Database size={18} />
-                    <span className="text-sm font-medium">Gestión de Datos (Importar/Exportar)</span>
+                    <span className="text-sm font-medium">Gestión de Datos</span>
                 </button>
+                {onOpenUserSettings && (
+                    <button 
+                        onClick={() => { onOpenUserSettings(); onClose(); }}
+                        className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                        <UserCircle size={18} />
+                        <span className="text-sm font-medium">Configuración</span>
+                    </button>
+                )}
             </div>
         </div>
 

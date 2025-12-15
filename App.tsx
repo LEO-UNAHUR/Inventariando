@@ -37,6 +37,7 @@ import DataManagement from './components/DataManagement';
 import Sidebar from './components/Sidebar';
 import ExpenseForm from './components/ExpenseForm';
 import FeedbackWidget from './components/FeedbackWidget';
+import UserSettings from './components/UserSettings';
 import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -75,6 +76,7 @@ const App: React.FC = () => {
 
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showDataManagement, setShowDataManagement] = useState(false);
+  const [showUserSettings, setShowUserSettings] = useState(false);
   const [showTour, setShowTour] = useState(false);
 
   // -- Initialization --
@@ -484,6 +486,7 @@ const App: React.FC = () => {
           currentUser={currentUser}
           onLogout={() => setCurrentUser(null)}
           onOpenDataManagement={() => setShowDataManagement(true)}
+          onOpenUserSettings={() => setShowUserSettings(true)}
           isDark={isDark}
           isDesktop={isDesktop}
       />
@@ -603,6 +606,14 @@ const App: React.FC = () => {
               open={showTour} 
               onClose={() => setShowTour(false)} 
               onNavigate={setCurrentView} 
+          />
+      )}
+
+      {showUserSettings && currentUser && (
+          <UserSettings 
+              user={currentUser}
+              isDark={isDark}
+              onClose={() => setShowUserSettings(false)}
           />
       )}
 
