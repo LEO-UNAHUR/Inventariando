@@ -431,7 +431,7 @@ const App: React.FC = () => {
                   />
               );
           case View.ANALYSIS:
-              return <AIAssistant products={products} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
+              return <AIAssistant products={products} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} currentUser={currentUser} onOpenSettings={() => setShowUserSettings(true)} />;
           case View.HISTORY: // Not in sidebar but good to have
               return <StockHistory movements={movements} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
           case View.PROMOTIONS:
