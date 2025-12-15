@@ -382,6 +382,29 @@ function commitAndPushDocs(version) {
   }
 }
 
+function buildWebAppForPages(version) {
+  try {
+    log.info('Compilando Web App para GitHub Pages (base: /Inventariando/)...');
+    const cwd = PROJECT_ROOT;
+    execSync('npm run build:web:pages', { cwd, stdio: 'inherit' });
+    
+    // Crear carpeta de versión para web
+    const webDir = path.join(PROJECT_ROOT, 'BUILDS', 'web-pages', `v${version}`);
+    if (!fs.existsSync(webDir)) {
+      fs.mkdirSync(webDir, { recursive: true });
+    }
+    
+    // Copiar dist a BUILDS/web-pages/v{version}
+    const distDir = path.join(PROJECT_ROOT, 'dist');
+    if (fs.existsSync(distDir)) {
+      execSync(`xcopy "${distDir}" "${webDir}" /E /I /Y`, { stdio: 'inherit' });
+      log.success(`Web App compilada para GitHub Pages: ${webDir}`);
+    }
+  } catch (error) {
+    log.warning(`No se pudo compilar Web App para Pages: ${error.message}`);
+  }
+}
+
 function generateVersionDocument(version, releaseType) {
   try {
     const pkgJson = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
@@ -612,23 +635,32 @@ ${colors.bold}Resumen:${colors.reset}
     updateAPKReadme(next);
     generateVersionDocument(next, releaseType);
 
+    // 6.5. Compilar Web App para GitHub Pages
+    log.step(7, 'Compilando Web App para GitHub Pages...');
+    buildWebAppForPages(next);
+
     // 7. Commit y push de la documentación
-    log.step(7, 'Publicando documentación...');
+    log.step(8, 'Publicando documentación...');
     commitAndPushDocs(next);
 
      // 8. Éxito
-     log.step(8, 'Proceso completado');
+     log.step(9, 'Proceso completado');
      console.log(`
   ${colors.green}${colors.bold}✅ RELEASE CREADO EXITOSAMENTE${colors.reset}
 
-  ${colors.cyan}📦 El APK está disponible en:${colors.reset}
+  ${colors.cyan}📦 APK (Android):${colors.reset}
     Local:   ${colors.bold}APK/v${next}/${colors.reset}
     GitHub:  ${colors.bold}https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${next}${colors.reset}
+
+  ${colors.cyan}🌐 Web App (GitHub Pages):${colors.reset}
+    Compilada en: ${colors.bold}BUILDS/web-pages/v${next}/${colors.reset}
+    Base URL: ${colors.bold}/Inventariando/${colors.reset}
+    Para desplegar: Copia contenido de BUILDS/web-pages/v${next}/ a branch 'gh-pages'
 
   ${colors.cyan}📚 Documentación de versión:${colors.reset}
     ${colors.bold}docs/${releaseType === 'beta' ? 'product beta' : 'product stable'}/v${next}.md${colors.reset}
 
-  ${colors.cyan}📱 Para instalar:${colors.reset}
+  ${colors.cyan}📱 Para instalar APK en Android:${colors.reset}
     1. Descarga desde GitHub Releases o carpeta local APK/v${next}/
     2. En Android: Configuración > Seguridad > Fuentes desconocidas
     3. Abre el APK

@@ -103,8 +103,39 @@ El proyecto utiliza un modelo de desarrollo basado en fases, cada una con su pro
 *   **Módulo de Finanzas:** Agregado simulador de inflación y ajuste de precios masivo.
 *   **Módulo de Seguridad:** Implementación de panel de copias de seguridad con restauración "Time-Travel".
 *   **Optimización UI:** Modo oscuro nativo y mejoras en la responsividad móvil.
-*   **Release Automation:** Sistema completo de releases automáticos con GitHub Actions (beta + stable).
-*   **PWA Deployment:** Despliegue automático a GitHub Pages en releases stable.
+*   **Release Automation:** Sistema completo de releases automáticos con GitHub Actions (beta + stable) + builds duales (APK + Web).
+*   **PWA + Android Distribution:** Despliegue simultáneo a GitHub Pages (Web App) y Google Play/APK directo (Android).
+
+---
+
+## 5.1 Arquitectura de Builds Duales
+
+Inventariando se distribuye simultáneamente como **PWA** (Web) y **APK** (Android):
+
+### 🌐 Web App (PWA - GitHub Pages)
+- **Base URL:** `/Inventariando/`
+- **Compilado con:** `npm run build:web:pages` (modo Vite: `pages`)
+- **Ubicación local:** `BUILDS/web-pages/v{version}/`
+- **Despliegue:** Copiar a rama `gh-pages` para publicación
+
+### 📱 APK Android
+- **Base URL:** `/`
+- **Compilado con:** `npm run build:web` + Gradle
+- **Ubicación local:** `APK/v{version}/`
+- **Despliegue:** GitHub Releases + instalación directa
+
+### 🔄 Flujo de Release Automático
+```
+npm run release:beta/stable
+├─ Calcula versión (semver)
+├─ Dispara GitHub Actions (build APK)
+├─ Descarga APK → APK/v{version}/
+├─ Compila Web → BUILDS/web-pages/v{version}/
+├─ Actualiza documentación
+└─ Commit + push automático
+```
+
+**Resultado:** Ambas versiones listas para distribuir en ~5 minutos.
 
 ---
 

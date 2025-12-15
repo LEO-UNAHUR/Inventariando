@@ -149,6 +149,8 @@ npm run release:stable  # Calcula v1.4.1
 - ✅ Dispara workflow en GitHub (build + sign APK)
 - ✅ Descarga APK desde GitHub Releases
 - ✅ Organiza APK en APK/v{version}/ con INFO/CHECKSUMS
+- ✅ **Compila Web App para GitHub Pages** (base: /Inventariando/)
+- ✅ Guarda Web App en BUILDS/web-pages/v{version}/
 - ✅ Actualiza documentación (README, CHANGELOG, docs/)
 - ✅ Commit + push automático de cambios
 

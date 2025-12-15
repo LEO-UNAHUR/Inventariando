@@ -4,11 +4,19 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    
+    // Determine base path based on build mode
+    // 'pages' mode: for GitHub Pages deployment with '/Inventariando/' base
+    // 'development'/'production': default modes for Android/local with '/' base
+    const isGitHubPagesMode = mode === 'pages';
+    const basePath = isGitHubPagesMode ? '/Inventariando/' : '/';
+    
     return {
-      // Set base for GitHub Pages when deploying project pages
-      // If publishing to user/organization pages root, keep '/'
-      // For repo pages (https://<user>.github.io/Inventariando/), use '/Inventariando/'
-      base: '/Inventariando/',
+      // Base path configuration:
+      // - Android & PWA (localhost): '/'
+      // - GitHub Pages deployment: '/Inventariando/'
+      // Build with: npm run build:web (default) or npm run build:web:pages (for GitHub Pages)
+      base: basePath,
       server: {
         port: 3000,
         host: '0.0.0.0',

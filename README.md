@@ -106,6 +106,45 @@ Control total sobre quién accede a qué. Asigna PINs de acceso rápido para ven
 
 ---
 
+## 🏗️ Arquitectura de Builds Duales (PWA + Android)
+
+Inventariando se distribuye de **dos formas** simultáneamente:
+
+### 1. **Web App (PWA) - GitHub Pages**
+- **Base URL:** `/Inventariando/` (para GitHub Pages)
+- **Compilado con:** `npm run build:web:pages`
+- **Ubicación post-release:** `BUILDS/web-pages/v{version}/`
+- **Uso:** Desplegar a rama `gh-pages` para acceso web
+- **Ventaja:** Sin instalación, acceso instantáneo desde cualquier navegador
+
+### 2. **APK Android**
+- **Base URL:** `/` (para localhost/Capacitor WebView)
+- **Compilado con:** `npm run build:web` + `npx cap sync` + Gradle
+- **Ubicación post-release:** `APK/v{version}/`
+- **Uso:** Instalar en dispositivos Android
+- **Ventaja:** Experiencia nativa, offline completo, notificaciones push
+
+### 📋 Configuración (vite.config.ts)
+```typescript
+// Detecta automáticamente el modo de build
+const isGitHubPagesMode = mode === 'pages';
+const basePath = isGitHubPagesMode ? '/Inventariando/' : '/';
+```
+
+### 🔄 Flujo de Release Automático
+Cuando ejecutas `npm run release:beta` o `npm run release:stable`:
+1. ✅ Calcula versión (semver)
+2. ✅ Bumpa version en package.json
+3. ✅ Dispara GitHub Actions (compila APK)
+4. ✅ Descarga APK desde GitHub Releases → `APK/v{version}/`
+5. ✅ **Compila Web App para Pages** → `BUILDS/web-pages/v{version}/` (base: /Inventariando/)
+6. ✅ Actualiza README, CHANGELOG, documentación
+7. ✅ Commit y push automático
+
+**Resultado:** Ambas versiones (Android + Web) listos para distribuir simultáneamente.
+
+---
+
 ## ⚡ Instalación y Despliegue
 
 Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler preferido, aquí asumimos estructura estándar).

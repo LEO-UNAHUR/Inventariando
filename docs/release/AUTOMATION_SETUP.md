@@ -19,26 +19,48 @@ npm run release:stable
 ## ¿Qué pasa cuando ejecutas el comando?
 
 ```
-npm run release:beta
+npm run release:beta / release:stable
     ↓
 [1] Calcula versión automáticamente (semver beta/stable)
     ↓
-[2] Dispara el workflow en GitHub (build y firmado)
+[2] Dispara el workflow en GitHub (build APK Android)
     ↓
 [3] Descarga APK desde GitHub Releases
     ↓
-[4] Guarda en APK/v{version}/ (local) + CHECKSUMS/INFO
+[4] Guarda APK en APK/v{version}/ + CHECKSUMS/INFO
     ↓
 [5] Actualiza package.json + CHANGELOG.md
     ↓
 [6] Actualiza README.md y README_APK.md
     ↓
-[7] Genera docs de versión (docs/product beta|stable)
+[7] 🆕 Compila Web App para GitHub Pages
     ↓
-[8] Commit + push automático de documentación
+[8] Genera docs de versión (docs/product beta|stable)
     ↓
-✅ COMPLETADO (3-5 minutos)
+[9] Commit + push automático de documentación
+    ↓
+✅ COMPLETADO (3-5 minutos) con APK + Web App listos
 ```
+
+---
+
+## 🏗️ Builds Duales Automáticos
+
+Ahora cada release genera **AMBAS versiones** automáticamente:
+
+### 📱 APK Android
+- **Base URL:** `/` (Capacitor WebView)
+- **Ubicación:** `APK/v{version}/Inventariando-{version}.apk`
+- **Descargado desde:** GitHub Releases (workflow automático)
+- **Para:** Instalar en dispositivos Android
+
+### 🌐 Web App (GitHub Pages)
+- **Base URL:** `/Inventariando/` 
+- **Ubicación:** `BUILDS/web-pages/v{version}/`
+- **Compilado con:** `npm run build:web:pages`
+- **Para:** Desplegar a rama `gh-pages` (web pública)
+
+**Paso post-release:** Copia contenido de `BUILDS/web-pages/v{version}/` a la rama `gh-pages` para publicar la versión web.
 
 ---
 
