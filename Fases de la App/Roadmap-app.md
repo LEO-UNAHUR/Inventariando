@@ -39,6 +39,19 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
   - Tag: `phase-1-beta.2`
   - Notas: SyncIndicator, PDF export (jsPDF), WhatsApp templates integrados en ventas/productos
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
+  - ✅ Completada: 2025-12-15
+  - Tag: `phase-1-beta.3`
+  - Notas de release: ver `docs/releases/PHASE-1-BETA.3.md`
+  - Tareas completadas:
+    1. User Settings Panel (WhatsApp, IA provider selection, notifications, dark mode)
+    2. Multi-Provider IA Selection (Gemini/OpenAI/Anthropic con credenciales del usuario)
+    3. Analytics Internal Dashboard (métricas de eventos, visualización con Recharts)
+
+### Estado Beta.3 (completada)
+- Fecha: 2025-12-15
+- Rama: `phase-1-validation`
+- Tag: `phase-1-beta.3`
+- Notas de release: ver `docs/releases/PHASE-1-BETA.3.md`
 
 ### Estado Beta.1 (completada)
 - Fecha: 2025-12-15
