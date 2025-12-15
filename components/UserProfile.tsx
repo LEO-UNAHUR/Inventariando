@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { User } from '../types';
-import { getUserSettings, saveUserSettings, isValidPhoneNumber, formatPhoneForWhatsApp } from '../services/userSettingsService';
+import { getUserSettings, saveUserSettings, isValidPhoneNumber, formatPhoneForWhatsApp, generateWhatsappCode, verifyWhatsappCode } from '../services/userSettingsService';
 import { Save, User as UserIcon, Lock, Camera, ShieldCheck, Upload, MessageCircle, Bell, Moon, Globe } from 'lucide-react';
 
 interface UserProfileProps {
@@ -26,6 +26,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
   const [language, setLanguage] = useState('es');
   const [phoneError, setPhoneError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [verificationMessage, setVerificationMessage] = useState('');
+    const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,6 +39,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
     setNotificationsEnabled(settings.notificationsEnabled ?? true);
     setDarkMode(settings.darkMode ?? isDark);
     setLanguage(settings.language ?? 'es');
+        setIsPhoneVerified(!!settings.whatsappVerifiedAt);
   }, [user.id, isDark]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -73,6 +77,27 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
       setPhoneError('');
     }
   };
+
+    const handleSendVerificationCode = () => {
+        if (!whatsappPhone || phoneError) {
+            setVerificationMessage('Ingresa un teléfono válido antes de enviar el código');
+            return;
+        }
+        const code = generateWhatsappCode(user.id, whatsappPhone);
+        const formatted = formatPhoneForWhatsApp(whatsappPhone);
+        setVerificationMessage('Código enviado. Revisa tu WhatsApp y pega el código aquí.');
+        window.open(`https://wa.me/${formatted}?text=Tu%20c%C3%B3digo%20de%20verificaci%C3%B3n%20para%20Inventariando%20es:%20${code}`, '_blank');
+    };
+
+    const handleVerifyCode = () => {
+        const ok = verifyWhatsappCode(user.id, verificationCode);
+        if (ok) {
+            setIsPhoneVerified(true);
+            setVerificationMessage('Número verificado correctamente');
+        } else {
+            setVerificationMessage('Código inválido o expirado. Genera uno nuevo.');
+        }
+    };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -248,6 +273,37 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                             } text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500`}
                         />
                         {phoneError && <p className="text-sm text-red-500 mt-1">{phoneError}</p>}
+                        <div className="flex items-center gap-3 mt-2">
+                            <button
+                                type="button"
+                                onClick={handleSendVerificationCode}
+                                className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95 transition"
+                            >
+                                Enviar código
+                            </button>
+                            {isPhoneVerified && (
+                                <span className="text-xs font-bold text-emerald-500">Número verificado</span>
+                            )}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={verificationCode}
+                              onChange={(e) => setVerificationCode(e.target.value)}
+                              placeholder="Ingresa el código recibido"
+                              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleVerifyCode}
+                              className="px-3 py-2 rounded-lg border border-blue-500 text-blue-600 text-sm font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                            >
+                              Verificar
+                            </button>
+                        </div>
+                        {verificationMessage && (
+                            <p className="text-xs mt-1 text-slate-500 dark:text-slate-400">{verificationMessage}</p>
+                        )}
                         <p className="text-xs mt-1 text-slate-500">Para compartir ventas y productos por WhatsApp</p>
                     </div>
 

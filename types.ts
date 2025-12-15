@@ -265,9 +265,14 @@ export enum IAProvider {
 export interface UserSettings {
   userId: string;
   whatsappPhone?: string; // Número de teléfono para compartir por WhatsApp (con código país)
+  whatsappVerificationCode?: string; // Código enviado al usuario
+  whatsappVerificationExpiresAt?: number; // Timestamp de expiración del código
+  whatsappVerifiedAt?: number; // Timestamp de verificación exitosa
   iaProvider: IAProvider; // Proveedor de IA elegido
-  iaApiKey?: string; // Clave API encriptada (solo para OpenAI/Anthropic)
-  googleAccessToken?: string; // Token de acceso encriptado (para Gemini)
+  iaApiKey?: string; // Clave API encriptada (OpenAI/Anthropic)
+  geminiApiKey?: string; // Clave API encriptada (opción alternativa a login)
+  googleAccessToken?: string; // Token de acceso encriptado (login Gemini)
+  geminiLoginValidatedAt?: number; // Última validación del login/token
   notificationsEnabled: boolean;
   darkMode: boolean;
   language: 'es' | 'en';

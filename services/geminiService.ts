@@ -2,12 +2,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Product, Sale, BusinessIntelligence } from "../types";
 
-const apiKey = process.env.API_KEY || '';
+interface GeminiCredentials {
+  apiKey?: string;
+  accessToken?: string;
+}
 
-const ai = new GoogleGenAI({ apiKey });
+const buildClient = (apiKey: string) => new GoogleGenAI({ apiKey });
 
-export const suggestProductDetails = async (productName: string) => {
-  if (!apiKey) throw new Error("API Key faltante");
+export const suggestProductDetails = async (productName: string, credentials: GeminiCredentials) => {
+  const keyToUse = credentials.apiKey;
+  if (!keyToUse) throw new Error("API Key de Gemini faltante");
+
+  const ai = buildClient(keyToUse);
 
   try {
     const response = await ai.models.generateContent({
@@ -41,7 +47,14 @@ export const analyzeInventoryBusiness = async (products: Product[]) => {
 };
 
 export const generateBusinessInsights = async (products: Product[], sales: Sale[]): Promise<BusinessIntelligence> => {
-  if (!apiKey) throw new Error("API Key faltante");
+  throw new Error("Deprecated: use generateBusinessInsightsWithKey");
+};
+
+export const generateBusinessInsightsWithKey = async (products: Product[], sales: Sale[], credentials: GeminiCredentials): Promise<BusinessIntelligence> => {
+  const keyToUse = credentials.apiKey;
+  if (!keyToUse) throw new Error("API Key de Gemini faltante");
+
+  const ai = buildClient(keyToUse);
 
   // 1. Pre-process data to save tokens and give context
   const now = Date.now();
@@ -124,4 +137,8 @@ export const generateBusinessInsights = async (products: Product[], sales: Sale[
     console.error("Gemini BI Error:", error);
     throw error;
   }
+};
+
+export const validateGeminiApiKey = async (apiKey: string): Promise<boolean> => {
+  return !!apiKey && apiKey.length >= 20;
 };

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Product, Sale, BusinessIntelligence, User, IAProvider } from '../types';
-import { generateBusinessInsights } from '../services/geminiService';
+import { generateBusinessInsightsWithKey } from '../services/geminiService';
 import { getOpenAISuggestion } from '../services/openaiService';
 import { getAnthropicSuggestion } from '../services/anthropicService';
 import { getStoredSales } from '../services/storageService';
@@ -30,8 +30,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleThe
       const settings = getUserSettings(currentUser.id);
       setProvider(settings.iaProvider);
 
+      const geminiKey = settings.geminiApiKey ? decryptCredential(settings.geminiApiKey) : '';
+      const googleToken = settings.googleAccessToken ? decryptCredential(settings.googleAccessToken) : '';
+      const geminiCredential = geminiKey || googleToken;
+
       // Verificar que el proveedor esté configurado correctamente
-      if (settings.iaProvider !== IAProvider.GEMINI && !settings.iaApiKey) {
+      if (settings.iaProvider === IAProvider.GEMINI && !geminiCredential) {
+        setProviderReady(false);
+        setError('Configura login o API key para Gemini.');
+      } else if (settings.iaProvider !== IAProvider.GEMINI && !settings.iaApiKey) {
         setProviderReady(false);
         setError('IA no configurada. Abre Configuración para agregar tu API key.');
       } else {
@@ -55,9 +62,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleThe
 
       let result: BusinessIntelligence;
 
-      if (provider === IAProvider.GEMINI) {
-        // Usar Gemini
-        result = await generateBusinessInsights(products, sales);
+      if (provider === IAProvider.GEMINI && currentUser) {
+        const settings = getUserSettings(currentUser.id);
+        const geminiKey = settings.geminiApiKey ? decryptCredential(settings.geminiApiKey) : '';
+        const googleToken = settings.googleAccessToken ? decryptCredential(settings.googleAccessToken) : '';
+        const credential = geminiKey || googleToken;
+
+        if (!credential) {
+          throw new Error('Configura login o API key para Gemini');
+        }
+
+        result = await generateBusinessInsightsWithKey(products, sales, { apiKey: credential });
       } else if (provider === IAProvider.OPENAI && currentUser) {
         // Usar OpenAI
         const settings = getUserSettings(currentUser.id);

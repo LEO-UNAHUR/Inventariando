@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User as UserType, IAProvider } from '../types';
-import { getUserSettings, saveUserSettings } from '../services/userSettingsService';
-import { X, Save, Lock, Zap, Sparkles } from 'lucide-react';
+import { getUserSettings, saveUserSettings, encryptCredential, decryptCredential } from '../services/userSettingsService';
+import { X, Save, Lock, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface UserSettingsProps {
   user: UserType;
@@ -11,14 +11,23 @@ interface UserSettingsProps {
 
 const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) => {
   const [iaProvider, setIaProvider] = useState<IAProvider>(IAProvider.GEMINI);
-  const [iaApiKey, setIaApiKey] = useState('');
+  const [iaApiKey, setIaApiKey] = useState(''); // OpenAI/Anthropic
+  const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [googleToken, setGoogleToken] = useState('');
+  const [geminiLoginValidatedAt, setGeminiLoginValidatedAt] = useState<number | undefined>(undefined);
+  const [geminiMode, setGeminiMode] = useState<'login' | 'apikey'>('login');
   const [showApiKey, setShowApiKey] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
 
   useEffect(() => {
     const settings = getUserSettings(user.id);
     setIaProvider(settings.iaProvider || IAProvider.GEMINI);
-    setIaApiKey(settings.iaApiKey || '');
+    setIaApiKey(settings.iaApiKey ? decryptCredential(settings.iaApiKey) : '');
+    setGeminiApiKey(settings.geminiApiKey ? decryptCredential(settings.geminiApiKey) : '');
+    setGoogleToken(settings.googleAccessToken ? decryptCredential(settings.googleAccessToken) : '');
+    setGeminiLoginValidatedAt(settings.geminiLoginValidatedAt);
+    setGeminiMode(settings.geminiApiKey ? 'apikey' : 'login');
   }, [user.id]);
 
   const handleSave = () => {
@@ -27,11 +36,35 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
     saveUserSettings({
       ...settings,
       iaProvider,
-      iaApiKey: iaApiKey && (iaProvider !== IAProvider.GEMINI) ? iaApiKey : undefined,
+      iaApiKey: iaApiKey && (iaProvider === IAProvider.OPENAI || iaProvider === IAProvider.ANTHROPIC) ? encryptCredential(iaApiKey) : undefined,
+      geminiApiKey: geminiApiKey && geminiMode === 'apikey' ? encryptCredential(geminiApiKey) : undefined,
+      googleAccessToken: googleToken && geminiMode === 'login' ? encryptCredential(googleToken) : undefined,
+      geminiLoginValidatedAt: geminiMode === 'login' && googleToken ? (geminiLoginValidatedAt || Date.now()) : undefined,
     });
 
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const handleValidateGeminiLogin = () => {
+    if (!googleToken) {
+      setValidationMessage('Ingresa tu token de Google antes de validar.');
+      return;
+    }
+    setGeminiLoginValidatedAt(Date.now());
+    setValidationMessage('Login validado (marcado localmente).');
+  };
+
+  const handleValidateGeminiApiKey = () => {
+    if (!geminiApiKey) {
+      setValidationMessage('Ingresa tu API Key de Gemini.');
+      return;
+    }
+    if (geminiApiKey.length < 20) {
+      setValidationMessage('API Key muy corta. Verifica el valor.');
+      return;
+    }
+    setValidationMessage('API Key parece válida.');
   };
 
   return (
@@ -117,6 +150,101 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
             </div>
           </div>
 
+          {/* Gemini Mode */}
+          {iaProvider === IAProvider.GEMINI && (
+            <div className={`p-3 rounded-xl border ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-slate-50'}`}>
+              <p className={`text-sm font-bold mb-2 ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>Modo de Autenticación Gemini</p>
+              <div className="flex gap-3 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setGeminiMode('login')}
+                  className={`flex-1 px-3 py-2 rounded-lg border text-sm font-semibold ${
+                    geminiMode === 'login'
+                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-200'
+                      : isDark
+                      ? 'border-slate-700 text-slate-200'
+                      : 'border-slate-200 text-slate-700'
+                  }`}
+                >
+                  Login con Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGeminiMode('apikey')}
+                  className={`flex-1 px-3 py-2 rounded-lg border text-sm font-semibold ${
+                    geminiMode === 'apikey'
+                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-200'
+                      : isDark
+                      ? 'border-slate-700 text-slate-200'
+                      : 'border-slate-200 text-slate-700'
+                  }`}
+                >
+                  API Key
+                </button>
+              </div>
+
+              {geminiMode === 'login' && (
+                <div className="space-y-2">
+                  <label className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Token de acceso Google (pegalo desde tu login)</label>
+                  <input
+                    type="text"
+                    value={googleToken}
+                    onChange={(e) => setGoogleToken(e.target.value)}
+                    placeholder="token de OAuth..."
+                    className={`w-full px-4 py-2 rounded-lg border ${isDark ? 'border-slate-700 bg-slate-800 text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-900'}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleValidateGeminiLogin}
+                    className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95"
+                  >
+                    Validar login
+                  </button>
+                  {geminiLoginValidatedAt && (
+                    <p className="text-xs text-emerald-500 flex items-center gap-1">
+                      <CheckCircle2 size={14} /> Login validado
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {geminiMode === 'apikey' && (
+                <div className="space-y-2">
+                  <label className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>API Key de Gemini</label>
+                  <div className="relative">
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={geminiApiKey}
+                      onChange={(e) => setGeminiApiKey(e.target.value)}
+                      placeholder="AI..."
+                      className={`w-full px-4 py-2 pr-10 rounded-lg border ${
+                        isDark
+                          ? 'border-slate-700 bg-slate-800 text-slate-100'
+                          : 'border-slate-200 bg-slate-50 text-slate-900'
+                      } placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className={`absolute right-3 top-2.5 ${
+                        isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      {showApiKey ? '👁️' : '🔒'}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleValidateGeminiApiKey}
+                    className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95"
+                  >
+                    Validar API Key
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* IA API Key (solo para OpenAI/Anthropic) */}
           {iaProvider !== IAProvider.GEMINI && (
             <div>
@@ -161,6 +289,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
                 : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
             }`}>
               ✓ Configuración guardada
+            </div>
+          )}
+          {validationMessage && (
+            <div className={`p-3 rounded-lg text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+              {validationMessage}
             </div>
           )}
 

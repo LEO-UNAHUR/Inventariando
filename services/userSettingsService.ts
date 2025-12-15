@@ -27,6 +27,46 @@ export const getUserSettings = (userId: string): UserSettings => {
 };
 
 /**
+ * Generar y almacenar un código de verificación de WhatsApp
+ */
+export const generateWhatsappCode = (userId: string, phone: string): string => {
+  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 dígitos
+  const settings = getUserSettings(userId);
+  const updated: UserSettings = {
+    ...settings,
+    whatsappPhone: formatPhoneForWhatsApp(phone),
+    whatsappVerificationCode: code,
+    whatsappVerificationExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutos
+    whatsappVerifiedAt: undefined,
+  };
+  saveUserSettings(updated);
+  return code;
+};
+
+/**
+ * Validar código de verificación de WhatsApp
+ */
+export const verifyWhatsappCode = (userId: string, code: string): boolean => {
+  const settings = getUserSettings(userId);
+  const isValid =
+    !!settings.whatsappVerificationCode &&
+    settings.whatsappVerificationCode === code &&
+    !!settings.whatsappVerificationExpiresAt &&
+    settings.whatsappVerificationExpiresAt > Date.now();
+
+  if (isValid) {
+    saveUserSettings({
+      ...settings,
+      whatsappVerificationCode: undefined,
+      whatsappVerificationExpiresAt: undefined,
+      whatsappVerifiedAt: Date.now(),
+    });
+  }
+
+  return isValid;
+};
+
+/**
  * Guardar configuración del usuario
  */
 export const saveUserSettings = (settings: UserSettings): void => {
@@ -100,6 +140,8 @@ export default {
   getUserSettings,
   saveUserSettings,
   updateUserSetting,
+  generateWhatsappCode,
+  verifyWhatsappCode,
   encryptCredential,
   decryptCredential,
   isValidPhoneNumber,
