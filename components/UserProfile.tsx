@@ -1,7 +1,8 @@
 
 import React, { useState, useRef } from 'react';
 import { User } from '../types';
-import { Save, User as UserIcon, Lock, Camera, ShieldCheck, Upload, Trash2 } from 'lucide-react';
+import { getUserSettings, saveUserSettings, isValidPhoneNumber, formatPhoneForWhatsApp } from '../services/userSettingsService';
+import { Save, User as UserIcon, Lock, Camera, ShieldCheck, Upload, MessageCircle, Bell, Moon, Globe } from 'lucide-react';
 
 interface UserProfileProps {
   user: User;
@@ -18,10 +19,29 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
   const [avatar, setAvatar] = useState(user.avatar || 'AVATAR_1');
   const [is2FA, setIs2FA] = useState(user.is2FAEnabled);
   
+  // New user settings fields
+  const [whatsappPhone, setWhatsappPhone] = useState('');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [darkMode, setDarkMode] = useState(isDark);
+  const [language, setLanguage] = useState('es');
+  const [phoneError, setPhoneError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load user settings from service
+  React.useEffect(() => {
+    const settings = getUserSettings(user.id);
+    setWhatsappPhone(settings.whatsappPhone || '');
+    setNotificationsEnabled(settings.notificationsEnabled ?? true);
+    setDarkMode(settings.darkMode ?? isDark);
+    setLanguage(settings.language ?? 'es');
+  }, [user.id, isDark]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Update user
     onUpdateUser({
       ...user,
       name,
@@ -30,7 +50,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
       avatar,
       is2FAEnabled: is2FA
     });
-    alert('Perfil actualizado correctamente');
+
+    // Save user settings
+    const settings = getUserSettings(user.id);
+    saveUserSettings({
+      ...settings,
+      whatsappPhone: whatsappPhone ? formatPhoneForWhatsApp(whatsappPhone) : undefined,
+      notificationsEnabled,
+      darkMode,
+      language,
+    });
+
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setWhatsappPhone(value);
+    if (value && !isValidPhoneNumber(value)) {
+      setPhoneError('Número de teléfono inválido (mínimo 10 dígitos)');
+    } else {
+      setPhoneError('');
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +225,108 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                         </div>
                     </div>
                 </div>
+
+                {/* Preferences Section */}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">Preferencias</h3>
+
+                    {/* WhatsApp Phone */}
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <MessageCircle size={16} className="text-green-600" />
+                            Teléfono WhatsApp
+                        </label>
+                        <input
+                            type="tel"
+                            value={whatsappPhone}
+                            onChange={(e) => handlePhoneChange(e.target.value)}
+                            placeholder="+54 9 11 2345 6789"
+                            className={`w-full px-4 py-2 rounded-lg border ${
+                              phoneError
+                                ? 'border-red-300 bg-red-50 dark:bg-red-900/10'
+                                : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950'
+                            } text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500`}
+                        />
+                        {phoneError && <p className="text-sm text-red-500 mt-1">{phoneError}</p>}
+                        <p className="text-xs mt-1 text-slate-500">Para compartir ventas y productos por WhatsApp</p>
+                    </div>
+
+                    {/* Notifications */}
+                    <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            <Bell size={16} className="text-amber-600" />
+                            Notificaciones
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                            className={`w-full px-4 py-2 rounded-lg border flex items-center justify-between text-sm font-medium ${
+                              notificationsEnabled
+                                ? 'bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                                : 'bg-slate-50 border-slate-300 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                            }`}
+                        >
+                            {notificationsEnabled ? 'Habilitadas' : 'Deshabilitadas'}
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                              notificationsEnabled ? 'bg-amber-500' : 'bg-slate-400 dark:bg-slate-600'
+                            }`}>
+                              {notificationsEnabled && <span className="text-white text-xs">✓</span>}
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Dark Mode */}
+                    <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            <Moon size={16} className="text-indigo-600" />
+                            Tema Oscuro
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => setDarkMode(!darkMode)}
+                            className={`w-full px-4 py-2 rounded-lg border flex items-center justify-between text-sm font-medium ${
+                              darkMode
+                                ? 'bg-indigo-50 border-indigo-300 dark:bg-indigo-900/20 dark:border-indigo-700 text-indigo-800 dark:text-indigo-200'
+                                : 'bg-slate-50 border-slate-300 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                            }`}
+                        >
+                            {darkMode ? 'Activado' : 'Desactivado'}
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                              darkMode ? 'bg-indigo-500' : 'bg-slate-400 dark:bg-slate-600'
+                            }`}>
+                              {darkMode && <span className="text-white text-xs">✓</span>}
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Language */}
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <Globe size={16} className="text-blue-600" />
+                            Idioma
+                        </label>
+                        <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="pt">Português</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Success Message */}
+                {saveSuccess && (
+                    <div className={`p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                      isDark
+                        ? 'bg-emerald-900/30 text-emerald-200 border border-emerald-700'
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                    }`}>
+                      ✓ Perfil actualizado correctamente
+                    </div>
+                )}
 
                 <button 
                     type="submit"
