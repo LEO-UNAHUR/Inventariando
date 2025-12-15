@@ -1,7 +1,7 @@
 
 # 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.4.2-blue?style=for-the-badge&logo=appveyor)
+![Version](https://img.shields.io/badge/version-1.4.3-blue?style=for-the-badge&logo=appveyor)
 ![Status](https://img.shields.io/badge/status-Phase%201%20Complete-green?style=for-the-badge)
 ![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
