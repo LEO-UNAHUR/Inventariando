@@ -6,7 +6,7 @@ Tag sugerido: phase-1-beta.1
 
 ## Entregables
 - Feedback in-app: botón flotante + modal con rating y comentario (persistencia local) — components/FeedbackWidget.tsx
-- Onboarding Tour: guía de 4 pasos desde el Dashboard (botón “Guía Rápida”) — components/OnboardingTour.tsx + components/Dashboard.tsx
+- **Onboarding Tour mejorado:** guía interactiva con 4 pasos que navega automáticamente entre vistas, resalta elementos clave con spotlight y muestra punteros visuales — components/OnboardingTour.tsx + data-tour attributes en Dashboard, Sidebar, SalesDashboard, AIAssistant
 - Analytics base (opt-in con env):
   - `feature_accessed` al navegar entre vistas
   - `sale_completed` al finalizar una venta
@@ -21,12 +21,17 @@ Tag sugerido: phase-1-beta.1
 1) Configurar analytics (opcional):
    - Variables: `VITE_ANALYTICS_ENDPOINT`, `VITE_ANALYTICS_API_KEY`
    - Levantar: `npm install && npm run dev`
-2) Navegación: cambiar entre vistas para disparar `feature_accessed`.
-3) POS: completar una venta para `sale_completed`.
-4) Productos: crear (`product_added`) y editar (`inventory_updated`).
-5) Feedback: abrir el botón flotante y enviar comentario (`feedback_submitted`).
-6) Gestión de datos: exportar (CSV/JSON), importar y limpiar para verificar `data_exported`, `backup_created`, `data_imported`, `data_cleared`.
-7) Dashboard → Categorías: exportar una categoría (`export_category`).
+2) **Tour interactivo:** 
+   - Abrir el Dashboard y hacer clic en el botón "Guía Rápida" (icono de salvavidas).
+   - El tour navegará automáticamente a Dashboard → Stock → Ventas → Análisis.
+   - Cada paso resaltará (spotlight) y señalará un elemento clave (borde pulsante + flecha).
+   - Pasos adelante/atrás para explorar.
+3) Navegación: cambiar entre vistas para disparar `feature_accessed`.
+4) POS: completar una venta para `sale_completed`.
+5) Productos: crear (`product_added`) y editar (`inventory_updated`).
+6) Feedback: abrir el botón flotante y enviar comentario (`feedback_submitted`).
+7) Gestión de datos: exportar (CSV/JSON), importar y limpiar para verificar `data_exported`, `backup_created`, `data_imported`, `data_cleared`.
+8) Dashboard → Categorías: exportar una categoría (`export_category`).
 
 ## Notas
 - Analytics es “best-effort”: si no hay endpoint/apiKey, no envía.
@@ -34,11 +39,16 @@ Tag sugerido: phase-1-beta.1
 - PWA y build Android no cambiaron en esta beta.
 
 ## Cambios relevantes
-- App.tsx: init analytics, `feature_accessed`, `sale_completed`, `inventory_updated`, integra FeedbackWidget.
-- components/Dashboard.tsx: botón Guía, exportación por categoría + `export_category`.
-- components/FeedbackWidget.tsx: `feedback_submitted`.
-- components/DataManagement.tsx: eventos de export/import/backup/clear.
-- services/analyticsService.ts: nuevos tipos de evento.
+- **components/OnboardingTour.tsx:** tour interactivo con spotlight, navegación automática entre vistas (View enum), detección de elementos (data-tour), y posicionamiento dinámico de tooltip.
+- App.tsx: pasa `onNavigate={setCurrentView}` a Dashboard para que tour pueda cambiar vistas.
+- components/Dashboard.tsx: recibe `onNavigate`, pasa a OnboardingTour; agrega `data-tour="dashboard-header"` para highlight.
+- components/Sidebar.tsx: `data-tour="sidebar"` para detección en Paso 2.
+- components/SalesDashboard.tsx: `data-tour="new-sale-btn"` en botón de Nueva Venta para Paso 3.
+- components/AIAssistant.tsx: `data-tour="ai-section"` en contenedor principal para Paso 4.
+- services/analyticsService.ts: extendido con tipos de evento adicionales (`inventory_updated`, `export_category`).
+- Evento `feature_accessed`: se emite automáticamente al cambiar de vista en App.tsx.
+- Evento `export_category`: se emite en Dashboard al exportar una categoría.
+- Evento `inventory_updated`: se emite en App.tsx al editar un producto existente.
 
 ## Riesgos/conocidos
 - Falta de panel interno de métricas (se difiere a Betas siguientes).
