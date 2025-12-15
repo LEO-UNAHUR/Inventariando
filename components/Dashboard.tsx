@@ -8,6 +8,7 @@ import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Cal
 import { getStoredMovements, getDismissedNotifications, saveDismissedNotifications, getReadNotifications, saveReadNotifications } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
 import { trackEvent } from '../services/analyticsService';
+import SyncIndicator from './SyncIndicator';
 
 interface DashboardProps {
   products: Product[];
@@ -189,6 +190,9 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
             </button>
         </div>
       </header>
+
+      {/* Sync Status Indicator */}
+      <SyncIndicator isDark={isDark} compact={false} />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4">

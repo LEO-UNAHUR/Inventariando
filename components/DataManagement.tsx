@@ -91,6 +91,9 @@ const DataManagement: React.FC<DataManagementProps> = ({ products, currentUser, 
     saveLog(log);
     setLogs([log, ...logs]);
 
+      // Save backup timestamp for SyncIndicator
+      localStorage.setItem('lastBackupTime', new Date().toISOString());
+
         // Analytics (treat JSON export as backup)
         try {
             trackEvent('backup_created', { format: 'JSON', count: products.length });

@@ -2,8 +2,10 @@
 import React, { useMemo, useState } from 'react';
 import { Sale, Product } from '../types';
 import { formatCurrency } from '../constants';
-import { Sun, Moon, ShoppingBag, TrendingUp, Calendar, ArrowRight, DollarSign, Activity, BarChart2 } from 'lucide-react';
+import { Sun, Moon, ShoppingBag, TrendingUp, Calendar, ArrowRight, DollarSign, Activity, BarChart2, Download, MessageCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar, Legend, YAxis } from 'recharts';
+import { generateSalePDF } from '../services/pdfService';
+import { generateSaleWhatsAppMessage, generateWhatsAppWebLink } from '../services/whatsappService';
 
 interface SalesDashboardProps {
   sales: Sale[];
@@ -183,6 +185,54 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ sales, onNewSale, isDar
                     </div>
                     <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </button>
+
+                {/* Últimas Ventas con Export */}
+                {sales.length > 0 && (
+                    <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                        <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Últimas Ventas</h3>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                            {sales.slice(0, 5).map((sale) => (
+                                <div key={sale.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                                            {new Date(sale.date).toLocaleDateString('es-AR')} {new Date(sale.date).toLocaleTimeString('es-AR', {hour: '2-digit', minute: '2-digit'})}
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            {sale.items.reduce((sum, i) => sum + i.quantity, 0)} items • {formatCurrency(sale.total)}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-1 flex-shrink-0">
+                                        <button
+                                            onClick={() => {
+                                                try {
+                                                    // Buscar productos para la venta
+                                                    generateSalePDF(sale, [], 'Inventariando');
+                                                } catch {
+                                                    alert('Error generando PDF');
+                                                }
+                                            }}
+                                            title="Descargar PDF"
+                                            className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                                        >
+                                            <Download size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const message = generateSaleWhatsAppMessage(sale, [], 'Cliente');
+                                                const link = generateWhatsAppWebLink('5491234567890', message);
+                                                window.open(link, '_blank');
+                                            }}
+                                            title="Compartir por WhatsApp"
+                                            className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                                        >
+                                            <MessageCircle size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Overview Cards */}
                 <div className="grid grid-cols-2 gap-3">

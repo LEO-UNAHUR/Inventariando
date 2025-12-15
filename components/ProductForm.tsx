@@ -4,8 +4,9 @@ import { trackEvent } from '../services/analyticsService';
 import { Product, Category, Supplier, ProductSupplierInfo } from '../types';
 import { suggestProductDetails } from '../services/geminiService';
 import { formatCurrency } from '../constants';
-import { Sparkles, Save, X, Loader2, Calendar, Truck, Plus, Trash2, ScanLine } from 'lucide-react';
+import { Sparkles, Save, X, Loader2, Calendar, Truck, Plus, Trash2, ScanLine, MessageCircle } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import { generateProductWhatsAppMessage, generateWhatsAppWebLink } from '../services/whatsappService';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
@@ -350,7 +351,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 bg-slate-50 dark:bg-slate-900/50 rounded-b-2xl">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex gap-2 bg-slate-50 dark:bg-slate-900/50 rounded-b-2xl">
           <button
             onClick={handleSubmit}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold text-lg active:scale-95 transition-all flex items-center justify-center gap-2"
@@ -358,6 +359,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
             <Save size={20} />
             Guardar
           </button>
+          {initialProduct && (
+            <button
+              type="button"
+              onClick={() => {
+                const message = generateProductWhatsAppMessage({
+                  ...initialProduct,
+                  name: name || initialProduct.name,
+                  price: parseFloat(price) || initialProduct.price,
+                  description: description || initialProduct.description,
+                } as Product);
+                const link = generateWhatsAppWebLink('5491234567890', message);
+                window.open(link, '_blank');
+              }}
+              className="px-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold active:scale-95 transition-all flex items-center justify-center gap-2"
+              title="Compartir por WhatsApp"
+            >
+              <MessageCircle size={20} />
+            </button>
+          )}
         </div>
 
       </div>
