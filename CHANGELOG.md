@@ -1,3 +1,8 @@
+## [1.4.1] - 2025-12-15
+
+### Added
+- Release automático
+
 # Changelog
 
 Todos los cambios notables en Inventariando serán documentados en este archivo.
