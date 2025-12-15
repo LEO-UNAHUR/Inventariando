@@ -10,9 +10,22 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 - Seguridad y costos IA gestionados por backend/proxy.
 - Actualizar este archivo en cada entrega parcial o cambio de alcance.
 
-## Estructura de versiones
-- Beta: v1.1.0-beta.1, v1.1.0-beta.2, etc. → aprendizaje y hardening.
-- Stable: v1.1.0 (cierre de fase) → despliegue amplio.
+## Estructura de versiones y ramas
+- **MVP Baseline (v1.4.0):** congelado en `main` y rama `mvp-freeze` (read-only).
+- **Beta:** `vX.Y.Z-beta.N` (desarrollo en rama de fase, aprendizaje y hardening).
+- **Stable:** `vX.Y.0` (merge a `main` con PR, tag, despliegue amplio).
+- **Hotfix:** rama `hotfix/*` desde `main`, si aplica patch crítico.
+
+| Rama | Propósito | Versión Range | Estado |
+| :--- | :--- | :--- | :--- |
+| `main` | MVP congelado, merges de fases cerradas | v1.4.0 | Protegida |
+| `mvp-freeze` | Backup inmutable del MVP | v1.4.0 | Read-only |
+| `phase-1-validation` | Desarrollo Fase 1 | v1.1.x | 🟢 Activa |
+| `phase-2-scalability` | Desarrollo Fase 2 | v2.0.x | 🔴 Planeada |
+| `phase-3-monetization` | Desarrollo Fase 3 | v2.5.x | 🔴 Planeada |
+| `phase-4-expansion` | Desarrollo Fase 4 | v3.0.x | 🔴 Planeada |
+
+**Release Automation:** Sistema `npm run release:create beta/stable` maneja todo (validaciones, commits, workflow, APK, PWA).
 
 ---
 ## Fase 1 — Validación y Analytics (v1.1.x)
@@ -137,6 +150,14 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 
 ---
 ## Prácticas de mantenimiento de este documento
-- Actualizar al cerrar cada beta y stable con: fecha, build/tag, métricas clave y riesgos nuevos.
-- Registrar desvíos de alcance y nuevas dependencias críticas.
-- Mantener enlace a releases (APK y PWA) y resultados de piloto.
+- **Por cada entrega (beta o stable):**
+  1. Actualizar sección correspondiente con fecha de release (ej: "Beta.1: 2026-01-15")
+  2. Registrar métricas alcanzadas (D7/D30, NPS, errores críticos, etc.)
+  3. Documentar nuevos riesgos identificados y cómo se mitigan
+  4. Reflejar cualquier desvío de alcance o prioridades cambiadas
+- **Antes de cerrar una fase (stable):**
+  1. Verificar que todos los criterios de stable se cumplan
+  2. Documentar aprendizajes clave y feedback de usuarios
+  3. Preparar notas para el siguiente fase sobre dependencias/blockers
+- **Enlace a releases:** Mantener referencias a GitHub Release tags, APK, PWA y resultados de piloto
+- **Branching:** Reflejar el estado de cada rama (activa/planeada/finalizada)

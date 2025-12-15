@@ -151,70 +151,121 @@ Descarga la última versión compilada desde:
 
 ---
 
-## 🔮 Roadmap v1.1.0 Beta (Validación)
+---
 
-*   [ ] Implementar analytics (PostHog/Mixpanel)
-*   [ ] Programa piloto con 10 comercios reales
-*   [ ] Feedback loop y mejoras UX
-*   [ ] Exportar facturas a PDF
-*   [ ] Sincronización multi-dispositivo (Cloud)
+## 🚀 Plan de Fases (Roadmap 2025-2026)
 
-Ver [PM_ANALYSIS_V1.1.0.md](./PM_ANALYSIS_V1.1.0.md) para análisis completo del roadmap.
+Inventariando evolucionará en 4 fases principales, cada una con betas intermedias y un release stable al cierre.
+
+### 📋 Fase 1 — Validación y Analytics (v1.1.x - Q1 2026)
+**Objetivo:** Validar product-market fit con datos reales de usuarios piloto.
+
+**Funcionalidades:**
+- ✅ Analytics (PostHog) con eventos críticos
+- ✅ Feedback widget in-app (rating + comentarios)
+- ✅ Programa piloto con 10 comercios reales
+- ✅ Quick wins: Tour guiado, exportar PDF, templates WhatsApp, dark mode, indicador de sync
+
+**Betas:** v1.1.0-beta.1, beta.2, beta.3  
+**Stable:** v1.1.0 (si D7 ≥25%, D30 ≥15%, NPS ≥30)
+
+---
+
+### 📊 Fase 2 — Escalabilidad y Sincronización (v2.0.x - Q2 2026)
+**Objetivo:** Superar límites de LocalStorage y habilitar multi-dispositivo.
+
+**Funcionalidades:**
+- ✅ Backend (Supabase free-tier) + sincronización automática cada 5 min
+- ✅ Autenticación real (owner + equipo)
+- ✅ Migrador LocalStorage → nube (seguro)
+- ✅ Tests + CI/CD (Vitest + GitHub Actions)
+- ✅ Offline mode robusto
+
+**Betas:** v2.0.0-beta.1, beta.2, beta.3  
+**Stable:** v2.0.0 (sync estable 95%, tests 60% cobertura, LCP <2.5s)
+
+---
+
+### 💰 Fase 3 — Monetización e IA Segura (v2.5.x - Q3 2026)
+**Objetivo:** Activar ingresos y controlar costos de IA.
+
+**Funcionalidades:**
+- ✅ Tiers: FREE, PRO ($5 USD/mes), ENTERPRISE ($13 USD/mes)
+- ✅ Selector de modelos IA: Gemini (login Google), ChatGPT (OpenAI), Anthropic
+- ✅ Cada usuario trae su propia API key (no gestionamos credenciales)
+- ✅ Facturación AFIP via proveedor certificado
+- ✅ Billing (Mercado Pago)
+
+**Betas:** v2.5.0-beta.1, beta.2, beta.3  
+**Stable:** v2.5.0 (conversión 5%, costos IA controlados, AFIP sandbox validada)
+
+---
+
+### 🌍 Fase 4 — Expansión e Internacionalización (v3.0.x - Q4 2026)
+**Objetivo:** Crecer a 500+ usuarios y expandir a LATAM.
+
+**Funcionalidades:**
+- ✅ i18n (ES/PT) y multi-moneda
+- ✅ API pública + webhooks
+- ✅ Marketplace de plugins
+- ✅ Reportes avanzados (PDF/Excel) y automatizaciones
+- ✅ Performance hardening (Lighthouse >90)
+
+**Betas:** v3.0.0-beta.1, beta.2, beta.3  
+**Stable:** v3.0.0 (500+ usuarios activos, DAU/MAU ≥30%, API estable)
 
 ---
 
 ## 🚀 Release Process (Completamente Automatizado)
 
 ### 📋 Resumen Rápido
-Cuando quieras hacer un release, solo pide:
-> "Quiero hacer un release **beta**" o "Release **stable**"
-
-**Yo haré automáticamente:**
-- ✅ Validar versión contra GitHub (sin conflictos)
-- ✅ Actualizar `package.json` 
-- ✅ Generar CHANGELOG
-- ✅ Commit y push automático
-- ✅ Disparar GitHub Actions workflow
-- ✅ Compilar APK
-- ✅ Crear GitHub Release con assets
-
-### 🔧 Detalles Técnicos
-
-El script `scripts/release-auto.js` maneja:
+El sistema de releases automatizado maneja **versiones beta y stable** con estrategia de correlatividad:
 
 ```bash
-# Opción 1: Automático (sin token)
-npm run release:auto beta      # Calcula version, commits, push
-npm run release:auto stable
+# Beta (aprendizaje/validación)
+npm run release:create beta
 
-# Opción 2: Con GitHub Actions (requiere GITHUB_TOKEN)
-export GITHUB_TOKEN="ghp_..."
-npm run release:auto beta      # + dispara workflow automáticamente
+# Stable (despliegue amplio)
+npm run release:create stable
 ```
 
-**Validación de Correlatividad:**
-- Beta → Beta: Mantiene versión (refresh)
-- Beta → Stable: Quita `-beta`
-- Stable → Beta: Bumpea minor + agrega `-beta`
-- Stable → Stable: Bumpea patch
+**El sistema hace automáticamente:**
+- ✅ Calcula y valida la siguiente versión (sin conflictos)
+- ✅ Actualiza `package.json` 
+- ✅ Commit + push automático
+- ✅ Dispara GitHub Actions workflow
+- ✅ Compila APK (Java 21 + Gradle 8.14)
+- ✅ Crea GitHub Release con assets
+- ✅ Despliega PWA a GitHub Pages (stable)
 
-**Ejemplo de Progresión:**
+### 🔧 Estrategia de Versiones
 ```
-1.0.0 (stable)
+1.4.0 (MVP stable, congelado)
   ↓
-1.1.0-beta (beta)
+1.1.0-beta.1 (Fase 1, Beta 1)
   ↓
-1.1.0 (stable)
+1.1.0-beta.2 (Fase 1, Beta 2)
   ↓
-1.2.0-beta (beta)
+1.1.0-beta.3 (Fase 1, Beta 3)
+  ↓
+1.1.0 (Fase 1 stable)
+  ↓
+2.0.0-beta.1 (Fase 2, Beta 1)
+  ... y así sucesivamente
 ```
+
+**Ramas correspondientes:**
+- `main`: v1.4.0 (MVP congelado, protegido)
+- `phase-1-validation`: v1.1.x (betas + stable de Fase 1)
+- `phase-2-scalability`: v2.0.x (betas + stable de Fase 2)
+- etc.
 
 ### 📖 Documentación Completa
-Ver [RELEASE_AUTO_GUIDE.md](./RELEASE_AUTO_GUIDE.md) para:
-- Configuración del Personal Access Token
+Ver [RELEASE_AUTO_GUIDE.md](./RELEASE_AUTO_GUIDE.md) y [Fases de la App/Roadmap-app.md](./Fases%20de%20la%20App/Roadmap-app.md) para:
+- Configuración detallada
 - Troubleshooting
-- Ejemplos de uso
 - Validaciones de seguridad
+- Flujos de hotfix
 
 ---
 
