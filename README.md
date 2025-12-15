@@ -15,12 +15,18 @@
 
 | Fase | Versión | Estado | Fecha |
 |------|---------|--------|-------|
-| **Phase 1 - Stable** | 1.5.0-beta | ✅ **COMPLETADO** | Dec 15, 2025 |
+| **Phase 1 - Stable** | 1.4.1 | ✅ **COMPLETADO** | Dec 15, 2025 |
 | Phase 2 (Planificado) | TBD | 📋 Planning | Q1 2026 |
 
 ---
 
 ## 🎉 Phase 1 Completado
+
+### 🔥 Novedades 1.4.1 (2025-12-15)
+- Release automático estable operativo (`npm run release:auto -- stable`) con bump + changelog + workflow Actions ✅
+- APK y PWA publicadas para 1.4.1 (Releases + GitHub Pages)
+- UX afinada: Métricas Internas centrado con pl-64 y z-index 60, footer 2 líneas legible, dashboard muestra fecha/hora, Tour IA con texto claro
+- Documentación actualizada (OAuth setup, hotfixes Phase 1, completion report)
 
 ### ✅ Phase 1 - Beta.3 (2025-12-15)
 - Verificación de WhatsApp con código de 6 dígitos y caducidad
