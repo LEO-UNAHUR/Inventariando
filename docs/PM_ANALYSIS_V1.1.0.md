@@ -12,7 +12,7 @@
 
 Este es un MVP sólido con una propuesta de valor clara y bien ejecutada para un nicho específico (PyMEs argentinas). El producto demuestra madurez técnica y comprensión profunda del mercado objetivo.
 
----
+----
 
 ## ✅ FORTALEZAS IDENTIFICADAS
 
