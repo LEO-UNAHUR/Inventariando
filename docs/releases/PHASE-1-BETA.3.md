@@ -16,13 +16,14 @@ Beta.3 focuses on **User Customization & Analytics** — empowering users with p
 Comprehensive user configuration interface with encrypted credential storage.
 
 **Components:**
-- [UserSettings.tsx](../../components/UserSettings.tsx) - Modal-based settings panel with:
-  - WhatsApp phone configuration with validation (international format support)
-  - IA provider selection (Gemini/OpenAI/Anthropic)
-  - API key input with visibility toggle for security
-  - Notifications preference toggle
-  - Dark mode theme selector
-  - Language preference (future i18n support)
+- [UserProfile.tsx](../../components/UserProfile.tsx) - User account and preferences page with:
+  - Name, password, PIN configuration
+  - Avatar selection and custom image upload
+  - Two-Factor Authentication (2FA) toggle
+  - **NEW:** WhatsApp phone configuration with validation
+  - **NEW:** Notifications preference toggle
+  - **NEW:** Dark mode theme selector
+  - **NEW:** Language preference selector
   - Auto-save with localStorage persistence
 
 **Services:**
@@ -41,7 +42,7 @@ Comprehensive user configuration interface with encrypted credential storage.
   - Settings for notifications, dark mode, language, last update timestamp
 
 **Access Points:**
-- Sidebar → "Sistema" section → "Configuración" button
+- UserProfile view → Edit profile with preferences
 - AIAssistant → Settings button (provider not configured)
 - App → onOpenUserSettings callback
 
@@ -50,17 +51,16 @@ Comprehensive user configuration interface with encrypted credential storage.
 - No server transmission of API keys
 - User controls all provider credentials
 
-**Status:** ✅ Complete - 5 files (UserSettings.tsx, userSettingsService.ts, types.ts updated, App.tsx, Sidebar.tsx)
+**Status:** ✅ Complete - 3 files (UserProfile.tsx updated, userSettingsService.ts, types.ts updated)
 
 ---
 
 ### 2. **Multi-Provider IA Selection** (Task 2)
 Support for three AI providers with user-supplied credentials and intelligent routing.
 
-**Providers:**
-- **Gemini** (Google) - Login-based authentication
-- **OpenAI** - API Key authentication (GPT-3.5-turbo)
-- **Anthropic** - API Key authentication (Claude-3-Sonnet)
+**Provider Configuration Location:**
+- Dedicated modal accessed from Sidebar → "Sistema" section → "Inteligencia Artificial"
+- Clean separation: User preferences in profile; IA-specific settings in dedicated panel
 
 **Services:**
 - [openaiService.ts](../../services/openaiService.ts)
@@ -76,6 +76,13 @@ Support for three AI providers with user-supplied credentials and intelligent ro
   - Integrated with OAuth flow
 
 **Component Integration:**
+- [UserSettings.tsx](../../components/UserSettings.tsx) - Modal with:
+  - **ONLY** IA provider selection (Gemini/OpenAI/Anthropic radio buttons)
+  - **ONLY** API key input with visibility toggle
+  - Success message on save
+  - Dark mode support
+  - No user preferences mixed in
+
 - [AIAssistant.tsx](../../components/AIAssistant.tsx) - Updated to:
   - Read `iaProvider` from UserSettings
   - Display selected provider status card
@@ -90,7 +97,7 @@ Support for three AI providers with user-supplied credentials and intelligent ro
 - Network errors → Retry logic with user feedback
 - No provider selected → Default message with settings link
 
-**Status:** ✅ Complete - 4 files (openaiService.ts, anthropicService.ts, AIAssistant.tsx, types.ts)
+**Status:** ✅ Complete - 4 files (openaiService.ts, anthropicService.ts, AIAssistant.tsx, UserSettings.tsx)
 
 ---
 
@@ -148,10 +155,11 @@ Real-time metrics visualization for app usage patterns and feature adoption.
 
 | Feature | Status | Files | Commits |
 |---------|--------|-------|---------|
-| User Settings Panel | ✅ Complete | 5 | 1c6f3e10 |
+| User Settings (Preferences) | ✅ Complete | 1 | 6fb9aa38 (refactor) |
 | Multi-Provider IA | ✅ Complete | 4 | a7f72362 |
 | Analytics Dashboard | ✅ Complete | 1 | a71535bd |
-| **TOTAL** | ✅ **Complete** | **10** | **3** |
+| Settings Reorganization | ✅ Complete | 2 | 6fb9aa38 (refactor) |
+| **TOTAL** | ✅ **Complete** | **8** | **4** |
 
 ---
 
@@ -200,37 +208,33 @@ Real-time metrics visualization for app usage patterns and feature adoption.
 
 ### App.tsx Changes
 ```tsx
-// State
-const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
+// Sidebar prop - unchanged
+onOpenUserSettings={() => setShowUserSettings(true)}
 
-// Sidebar prop
-onOpenAnalyticsDashboard={() => setShowAnalyticsDashboard(true)}
-
-// Render
-{showAnalyticsDashboard && (
-  <AnalyticsInternalDashboard 
+// Render IA Settings modal
+{showUserSettings && currentUser && (
+  <UserSettings 
+    user={currentUser}
     isDark={isDark}
-    onToggleTheme={() => setIsDark(!isDark)}
-    onClose={() => setShowAnalyticsDashboard(false)}
+    onClose={() => setShowUserSettings(false)}
   />
 )}
 ```
 
-### Sidebar.tsx Changes
+### UserProfile.tsx Changes
 ```tsx
-// New import
-import { BarChart3 } from 'lucide-react';
+// Load user preferences from service
+const settings = getUserSettings(user.id);
+setWhatsappPhone(settings.whatsappPhone || '');
+setNotificationsEnabled(settings.notificationsEnabled ?? true);
+setDarkMode(settings.darkMode ?? isDark);
+setLanguage(settings.language ?? 'es');
 
-// System menu button
-{onOpenAnalyticsDashboard && (
-  <button 
-    onClick={() => { onOpenAnalyticsDashboard(); onClose(); }}
-    className="..."
-  >
-    <BarChart3 size={18} />
-    <span className="text-sm font-medium">Métricas Internas</span>
-  </button>
-)}
+// New preference fields in form
+<MessageCircle /> Teléfono WhatsApp
+<Bell /> Notificaciones toggle
+<Moon /> Tema Oscuro toggle
+<Globe /> Idioma selector
 ```
 
 ---
@@ -248,6 +252,9 @@ import { BarChart3 } from 'lucide-react';
 
 4. **Time Zone:** Charts use client's local time zone for grouping
    - Consider timezone standardization for team analytics
+
+5. **Language Preference:** Selected but not implemented in UI
+   - i18n infrastructure needed for full support
 
 ---
 
