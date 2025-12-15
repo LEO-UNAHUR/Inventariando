@@ -16,6 +16,12 @@
 ### Changed
 - Release automático via GitHub Actions (MVP)
 
+## 🆕 Novedad: Phase 1 Beta.3 (2025-12-15)
+- Verificación de WhatsApp con código de 6 dígitos y caducidad; el usuario se envía el código vía WhatsApp (sin gateway externo).
+- Gemini por usuario ahora acepta login con token o API Key, con validación y almacenamiento cifrado local.
+- El asistente IA usa la credencial de Gemini por usuario; las preferencias de usuario permanecen en el Perfil y la configuración de IA solo en el panel de IA.
+- Detalles completos en [docs/releases/PHASE-1-BETA.3.md](docs/releases/PHASE-1-BETA.3.md).
+
 ---
 
 ## 🚀 Sobre el Proyecto

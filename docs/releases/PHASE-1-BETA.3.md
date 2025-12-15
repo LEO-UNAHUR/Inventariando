@@ -1,6 +1,6 @@
 # Phase 1 - Beta.3 Release Notes
 
-**Release Date:** December 2024  
+**Release Date:** December 15, 2025  
 **Status:** ✅ Completed  
 **Branch:** phase-1-validation  
 **Tag:** phase-1-beta.3
@@ -11,6 +11,22 @@ Beta.3 focuses on **User Customization & Analytics** — empowering users with p
 ---
 
 ## 🎯 Features Delivered
+
+### 0. **New in this pass** (WhatsApp + Gemini)
+- Added WhatsApp phone verification flow with 6-digit code, 10 min expiry, and wa.me handoff so the user sends the code to themselves (no SMS gateway required).
+- Gemini ahora permite dos modos por usuario: login con token de Google **o** API Key directa, con validación y almacenamiento cifrado.
+- IA Assistant utiliza la credencial de Gemini por usuario (token o API key) y avisa cuando falta configuración.
+- Nuevos campos en `UserSettings` para verificación de WhatsApp y credenciales de Gemini; helpers de servicio para generar/verificar códigos.
+
+**Impacted files:**
+- [UserProfile.tsx](../../components/UserProfile.tsx) – UI de verificación WhatsApp, preferencias siguen en el perfil.
+- [UserSettings.tsx](../../components/UserSettings.tsx) – Solo IA; selector modo Gemini (login/API key), validación y guardado cifrado.
+- [AIAssistant.tsx](../../components/AIAssistant.tsx) – Usa credencial Gemini por usuario y valida readiness.
+- [geminiService.ts](../../services/geminiService.ts) – Soporta token o API key, helper `validateGeminiApiKey`.
+- [userSettingsService.ts](../../services/userSettingsService.ts) – `generateWhatsappCode`, `verifyWhatsappCode`, cifrado de credenciales.
+- [types.ts](../../types.ts) – Nuevos campos de verificación WhatsApp y modos Gemini.
+
+**Status:** ✅ Complete - 6 files | Commit: e612b97d
 
 ### 1. **User Settings Panel** (Task 1)
 Comprehensive user configuration interface with encrypted credential storage.
@@ -155,11 +171,12 @@ Real-time metrics visualization for app usage patterns and feature adoption.
 
 | Feature | Status | Files | Commits |
 |---------|--------|-------|---------|
+| WhatsApp Verification + Gemini dual auth | ✅ Complete | 6 | e612b97d |
 | User Settings (Preferences) | ✅ Complete | 1 | 6fb9aa38 (refactor) |
 | Multi-Provider IA | ✅ Complete | 4 | a7f72362 |
 | Analytics Dashboard | ✅ Complete | 1 | a71535bd |
 | Settings Reorganization | ✅ Complete | 2 | 6fb9aa38 (refactor) |
-| **TOTAL** | ✅ **Complete** | **8** | **4** |
+| **TOTAL** | ✅ **Complete** | **14** | **5** |
 
 ---
 
@@ -183,6 +200,7 @@ Real-time metrics visualization for app usage patterns and feature adoption.
 
 ✅ **User Settings Panel:**
 - Phone validation (international formats)
+- WhatsApp verification flow (code generation, expiry, correct/incorrect code)
 - API key encryption/decryption
 - Settings persistence across sessions
 - Dark mode integration
@@ -190,6 +208,9 @@ Real-time metrics visualization for app usage patterns and feature adoption.
 
 ✅ **Multi-Provider IA:**
 - Provider selection and display
+- Gemini: token login vs API key mode selection
+- Gemini: API key validation helper
+- Gemini: AIAssistant readiness messages when missing credential
 - API key validation per provider
 - Error handling for missing credentials
 - Service routing based on selected provider
@@ -242,19 +263,22 @@ setLanguage(settings.language ?? 'es');
 ## ✨ Known Limitations
 
 1. **Encryption:** Client-side XOR encryption used (not production-grade)
-   - Upgrade to AES-256 for sensitive production deployment
+  - Upgrade to AES-256 for sensitive production deployment
    
 2. **Analytics Persistence:** Events stored in localStorage only
-   - Consider backend storage for long-term analysis
+  - Consider backend storage for long-term analysis
    
 3. **IA Providers:** Gemini login requires interactive authentication
-   - May need OAuth token refresh mechanism for extended sessions
+  - May need OAuth token refresh mechanism for extended sessions
 
-4. **Time Zone:** Charts use client's local time zone for grouping
-   - Consider timezone standardization for team analytics
+4. **WhatsApp Verification:** Code delivery relies on user sending the code to themselves via WhatsApp (no SMS provider)
+  - Integrate an SMS/WhatsApp provider for automated delivery if required
+ 
+5. **Time Zone:** Charts use client's local time zone for grouping
+  - Consider timezone standardization for team analytics
 
-5. **Language Preference:** Selected but not implemented in UI
-   - i18n infrastructure needed for full support
+6. **Language Preference:** Selected but not implemented in UI
+  - i18n infrastructure needed for full support
 
 ---
 
