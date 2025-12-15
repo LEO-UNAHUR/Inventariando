@@ -99,6 +99,77 @@ function parseVersion(versionString) {
   };
 }
 
+function calculateNextVersion(currentVersion, releaseType) {
+  const parsed = parseVersion(currentVersion);
+  let newVersion;
+  
+  if (releaseType === 'stable') {
+    // Si es estable y tiene prerelease, solo remover el sufijo
+    if (parsed.prerelease) {
+      newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
+    } else {
+      // Si ya es estable, bumpar patch
+      newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`;
+    }
+  } else if (releaseType === 'beta') {
+    // Para beta: bumpar minor y añadir -beta
+    newVersion = `${parsed.major}.${parsed.minor + 1}.0-beta`;
+  } else {
+    throw new Error(`Tipo de release inválido: ${releaseType}`);
+  }
+  
+  return newVersion;
+}
+
+function validateVersionConflict(newVersion, latestRelease) {
+  if (!latestRelease) return true; // Sin releases anteriores, todo OK
+  
+  const newParsed = parseVersion(newVersion);
+  const latestParsed = parseVersion(latestRelease.version);
+  
+  // Comparar major.minor.patch ignorando prerelease
+  if (newParsed.major < latestParsed.major) return false;
+  if (newParsed.major > latestParsed.major) return true;
+  
+  if (newParsed.minor < latestParsed.minor) return false;
+  if (newParsed.minor > latestParsed.minor) return true;
+  
+  if (newParsed.patch < latestParsed.patch) return false;
+  if (newParsed.patch > latestParsed.patch) return true;
+  
+  // Mismo número, distinto prerelease está OK
+  return true;
+}
+
+function updatePackageJson(newVersion) {
+  const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
+  pkg.version = newVersion;
+  fs.writeFileSync(PACKAGE_JSON, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+}
+
+function updateChangelog(newVersion) {
+  const changelogPath = path.join(PROJECT_ROOT, 'CHANGELOG.md');
+  const today = new Date().toISOString().split('T')[0];
+  const newEntry = `## [${newVersion}] - ${today}\n\n### Added\n- Release automático\n\n`;
+  
+  let content = '';
+  if (fs.existsSync(changelogPath)) {
+    content = fs.readFileSync(changelogPath, 'utf8');
+  }
+  
+  fs.writeFileSync(changelogPath, newEntry + content, 'utf8');
+}
+
+function commitAndPush(newVersion) {
+  try {
+    execSync('git add package.json CHANGELOG.md', { stdio: 'inherit' });
+    execSync(`git commit -m "chore: Release v${newVersion}"`, { stdio: 'inherit' });
+    execSync('git push origin main', { stdio: 'inherit' });
+  } catch (error) {
+    throw new Error(`Error en git operaciones: ${error.message}`);
+  }
+}
+
 async function dispatchGitHubActionsWorkflow(releaseType) {
   // Token via env var o fallback a gh auth token para evitar setearlo cada sesión
   const getGithubToken = () => {
