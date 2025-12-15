@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User as UserType, IAProvider } from '../types';
 import { getUserSettings, saveUserSettings, encryptCredential, decryptCredential } from '../services/userSettingsService';
-import { X, Save, Lock, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
+import { openGoogleOAuthPopup, validateGoogleToken } from '../services/googleOAuthService';
+import { X, Save, Lock, Zap, Sparkles, CheckCircle2, LogIn } from 'lucide-react';
 
 interface UserSettingsProps {
   user: UserType;
@@ -19,6 +20,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
   const [showApiKey, setShowApiKey] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const settings = getUserSettings(user.id);
@@ -53,6 +55,22 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
     }
     setGeminiLoginValidatedAt(Date.now());
     setValidationMessage('Login validado (marcado localmente).');
+  };
+
+  const handleOpenGoogleLogin = async () => {
+    setIsLoggingIn(true);
+    setValidationMessage('Abriendo ventana de autenticación...');
+    
+    try {
+      const token = await openGoogleOAuthPopup();
+      setGoogleToken(token);
+      setGeminiLoginValidatedAt(Date.now());
+      setValidationMessage('✓ Autenticación exitosa. Token recibido.');
+      setIsLoggingIn(false);
+    } catch (error) {
+      setValidationMessage(`Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      setIsLoggingIn(false);
+    }
   };
 
   const handleValidateGeminiApiKey = () => {
@@ -185,26 +203,39 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
 
               {geminiMode === 'login' && (
                 <div className="space-y-2">
-                  <label className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Token de acceso Google (pegalo desde tu login)</label>
-                  <input
-                    type="text"
-                    value={googleToken}
-                    onChange={(e) => setGoogleToken(e.target.value)}
-                    placeholder="token de OAuth..."
-                    className={`w-full px-4 py-2 rounded-lg border ${isDark ? 'border-slate-700 bg-slate-800 text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-900'}`}
-                  />
+                  <label className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                    Token de acceso Google (obtenido automáticamente)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={googleToken}
+                      onChange={(e) => setGoogleToken(e.target.value)}
+                      placeholder="Token será llenado automáticamente..."
+                      className={`flex-1 px-4 py-2 rounded-lg border ${isDark ? 'border-slate-700 bg-slate-800 text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-900'}`}
+                    />
+                  </div>
                   <button
                     type="button"
-                    onClick={handleValidateGeminiLogin}
-                    className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95"
+                    onClick={handleOpenGoogleLogin}
+                    disabled={isLoggingIn}
+                    className={`w-full px-4 py-2 rounded-lg text-white text-sm font-semibold flex items-center justify-center gap-2 ${
+                      isLoggingIn
+                        ? 'bg-slate-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
+                    } transition-all`}
                   >
-                    Validar login
+                    <LogIn size={16} />
+                    {isLoggingIn ? 'Autenticando...' : 'Abrir Login con Google'}
                   </button>
                   {geminiLoginValidatedAt && (
                     <p className="text-xs text-emerald-500 flex items-center gap-1">
                       <CheckCircle2 size={14} /> Login validado
                     </p>
                   )}
+                  <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Se abrirá una ventana para autenticar con tu cuenta de Google. El token se completará automáticamente.
+                  </p>
                 </div>
               )}
 

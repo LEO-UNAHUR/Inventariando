@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { initAnalytics, trackEvent } from './services/analyticsService';
 import { 
   Product, User, View, Role, Sale, Customer, Supplier, 
@@ -34,11 +34,12 @@ import SecurityPanel from './components/SecurityPanel';
 import TeamManagement from './components/TeamManagement';
 import UserProfile from './components/UserProfile';
 import DataManagement from './components/DataManagement';
-import Sidebar from './components/Sidebar';
+import { Sidebar } from './components/Sidebar';
 import ExpenseForm from './components/ExpenseForm';
 import FeedbackWidget from './components/FeedbackWidget';
 import UserSettings from './components/UserSettings';
 import AnalyticsInternalDashboard from './components/AnalyticsInternalDashboard';
+import SystemConfig from './components/SystemConfig';
 import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -64,6 +65,9 @@ const App: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
 
+    // -- Refs --
+    const mainRef = useRef<HTMLDivElement | null>(null);
+
   // -- Modal / Form States --
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -79,6 +83,7 @@ const App: React.FC = () => {
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [showUserSettings, setShowUserSettings] = useState(false);
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
+    const [showSystemConfig, setShowSystemConfig] = useState(false);
   const [showTour, setShowTour] = useState(false);
 
   // -- Initialization --
@@ -132,6 +137,21 @@ const App: React.FC = () => {
             trackEvent('feature_accessed', { view: currentView });
         }
     }, [currentView, currentUser]);
+
+    // Reset scroll to top on section change (keeps main content aligned while sidebar scrolls independently)
+    useEffect(() => {
+        if (mainRef.current) {
+            mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentView]);
+
+    // Close any open overlays when changing section to avoid stacked screens (but preserve tour since it navigates intentionally)
+    useEffect(() => {
+        if (!showTour) {
+            closeAllOverlays();
+        }
+    }, [currentView, showTour]);
 
   // -- Data Handlers --
 
@@ -343,10 +363,46 @@ const App: React.FC = () => {
       }
   };
 
+  const closeAllOverlays = () => {
+      setShowProductForm(false);
+      setEditingProduct(null);
+      setShowSupplierForm(false);
+      setEditingSupplier(null);
+      setShowCustomerForm(false);
+      setEditingCustomer(null);
+      setShowExpenseForm(false);
+      setShowDataManagement(false);
+      setShowUserSettings(false);
+      setShowAnalyticsDashboard(false);
+      setShowSystemConfig(false);
+      setShowTour(false);
+  };
+
+  const openDataManagement = () => {
+      closeAllOverlays();
+      setShowDataManagement(true);
+  };
+
+  const openSystemConfig = () => {
+      closeAllOverlays();
+      setShowSystemConfig(true);
+  };
+
+  const openAnalyticsDashboard = () => {
+      closeAllOverlays();
+      setShowAnalyticsDashboard(true);
+  };
+
+  const handleCloseSidebar = () => {
+      if (!isDesktop) {
+          setIsSidebarOpen(false);
+      }
+  };
+
   // -- Views Rendering --
 
   if (!currentUser) {
-      return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} />;
+      return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} onToggleDarkMode={() => setIsDark(!isDark)} />;
   }
 
   const renderContent = () => {
@@ -357,7 +413,7 @@ const App: React.FC = () => {
                     products={products} 
                     isDark={isDark} 
                     onToggleTheme={() => setIsDark(!isDark)}
-                    onOpenDataManagement={() => setShowDataManagement(true)}
+                      onOpenDataManagement={openDataManagement} 
                     onNavigate={setCurrentView}
                     onShowTour={() => setShowTour(true)}
                     onHideTour={() => setShowTour(false)}
@@ -469,33 +525,33 @@ const App: React.FC = () => {
                     products={products} 
                     isDark={isDark} 
                     onToggleTheme={() => setIsDark(!isDark)}
-                    onOpenDataManagement={() => setShowDataManagement(true)}
-                    onNavigate={setCurrentView}
+                                        onOpenDataManagement={openDataManagement}
+                                        onNavigate={setCurrentView}
                 />
               );
       }
   };
 
-  return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
+    return (
+        <div className="flex min-h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-x-hidden">
       
       {/* Sidebar */}
       <Sidebar 
           isOpen={isSidebarOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
+          onClose={handleCloseSidebar} 
           onNavigate={setCurrentView} 
           currentView={currentView}
           currentUser={currentUser}
           onLogout={() => setCurrentUser(null)}
-          onOpenDataManagement={() => setShowDataManagement(true)}
-          onOpenUserSettings={() => setShowUserSettings(true)}
-          onOpenAnalyticsDashboard={() => setShowAnalyticsDashboard(true)}
+          onOpenDataManagement={openDataManagement}
+          onOpenSystemConfig={openSystemConfig}
+          onOpenAnalyticsDashboard={openAnalyticsDashboard}
           isDark={isDark}
           isDesktop={isDesktop}
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full w-full relative">
+            <div className="flex-1 flex flex-col h-full w-full relative">
           
           {/* Mobile Top Bar (Only visible if not in POS/Fullscreen modes ideally, but keeping simple) */}
           {currentView !== View.POS && (
@@ -509,8 +565,12 @@ const App: React.FC = () => {
           )}
 
           {/* View Content */}
-          <main className="flex-1 overflow-hidden relative">
-              {renderContent()}
+                    <main ref={mainRef} className={`flex-1 overflow-y-auto relative ${!isSidebarOpen && isDesktop ? 'pt-12' : ''}`}>
+                            <div className="w-full flex justify-center items-start">
+                                <div className="w-full max-w-screen-2xl px-6 lg:px-12 py-6">
+                                    {renderContent()}
+                                </div>
+                            </div>
           </main>
 
           {/* Bottom Navigation (Mobile) */}
@@ -617,6 +677,13 @@ const App: React.FC = () => {
               user={currentUser}
               isDark={isDark}
               onClose={() => setShowUserSettings(false)}
+          />
+      )}
+
+      {showSystemConfig && (
+          <SystemConfig 
+              isDark={isDark}
+              onClose={() => setShowSystemConfig(false)}
           />
       )}
 

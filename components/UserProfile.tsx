@@ -147,12 +147,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Mi Perfil</h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 pb-32 max-w-lg mx-auto w-full">
+        <div className="flex-1 overflow-y-auto p-4 pb-32 max-w-5xl mx-auto w-full">
             
             <form onSubmit={handleSubmit} className="space-y-6">
                 
-                {/* Avatar Selection */}
-                <div className="flex flex-col items-center gap-6 py-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                {/* Top Grid: Avatar + Datos */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Avatar Selection */}
+                  <div className="flex flex-col items-center gap-6 py-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                     <div className="relative group">
                         {renderAvatar(avatar, 'w-28 h-28')}
                         <button 
@@ -186,9 +188,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                             ))}
                         </div>
                     </div>
-                </div>
+                  </div>
 
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-5">
+                  {/* Datos Básicos */}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-5">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nombre Completo</label>
                         <div className="relative">
@@ -249,9 +252,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                             </button>
                         </div>
                     </div>
+                  </div>
                 </div>
 
-                {/* Preferences Section */}
+                {/* Preferences Section (Right Column full width below on mobile) */}
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
                     <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">Preferencias</h3>
 
@@ -386,7 +390,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
 
                 <button 
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95 transition-all"
+                    className="w-full md:w-64 mx-auto bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95 transition-all"
                 >
                     <Save size={24} />
                     Guardar Cambios

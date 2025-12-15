@@ -17,6 +17,9 @@ Beta.3 focuses on **User Customization & Analytics** — empowering users with p
 - Gemini ahora permite dos modos por usuario: login con token de Google **o** API Key directa, con validación y almacenamiento cifrado.
 - IA Assistant utiliza la credencial de Gemini por usuario (token o API key) y avisa cuando falta configuración.
 - Nuevos campos en `UserSettings` para verificación de WhatsApp y credenciales de Gemini; helpers de servicio para generar/verificar códigos.
+- Nuevo modal de **Configuración del Sistema** (tema por defecto, idioma, moneda, backup automático) separado de la sección de IA.
+- Sidebar con icono de cierre explícito y cierre en escritorio; menú “Configuración” ya no abre IA.
+- Perfil de usuario optimizado para desktop (grilla 2 columnas, ancho ampliado) manteniendo responsive.
 
 **Impacted files:**
 - [UserProfile.tsx](../../components/UserProfile.tsx) – UI de verificación WhatsApp, preferencias siguen en el perfil.
@@ -182,12 +185,13 @@ Real-time metrics visualization for app usage patterns and feature adoption.
 
 ## 🔗 Related Documentation
 
-### Previous Betas
+### Phase Releases
 - [Phase 1 - Beta.1 Release Notes](./PHASE-1-BETA.1.md)
 - [Phase 1 - Beta.2 Release Notes](./PHASE-1-BETA.2.md)
+- [Phase 2 - Roadmap & Planning](./PHASE-2-ROADMAP.md)
 
-### Roadmap
-- [Roadmap](../../Fases%20de%20la%20App/Roadmap-app.md)
+### Project Resources
+- [General Roadmap](../../Fases%20de%20la%20App/Roadmap-app.md)
 
 ### Technical
 - [analyticsService.ts](../../services/analyticsService.ts) - Event tracking foundation (12 events)
@@ -322,10 +326,14 @@ setLanguage(settings.language ?? 'es');
 - ⏳ QA test coverage
 
 ### Phase 2 Planned Features
-- Real-time team notifications
-- Advanced reporting (PDF exports with charts)
-- Multi-user collaboration (simultaneous inventory edits)
-- API integration (ERP, accounting systems)
+- 🎓 **Enhanced Onboarding Tour** — Expand tour from 4 to 12+ steps covering all sections
+- 🔔 **First-Visit Notification** — Auto-display welcome banner to new users with tour invitation
+- 📊 Real-time team notifications
+- 📄 Advanced reporting (PDF exports with charts)
+- 👥 Multi-user collaboration (simultaneous inventory edits)
+- 🔌 API integration (ERP, accounting systems)
+
+→ *See [PHASE-2-ROADMAP.md](../PHASE-2-ROADMAP.md) for detailed Phase 2 planning.*
 
 ---
 

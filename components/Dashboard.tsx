@@ -238,7 +238,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
         </div>
         
         {/* Chart Container */}
-        <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+        <div style={{ width: '100%', height: 300, minHeight: 300, minWidth: 520 }}>
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

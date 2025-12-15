@@ -15,12 +15,20 @@
 
 ### Changed
 - Release automático via GitHub Actions (MVP)
+- Nuevo panel de Configuración del Sistema (tema por defecto, idioma, moneda y backup automático) separado de la sección de IA.
+- Sidebar con botón de reapertura en escritorio para evitar quedar sin menú.
 
 ## 🆕 Novedad: Phase 1 Beta.3 (2025-12-15)
 - Verificación de WhatsApp con código de 6 dígitos y caducidad; el usuario se envía el código vía WhatsApp (sin gateway externo).
 - Gemini por usuario ahora acepta login con token o API Key, con validación y almacenamiento cifrado local.
 - El asistente IA usa la credencial de Gemini por usuario; las preferencias de usuario permanecen en el Perfil y la configuración de IA solo en el panel de IA.
 - Detalles completos en [docs/releases/PHASE-1-BETA.3.md](docs/releases/PHASE-1-BETA.3.md).
+
+## 🚀 Próxima: Phase 2 (Q1 2026)
+- 🎓 Enhanced Onboarding Tour — Expand to 12+ steps covering all sections
+- 🔔 First-Visit Notification — Welcome banner for new users
+- Real-time team notifications, advanced reporting, API integration
+- [Ver Roadmap](docs/releases/PHASE-2-ROADMAP.md)
 
 ---
 
