@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { trackEvent } from '../services/analyticsService';
 import { Product, Category, Supplier, ProductSupplierInfo } from '../types';
 import { suggestProductDetails } from '../services/geminiService';
 import { formatCurrency } from '../constants';
@@ -75,6 +76,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
       barcode
     };
     onSave(newProduct);
+    try {
+      trackEvent('product_added', { productName: newProduct.name, category: newProduct.category });
+    } catch {}
   };
 
   const handleAddSupplier = () => {

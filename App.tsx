@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { initAnalytics, trackEvent } from './services/analyticsService';
 import { 
   Product, User, View, Role, Sale, Customer, Supplier, 
   Expense, Promotion, StockMovement, MovementType, Category
@@ -75,6 +76,12 @@ const App: React.FC = () => {
 
   // -- Initialization --
   useEffect(() => {
+        // Init analytics with env if present (Phase 1 - Beta.1)
+        const endpoint = (import.meta as any)?.env?.VITE_ANALYTICS_ENDPOINT;
+        const apiKey = (import.meta as any)?.env?.VITE_ANALYTICS_API_KEY;
+        initAnalytics({ enabled: !!endpoint && !!apiKey, endpoint, apiKey });
+        trackEvent('app_opened');
+
     setProducts(getStoredProducts());
     setUsers(getStoredUsers());
     setSales(getStoredSales());
