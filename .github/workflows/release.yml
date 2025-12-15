@@ -140,10 +140,10 @@ jobs:
           echo "📦 APK disponible en: APK/v${{ steps.extract_version.outputs.version }}/"
           echo "🔗 GitHub Release: https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v${{ steps.extract_version.outputs.version }}"
 
-      - name: 🌐 Build PWA (stable only)
+      - name: 🌐 Build PWA for GitHub Pages (stable only)
         if: ${{ github.event.inputs.release_type == 'stable' }}
         run: |
-          npm run build:web
+          npm run build:web:pages
 
       - name: 🚀 Deploy to GitHub Pages (stable only)
         if: ${{ github.event.inputs.release_type == 'stable' }}
