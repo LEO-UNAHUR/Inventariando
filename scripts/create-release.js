@@ -337,6 +337,51 @@ Los APK se generan automáticamente en cada release y están disponibles en:
   }
 }
 
+function updatePackageJsonVersion(version) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
+    pkg.version = version;
+    fs.writeFileSync(PACKAGE_JSON, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+    log.success(`package.json actualizado a ${version}`);
+  } catch (error) {
+    log.warning(`Error actualizando package.json: ${error.message}`);
+  }
+}
+
+function updateChangelog(version, releaseType) {
+  try {
+    const changelogPath = path.join(PROJECT_ROOT, 'CHANGELOG.md');
+    const today = new Date().toISOString().split('T')[0];
+    const entry = `## [${version}] - ${today}\n\n### ${releaseType === 'beta' ? 'Changed' : 'Added'}\n- Release ${releaseType}\n\n`;
+
+    let content = '';
+    if (fs.existsSync(changelogPath)) {
+      content = fs.readFileSync(changelogPath, 'utf8');
+    }
+
+    // Prepend nueva entrada si no existe
+    if (!content.startsWith(entry)) {
+      content = entry + content;
+    }
+
+    fs.writeFileSync(changelogPath, content, 'utf8');
+    log.success('CHANGELOG.md actualizado');
+  } catch (error) {
+    log.warning(`Error actualizando CHANGELOG: ${error.message}`);
+  }
+}
+
+function commitAndPushDocs(version) {
+  try {
+    execSync('git add README.md CHANGELOG.md package.json docs APK', { stdio: 'inherit' });
+    execSync(`git commit -m "chore: docs for v${version}"`, { stdio: 'inherit' });
+    execSync('git push origin main', { stdio: 'inherit' });
+    log.success('Documentación commiteada y pusheada');
+  } catch (error) {
+    log.warning(`No se pudo commitear/pushear automáticamente: ${error.message}`);
+  }
+}
+
 function generateVersionDocument(version, releaseType) {
   try {
     const pkgJson = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
@@ -556,17 +601,23 @@ ${colors.bold}Resumen:${colors.reset}
     log.step(4, 'Descargando APK desde GitHub Releases...');
     await downloadAndCopyAPK(next);
 
-    // 5. Actualizar README.md
-    log.step(5, 'Actualizando documentación...');
+    // 5. Sincronizar versión y changelog locales
+    log.step(5, 'Sincronizando versión local y changelog...');
+    updatePackageJsonVersion(next);
+    updateChangelog(next, releaseType);
+
+    // 6. Actualizar documentación
+    log.step(6, 'Actualizando documentación...');
     updateReadme(releaseType, next);
     updateAPKReadme(next);
+    generateVersionDocument(next, releaseType);
 
-     // 6. Generar documento de versión
-     log.step(6, 'Generando documento de versión...');
-     generateVersionDocument(next, releaseType);
+    // 7. Commit y push de la documentación
+    log.step(7, 'Publicando documentación...');
+    commitAndPushDocs(next);
 
-     // 7. Éxito
-     log.step(7, 'Proceso completado');
+     // 8. Éxito
+     log.step(8, 'Proceso completado');
      console.log(`
   ${colors.green}${colors.bold}✅ RELEASE CREADO EXITOSAMENTE${colors.reset}
 
