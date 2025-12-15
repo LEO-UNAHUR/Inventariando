@@ -23,6 +23,7 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 - Feedback widget in-app (rating + texto + contexto de vista).
 - Programa piloto 10 comercios (onboarding guiado, canal de soporte, seguimiento semanal).
 - Quick wins: landing simple con demo, tour guiado, exportar factura PDF, templates WhatsApp, toggle dark mode visible, indicador de sync/backup.
+- IA (base gratis): Gemini accesible solo si el usuario inicia sesión con su cuenta de Google; nosotros no proveemos ni gestionamos la key. Dropdown limitado a Gemini en esta fase para controlar UX y costos.
 
 **Cambios técnicos**
 - Instrumentación de eventos + dashboard interno.
@@ -31,7 +32,7 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 **Betas**
 - Beta.1: eventos mínimos + landing + tour guiado.
 - Beta.2: feedback widget + PDF/WhatsApp + indicador de sync.
-- Beta.3: piloto activo (10 cuentas) + monitoreo de métricas.
+- Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
 
 **Criterios stable (v1.1.0)**
 - D7 ≥ 25%, D30 ≥ 15% en piloto; NPS ≥ 30.
@@ -77,18 +78,18 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 
 **Funcionalidades nuevas**
 - Tiers: FREE, PRO ($5 USD/mes), ENTERPRISE ($13 USD/mes) con límites por plan.
-- Proxy backend para Gemini: api key oculta, rate limiting y cuotas por usuario/plan.
 - Facturación AFIP via proveedor certificado (plug-in desacoplado).
 - Billing/checkout (Mercado Pago primero; Stripe opcional para internacional).
 - Pricing page y flujo de upgrade in-app.
+- Selector de modelos IA (solo en sección “Inteligencia Artificial”): opciones Gemini (Google), ChatGPT (OpenAI), Anthropic. Cada proveedor requiere login/credenciales del usuario (no aportamos keys propias). Guardar keys cifradas en backend; no exponer al frontend.
 
 **Cambios técnicos**
 - Modelado de suscripciones y límites (productos, usuarios, IA requests, cloud sync).
 - Métricas de monetización: conversión Free→PRO, MRR, LTV, CAC.
 
 **Betas**
-- Beta.1: tiers visibles + límites soft en frontend; proxy IA operativo.
-- Beta.2: cobro PRO activo (Mercado Pago) + AFIP sandbox.
+- Beta.1: tiers visibles + límites soft en frontend.
+- Beta.2: cobro PRO activo (Mercado Pago) + AFIP sandbox + selector IA con login/keys del usuario (Gemini vía Google login; ChatGPT/Anthropic vía API key del usuario) y validaciones.
 - Beta.3: enforcement de límites server-side + dashboards de uso y costos IA.
 
 **Criterios stable (v2.5.0)**
