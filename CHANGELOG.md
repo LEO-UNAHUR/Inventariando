@@ -1,3 +1,9 @@
+## [1.4.2] - 2025-12-15
+
+### Added
+- Release estable publicado (APK + PWA)
+- README actualizado a 1.4.2
+
 ## [1.4.1] - 2025-12-15
 
 ### Added
