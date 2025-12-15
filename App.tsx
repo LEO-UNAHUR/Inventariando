@@ -38,6 +38,7 @@ import Sidebar from './components/Sidebar';
 import ExpenseForm from './components/ExpenseForm';
 import FeedbackWidget from './components/FeedbackWidget';
 import UserSettings from './components/UserSettings';
+import AnalyticsInternalDashboard from './components/AnalyticsInternalDashboard';
 import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -77,6 +78,7 @@ const App: React.FC = () => {
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [showUserSettings, setShowUserSettings] = useState(false);
+  const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
   const [showTour, setShowTour] = useState(false);
 
   // -- Initialization --
@@ -487,6 +489,7 @@ const App: React.FC = () => {
           onLogout={() => setCurrentUser(null)}
           onOpenDataManagement={() => setShowDataManagement(true)}
           onOpenUserSettings={() => setShowUserSettings(true)}
+          onOpenAnalyticsDashboard={() => setShowAnalyticsDashboard(true)}
           isDark={isDark}
           isDesktop={isDesktop}
       />
@@ -614,6 +617,14 @@ const App: React.FC = () => {
               user={currentUser}
               isDark={isDark}
               onClose={() => setShowUserSettings(false)}
+          />
+      )}
+
+      {showAnalyticsDashboard && (
+          <AnalyticsInternalDashboard 
+              isDark={isDark}
+              onToggleTheme={() => setIsDark(!isDark)}
+              onClose={() => setShowAnalyticsDashboard(false)}
           />
       )}
 
