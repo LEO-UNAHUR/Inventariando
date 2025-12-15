@@ -1,6 +1,29 @@
-# Documentación del Proyecto
+# 📚 Índice de Documentación - Inventariando
 
-## � Estructura de Documentación
+**Última Actualización:** 15 de diciembre de 2025
+
+---
+
+## 🚀 DOCUMENTO MAESTRO DE RELEASES
+
+### **[RELEASE_SYSTEM.md](RELEASE_SYSTEM.md)** - ⭐ DOCUMENTO ÚNICO Y COMPLETO
+**Sistema Completo de Releases, Scripts, Workflows y Builds Duales**
+
+Este documento consolida TODA la información sobre:
+- ✅ Cómo hacer releases (beta y stable)
+- ✅ Arquitectura del sistema de releases
+- ✅ Scripts y herramientas (create-release.js, bump-version.js, etc.)
+- ✅ GitHub Actions workflow completo
+- ✅ Builds duales (Android APK + Web PWA)
+- ✅ Versionado automático (semver)
+- ✅ Despliegue a GitHub Pages
+- ✅ Troubleshooting completo
+
+**📖 Lee este documento para entender el sistema de releases completo.**
+
+---
+
+## 📄 Estructura de Documentación
 
 Este directorio contiene toda la documentación del proyecto Inventariando, organizada por propósito:
 

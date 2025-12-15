@@ -301,53 +301,68 @@ Inventariando evolucionará en 4 fases principales, cada una con betas intermedi
 ## 🚀 Release Process (Completamente Automatizado)
 
 ### 📋 Resumen Rápido
-El sistema de releases automatizado maneja **versiones beta y stable** con estrategia de correlatividad:
 
 ```bash
 # Beta (aprendizaje/validación)
-npm run release:create beta
+npm run release:beta
 
 # Stable (despliegue amplio)
-npm run release:create stable
+npm run release:stable
 ```
 
 **El sistema hace automáticamente:**
-- ✅ Calcula y valida la siguiente versión (sin conflictos)
-- ✅ Actualiza `package.json` 
-- ✅ Commit + push automático
+- ✅ Calcula y valida la siguiente versión (semver automático)
+- ✅ Actualiza `package.json` + `CHANGELOG.md`
 - ✅ Dispara GitHub Actions workflow
-- ✅ Compila APK (Java 21 + Gradle 8.14)
-- ✅ Crea GitHub Release con assets
-- ✅ Despliega PWA a GitHub Pages (stable)
+- ✅ Compila APK Android (Java 21 + Gradle 8.14)
+- ✅ Compila Web App PWA para GitHub Pages
+- ✅ Crea GitHub Release con APK adjunto
+- ✅ Despliega PWA a GitHub Pages (solo stable)
+- ✅ Genera documentación de versión
+- ✅ Commit + push automático
+
+**Resultado:** En 5-6 minutos tienes APK + Web App listos para distribución.
+
+### 🏗️ Arquitectura de Builds Duales (PWA + Android)
+
+Cada release genera **DOS versiones** automáticamente:
+
+| Versión | Base URL | Ubicación | Para |
+|---------|----------|-----------|------|
+| **📱 APK Android** | `/` | `APK/v{version}/` | Dispositivos Android |
+| **🌐 Web App PWA** | `/Inventariando/` | GitHub Pages | Navegadores web |
+
+**Técnica:** 
+- Vite detecta modo de compilación (`mode === 'pages'`)
+- Aplica `base` path correcto automáticamente
+- Evita conflictos entre Capacitor (Android) y GitHub Pages
+
+Detalles completos en: **[docs/RELEASE_SYSTEM.md](docs/RELEASE_SYSTEM.md)**
 
 ### 🔧 Estrategia de Versiones
 ```
-1.4.0 (MVP stable, congelado)
+1.4.4 (actual stable)
   ↓
-1.1.0-beta.1 (Fase 1, Beta 1)
+1.5.0-beta (próxima beta)
   ↓
-1.1.0-beta.2 (Fase 1, Beta 2)
+1.5.1-beta (iteración beta)
   ↓
-1.1.0-beta.3 (Fase 1, Beta 3)
+1.5.1 (stable)
   ↓
-1.1.0 (Fase 1 stable)
-  ↓
-2.0.0-beta.1 (Fase 2, Beta 1)
-  ... y así sucesivamente
+1.5.2 (siguiente stable)
 ```
 
-**Ramas correspondientes:**
-- `main`: v1.4.0 (MVP congelado, protegido)
-- `phase-1-validation`: v1.1.x (betas + stable de Fase 1)
-- `phase-2-scalability`: v2.0.x (betas + stable de Fase 2)
-- etc.
+### 📖 Documentación Completa del Sistema de Releases
 
-### 📖 Documentación Completa
-Ver [RELEASE_AUTO_GUIDE.md](./RELEASE_AUTO_GUIDE.md) y [Fases de la App/Roadmap-app.md](./Fases%20de%20la%20App/Roadmap-app.md) para:
-- Configuración detallada
-- Troubleshooting
-- Validaciones de seguridad
-- Flujos de hotfix
+**👉 [docs/RELEASE_SYSTEM.md](docs/RELEASE_SYSTEM.md)** - Documento maestro único que explica:
+- ✅ Arquitectura completa del sistema
+- ✅ Flujo detallado de cada paso
+- ✅ Scripts y herramientas (create-release.js, bump-version.js, etc.)
+- ✅ GitHub Actions workflow explicado
+- ✅ Builds duales (Android + Web)
+- ✅ Versionado automático (semver)
+- ✅ Despliegue a GitHub Pages
+- ✅ Troubleshooting completo
 
 ---
 
