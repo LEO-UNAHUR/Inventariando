@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { initAnalytics, trackEvent } from './services/analyticsService';
 import { 
   Product, User, View, Role, Sale, Customer, Supplier, 
   Expense, Promotion, StockMovement, MovementType, Category
@@ -27,13 +28,18 @@ import SupplierForm from './components/SupplierForm';
 import CustomerList from './components/CustomerList';
 import CustomerForm from './components/CustomerForm';
 import Promotions from './components/Promotions';
+import OnboardingTour from './components/OnboardingTour';
 import AIAssistant from './components/AIAssistant';
 import SecurityPanel from './components/SecurityPanel';
 import TeamManagement from './components/TeamManagement';
 import UserProfile from './components/UserProfile';
 import DataManagement from './components/DataManagement';
-import Sidebar from './components/Sidebar';
+import { Sidebar } from './components/Sidebar';
 import ExpenseForm from './components/ExpenseForm';
+import FeedbackWidget from './components/FeedbackWidget';
+import UserSettings from './components/UserSettings';
+import AnalyticsInternalDashboard from './components/AnalyticsInternalDashboard';
+import SystemConfig from './components/SystemConfig';
 import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -59,6 +65,9 @@ const App: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
 
+    // -- Refs --
+    const mainRef = useRef<HTMLDivElement | null>(null);
+
   // -- Modal / Form States --
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -72,9 +81,19 @@ const App: React.FC = () => {
 
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showDataManagement, setShowDataManagement] = useState(false);
+  const [showUserSettings, setShowUserSettings] = useState(false);
+  const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
+    const [showSystemConfig, setShowSystemConfig] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   // -- Initialization --
   useEffect(() => {
+        // Init analytics with env if present (Phase 1 - Beta.1)
+        const endpoint = (import.meta as any)?.env?.VITE_ANALYTICS_ENDPOINT;
+        const apiKey = (import.meta as any)?.env?.VITE_ANALYTICS_API_KEY;
+        initAnalytics({ enabled: !!endpoint && !!apiKey, endpoint, apiKey });
+        trackEvent('app_opened');
+
     setProducts(getStoredProducts());
     setUsers(getStoredUsers());
     setSales(getStoredSales());
@@ -112,6 +131,28 @@ const App: React.FC = () => {
     }
   }, [isDark]);
 
+    // Track feature access on navigation (Phase 1 - Beta.1)
+    useEffect(() => {
+        if (currentUser) {
+            trackEvent('feature_accessed', { view: currentView });
+        }
+    }, [currentView, currentUser]);
+
+    // Reset scroll to top on section change (keeps main content aligned while sidebar scrolls independently)
+    useEffect(() => {
+        if (mainRef.current) {
+            mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentView]);
+
+    // Close any open overlays when changing section to avoid stacked screens (but preserve tour since it navigates intentionally)
+    useEffect(() => {
+        if (!showTour) {
+            closeAllOverlays();
+        }
+    }, [currentView, showTour]);
+
   // -- Data Handlers --
 
   const handleUpdateProducts = (updatedProducts: Product[]) => {
@@ -129,6 +170,16 @@ const App: React.FC = () => {
           const diff = product.stock - exists.stock;
           logMovement(product.id, product.name, MovementType.ADJUSTMENT, diff, 'Ajuste manual en edición');
       }
+            try {
+                const stockDiff = product.stock - exists.stock;
+                trackEvent('inventory_updated', {
+                    productId: product.id,
+                    name: product.name,
+                    stockDiff,
+                    priceChanged: exists.price !== product.price,
+                    costChanged: exists.cost !== product.cost,
+                });
+            } catch {}
     } else {
       newProducts = [...products, product];
       logMovement(product.id, product.name, MovementType.IN, product.stock, 'Inventario Inicial');
@@ -168,6 +219,17 @@ const App: React.FC = () => {
       const newSales = [...sales, sale];
       setSales(newSales);
       saveStoredSales(newSales);
+
+            // Analytics: sale completed
+            try {
+                    trackEvent('sale_completed', {
+                        total: sale.total,
+                        items: sale.items?.reduce((acc, i) => acc + i.quantity, 0) || 0,
+                        paymentMethod: sale.paymentMethod,
+                        hasCustomer: !!sale.customerId,
+                        fiscalType: sale.fiscalType,
+                    });
+            } catch {}
 
       // 2. Update Stock & Log Movements
       let currentProducts = [...products];
@@ -301,10 +363,46 @@ const App: React.FC = () => {
       }
   };
 
+  const closeAllOverlays = () => {
+      setShowProductForm(false);
+      setEditingProduct(null);
+      setShowSupplierForm(false);
+      setEditingSupplier(null);
+      setShowCustomerForm(false);
+      setEditingCustomer(null);
+      setShowExpenseForm(false);
+      setShowDataManagement(false);
+      setShowUserSettings(false);
+      setShowAnalyticsDashboard(false);
+      setShowSystemConfig(false);
+      setShowTour(false);
+  };
+
+  const openDataManagement = () => {
+      closeAllOverlays();
+      setShowDataManagement(true);
+  };
+
+  const openSystemConfig = () => {
+      closeAllOverlays();
+      setShowSystemConfig(true);
+  };
+
+  const openAnalyticsDashboard = () => {
+      closeAllOverlays();
+      setShowAnalyticsDashboard(true);
+  };
+
+  const handleCloseSidebar = () => {
+      if (!isDesktop) {
+          setIsSidebarOpen(false);
+      }
+  };
+
   // -- Views Rendering --
 
   if (!currentUser) {
-      return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} />;
+      return <LoginScreen users={users} onLogin={setCurrentUser} isDark={isDark} onToggleDarkMode={() => setIsDark(!isDark)} />;
   }
 
   const renderContent = () => {
@@ -315,7 +413,10 @@ const App: React.FC = () => {
                     products={products} 
                     isDark={isDark} 
                     onToggleTheme={() => setIsDark(!isDark)}
-                    onOpenDataManagement={() => setShowDataManagement(true)}
+                      onOpenDataManagement={openDataManagement} 
+                    onNavigate={setCurrentView}
+                    onShowTour={() => setShowTour(true)}
+                    onHideTour={() => setShowTour(false)}
                 />
               );
           case View.INVENTORY:
@@ -388,7 +489,7 @@ const App: React.FC = () => {
                   />
               );
           case View.ANALYSIS:
-              return <AIAssistant products={products} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
+              return <AIAssistant products={products} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} currentUser={currentUser} onOpenSettings={() => setShowUserSettings(true)} />;
           case View.HISTORY: // Not in sidebar but good to have
               return <StockHistory movements={movements} isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />;
           case View.PROMOTIONS:
@@ -424,29 +525,33 @@ const App: React.FC = () => {
                     products={products} 
                     isDark={isDark} 
                     onToggleTheme={() => setIsDark(!isDark)}
+                                        onOpenDataManagement={openDataManagement}
+                                        onNavigate={setCurrentView}
                 />
               );
       }
   };
 
-  return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
+    return (
+        <div className="flex min-h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-x-hidden">
       
       {/* Sidebar */}
       <Sidebar 
           isOpen={isSidebarOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
+          onClose={handleCloseSidebar} 
           onNavigate={setCurrentView} 
           currentView={currentView}
           currentUser={currentUser}
           onLogout={() => setCurrentUser(null)}
-          onOpenDataManagement={() => setShowDataManagement(true)}
+          onOpenDataManagement={openDataManagement}
+          onOpenSystemConfig={openSystemConfig}
+          onOpenAnalyticsDashboard={openAnalyticsDashboard}
           isDark={isDark}
           isDesktop={isDesktop}
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full w-full relative">
+            <div className="flex-1 flex flex-col h-full w-full relative">
           
           {/* Mobile Top Bar (Only visible if not in POS/Fullscreen modes ideally, but keeping simple) */}
           {currentView !== View.POS && (
@@ -460,8 +565,12 @@ const App: React.FC = () => {
           )}
 
           {/* View Content */}
-          <main className="flex-1 overflow-hidden relative">
-              {renderContent()}
+                    <main ref={mainRef} className={`flex-1 overflow-y-auto relative ${!isSidebarOpen && isDesktop ? 'pt-12' : ''}`}>
+                            <div className="w-full flex justify-center items-start">
+                                <div className="w-full max-w-screen-2xl px-6 lg:px-12 py-6">
+                                    {renderContent()}
+                                </div>
+                            </div>
           </main>
 
           {/* Bottom Navigation (Mobile) */}
@@ -554,6 +663,40 @@ const App: React.FC = () => {
               onClose={() => setShowDataManagement(false)} 
           />
       )}
+
+      {showTour && (
+          <OnboardingTour 
+              open={showTour} 
+              onClose={() => setShowTour(false)} 
+              onNavigate={setCurrentView} 
+          />
+      )}
+
+      {showUserSettings && currentUser && (
+          <UserSettings 
+              user={currentUser}
+              isDark={isDark}
+              onClose={() => setShowUserSettings(false)}
+          />
+      )}
+
+      {showSystemConfig && (
+          <SystemConfig 
+              isDark={isDark}
+              onClose={() => setShowSystemConfig(false)}
+          />
+      )}
+
+      {showAnalyticsDashboard && (
+          <AnalyticsInternalDashboard 
+              isDark={isDark}
+              onToggleTheme={() => setIsDark(!isDark)}
+              onClose={() => setShowAnalyticsDashboard(false)}
+          />
+      )}
+
+            {/* Feedback Widget (floating) */}
+            <FeedbackWidget currentView={currentView} />
 
     </div>
   );

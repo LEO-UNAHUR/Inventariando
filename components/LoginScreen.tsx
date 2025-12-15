@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
 import { User, Role } from '../types';
-import { Store, User as UserIcon, LogIn, ChevronRight, Key, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Store, User as UserIcon, LogIn, ChevronRight, Key, ShieldCheck, RefreshCw, Moon, Sun } from 'lucide-react';
 
 interface LoginScreenProps {
   users: User[];
   onLogin: (user: User) => void;
   isDark: boolean;
+  onToggleDarkMode?: () => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin, isDark }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin, isDark, onToggleDarkMode }) => {
   const [step, setStep] = useState<'SELECT_USER' | 'PASSWORD' | '2FA'>('SELECT_USER');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [password, setPassword] = useState('');
@@ -89,6 +90,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ users, onLogin, isDark }) => 
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-colors duration-300">
+      
+      {/* Dark Mode Toggle */}
+      {onToggleDarkMode && (
+        <button
+          onClick={onToggleDarkMode}
+          className={`absolute top-6 right-6 p-2 rounded-full ${
+            isDark
+              ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+          } transition-colors`}
+          title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+        >
+          {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+      )}
       
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">

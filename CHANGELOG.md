@@ -2,7 +2,34 @@
 
 Todos los cambios notables en Inventariando serán documentados en este archivo.
 
-## [1.1.0-beta] - 2025-12-13
+## [1.4.0-beta] - 2025-12-15
+
+### Added
+- ✅ **Layout & Scroll System**: Scroll independiente para sidebar, auto-reset de contenido al cambiar secciones
+- ✅ **Tour Fixes**: Tour ahora avanza correctamente entre pasos sin cerrarse automáticamente
+- ✅ **Auto-Close Overlays**: Sistema de cierre automático de modales al navegar (excepto Tour)
+- ✅ **Phase 2 Roadmap**: Documentación de mejoras futuras (Enhanced Tour, First-Visit Banner)
+- ✅ **Bug Fixes en UI**: Corrección de stacking de pantallas, scroll bloqueado, scroll position reset
+
+### Changed
+- 🔄 **App Layout**: Container raíz cambió de overflow-hidden a min-h-screen para permitir scroll
+- 🔄 **Main Content**: Ahora con overflow-y-auto y anclado al inicio para mejor UX
+- 🔄 **Documentation Structure**: Fase 2 movida a docs/releases/PHASE-2-ROADMAP.md (respetando estructura)
+- 🔄 **Release Notes**: PHASE-1-BETA.3.md actualizado con referencias a Phase 2
+
+### Fixed
+- 🐛 **Scroll Issue**: Secciones ahora completamente scrolleables sin contenido flotante
+- 🐛 **Modal Stacking**: Abriendo una opción de Sistema cierra automáticamente las anteriores
+- 🐛 **Tour Progression**: Tour avanza sin interrupción cuando el usuario navega pasos
+
+### Documentation
+- 📚 **Phase 2 Planning**: [docs/releases/PHASE-2-ROADMAP.md](docs/releases/PHASE-2-ROADMAP.md) con plan detallado
+- 📚 **Structure Update**: docs/README.md actualizado con referencias correctas a releases
+- 📚 **README Principal**: Sección "Próxima: Phase 2" añadida
+
+---
+
+## [1.3.0-beta] - 2025-12-14
 
 ### Added
 - ✅ **Capacitor Integration**: Soporte para APK Android nativo
@@ -59,4 +86,4 @@ Este changelog sigue [Keep a Changelog](https://keepachangelog.com/es-ES/).
 
 ---
 
-*Última actualización: 13 de Diciembre de 2025*
+*Última actualización: 15 de Diciembre de 2025*

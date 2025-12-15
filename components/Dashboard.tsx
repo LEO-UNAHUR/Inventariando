@@ -1,23 +1,28 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { Product, InventoryStats, AppNotification, NotificationSeverity } from '../types';
+import { Product, InventoryStats, AppNotification, NotificationSeverity, View } from '../types';
 import { StockMovement } from '../types';
 import { formatCurrency } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield, Trash2, Check, CheckCheck, Download, ChevronRight, FileSpreadsheet } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Sun, Moon, Bell, X, Calendar, Activity, Database, Shield, Trash2, Check, CheckCheck, Download, ChevronRight, FileSpreadsheet, LifeBuoy } from 'lucide-react';
 import { getStoredMovements, getDismissedNotifications, saveDismissedNotifications, getReadNotifications, saveReadNotifications } from '../services/storageService';
 import { generateNotifications } from '../services/notificationService';
+import { trackEvent } from '../services/analyticsService';
+import SyncIndicator from './SyncIndicator';
 
 interface DashboardProps {
   products: Product[];
   isDark: boolean;
   onToggleTheme: () => void;
   onOpenDataManagement?: () => void;
+  onNavigate?: (view: View) => void;
+  onShowTour?: () => void;
+  onHideTour?: () => void;
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
 
-const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement }) => {
+const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, onOpenDataManagement, onNavigate, onShowTour, onHideTour }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
@@ -127,6 +132,15 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
       link.setAttribute("href", encodedUri);
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
+            // Analytics: export category
+            try {
+                trackEvent('export_category', {
+                    category: selectedCategory,
+                    count: selectedCategoryProducts.length,
+                    totalValue: selectedCategoryStats.value,
+                    totalStock: selectedCategoryStats.stock,
+                });
+            } catch {}
       link.click();
       document.body.removeChild(link);
   };
@@ -137,12 +151,19 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
   return (
     <div className="h-full overflow-y-auto no-scrollbar p-4 pb-24 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative">
       {/* Header */}
-      <header className="mb-6 flex justify-between items-start">
+      <header className="mb-6 flex justify-between items-start" data-tour="dashboard-header">
         <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Resumen del Negocio</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Estado actual de tu inventario</p>
         </div>
         <div className="flex gap-2">
+            <button 
+                onClick={() => onShowTour?.()}
+                className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                title="Guía Rápida"
+            >
+                <LifeBuoy size={20} />
+            </button>
             {onOpenDataManagement && (
                 <button 
                     onClick={onOpenDataManagement}
@@ -169,6 +190,9 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
             </button>
         </div>
       </header>
+
+      {/* Sync Status Indicator */}
+      <SyncIndicator isDark={isDark} compact={false} />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4">
@@ -214,7 +238,7 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
         </div>
         
         {/* Chart Container */}
-        <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+        <div style={{ width: '100%', height: 300, minHeight: 300, minWidth: 520 }}>
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

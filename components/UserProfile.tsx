@@ -1,7 +1,8 @@
 
 import React, { useState, useRef } from 'react';
 import { User } from '../types';
-import { Save, User as UserIcon, Lock, Camera, ShieldCheck, Upload, Trash2 } from 'lucide-react';
+import { getUserSettings, saveUserSettings, isValidPhoneNumber, formatPhoneForWhatsApp, generateWhatsappCode, verifyWhatsappCode } from '../services/userSettingsService';
+import { Save, User as UserIcon, Lock, Camera, ShieldCheck, Upload, MessageCircle, Bell, Moon, Globe } from 'lucide-react';
 
 interface UserProfileProps {
   user: User;
@@ -18,10 +19,33 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
   const [avatar, setAvatar] = useState(user.avatar || 'AVATAR_1');
   const [is2FA, setIs2FA] = useState(user.is2FAEnabled);
   
+  // New user settings fields
+  const [whatsappPhone, setWhatsappPhone] = useState('');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [darkMode, setDarkMode] = useState(isDark);
+  const [language, setLanguage] = useState('es');
+  const [phoneError, setPhoneError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [verificationMessage, setVerificationMessage] = useState('');
+    const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load user settings from service
+  React.useEffect(() => {
+    const settings = getUserSettings(user.id);
+    setWhatsappPhone(settings.whatsappPhone || '');
+    setNotificationsEnabled(settings.notificationsEnabled ?? true);
+    setDarkMode(settings.darkMode ?? isDark);
+    setLanguage(settings.language ?? 'es');
+        setIsPhoneVerified(!!settings.whatsappVerifiedAt);
+  }, [user.id, isDark]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Update user
     onUpdateUser({
       ...user,
       name,
@@ -30,8 +54,50 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
       avatar,
       is2FAEnabled: is2FA
     });
-    alert('Perfil actualizado correctamente');
+
+    // Save user settings
+    const settings = getUserSettings(user.id);
+    saveUserSettings({
+      ...settings,
+      whatsappPhone: whatsappPhone ? formatPhoneForWhatsApp(whatsappPhone) : undefined,
+      notificationsEnabled,
+      darkMode,
+      language,
+    });
+
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
+
+  const handlePhoneChange = (value: string) => {
+    setWhatsappPhone(value);
+    if (value && !isValidPhoneNumber(value)) {
+      setPhoneError('Número de teléfono inválido (mínimo 10 dígitos)');
+    } else {
+      setPhoneError('');
+    }
+  };
+
+    const handleSendVerificationCode = () => {
+        if (!whatsappPhone || phoneError) {
+            setVerificationMessage('Ingresa un teléfono válido antes de enviar el código');
+            return;
+        }
+        const code = generateWhatsappCode(user.id, whatsappPhone);
+        const formatted = formatPhoneForWhatsApp(whatsappPhone);
+        setVerificationMessage('Código enviado. Revisa tu WhatsApp y pega el código aquí.');
+        window.open(`https://wa.me/${formatted}?text=Tu%20c%C3%B3digo%20de%20verificaci%C3%B3n%20para%20Inventariando%20es:%20${code}`, '_blank');
+    };
+
+    const handleVerifyCode = () => {
+        const ok = verifyWhatsappCode(user.id, verificationCode);
+        if (ok) {
+            setIsPhoneVerified(true);
+            setVerificationMessage('Número verificado correctamente');
+        } else {
+            setVerificationMessage('Código inválido o expirado. Genera uno nuevo.');
+        }
+    };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -81,12 +147,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Mi Perfil</h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 pb-32 max-w-lg mx-auto w-full">
+        <div className="flex-1 overflow-y-auto p-4 pb-32 max-w-5xl mx-auto w-full">
             
             <form onSubmit={handleSubmit} className="space-y-6">
                 
-                {/* Avatar Selection */}
-                <div className="flex flex-col items-center gap-6 py-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                {/* Top Grid: Avatar + Datos */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Avatar Selection */}
+                  <div className="flex flex-col items-center gap-6 py-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                     <div className="relative group">
                         {renderAvatar(avatar, 'w-28 h-28')}
                         <button 
@@ -120,9 +188,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                             ))}
                         </div>
                     </div>
-                </div>
+                  </div>
 
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-5">
+                  {/* Datos Básicos */}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-5">
                     <div>
                         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nombre Completo</label>
                         <div className="relative">
@@ -183,11 +252,145 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                             </button>
                         </div>
                     </div>
+                  </div>
                 </div>
+
+                {/* Preferences Section (Right Column full width below on mobile) */}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">Preferencias</h3>
+
+                    {/* WhatsApp Phone */}
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <MessageCircle size={16} className="text-green-600" />
+                            Teléfono WhatsApp
+                        </label>
+                        <input
+                            type="tel"
+                            value={whatsappPhone}
+                            onChange={(e) => handlePhoneChange(e.target.value)}
+                            placeholder="+54 9 11 2345 6789"
+                            className={`w-full px-4 py-2 rounded-lg border ${
+                              phoneError
+                                ? 'border-red-300 bg-red-50 dark:bg-red-900/10'
+                                : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950'
+                            } text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500`}
+                        />
+                        {phoneError && <p className="text-sm text-red-500 mt-1">{phoneError}</p>}
+                        <div className="flex items-center gap-3 mt-2">
+                            <button
+                                type="button"
+                                onClick={handleSendVerificationCode}
+                                className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95 transition"
+                            >
+                                Enviar código
+                            </button>
+                            {isPhoneVerified && (
+                                <span className="text-xs font-bold text-emerald-500">Número verificado</span>
+                            )}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={verificationCode}
+                              onChange={(e) => setVerificationCode(e.target.value)}
+                              placeholder="Ingresa el código recibido"
+                              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleVerifyCode}
+                              className="px-3 py-2 rounded-lg border border-blue-500 text-blue-600 text-sm font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                            >
+                              Verificar
+                            </button>
+                        </div>
+                        {verificationMessage && (
+                            <p className="text-xs mt-1 text-slate-500 dark:text-slate-400">{verificationMessage}</p>
+                        )}
+                        <p className="text-xs mt-1 text-slate-500">Para compartir ventas y productos por WhatsApp</p>
+                    </div>
+
+                    {/* Notifications */}
+                    <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            <Bell size={16} className="text-amber-600" />
+                            Notificaciones
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                            className={`w-full px-4 py-2 rounded-lg border flex items-center justify-between text-sm font-medium ${
+                              notificationsEnabled
+                                ? 'bg-amber-50 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                                : 'bg-slate-50 border-slate-300 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                            }`}
+                        >
+                            {notificationsEnabled ? 'Habilitadas' : 'Deshabilitadas'}
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                              notificationsEnabled ? 'bg-amber-500' : 'bg-slate-400 dark:bg-slate-600'
+                            }`}>
+                              {notificationsEnabled && <span className="text-white text-xs">✓</span>}
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Dark Mode */}
+                    <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 mb-2">
+                            <Moon size={16} className="text-indigo-600" />
+                            Tema Oscuro
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => setDarkMode(!darkMode)}
+                            className={`w-full px-4 py-2 rounded-lg border flex items-center justify-between text-sm font-medium ${
+                              darkMode
+                                ? 'bg-indigo-50 border-indigo-300 dark:bg-indigo-900/20 dark:border-indigo-700 text-indigo-800 dark:text-indigo-200'
+                                : 'bg-slate-50 border-slate-300 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                            }`}
+                        >
+                            {darkMode ? 'Activado' : 'Desactivado'}
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                              darkMode ? 'bg-indigo-500' : 'bg-slate-400 dark:bg-slate-600'
+                            }`}>
+                              {darkMode && <span className="text-white text-xs">✓</span>}
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Language */}
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <Globe size={16} className="text-blue-600" />
+                            Idioma
+                        </label>
+                        <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="pt">Português</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Success Message */}
+                {saveSuccess && (
+                    <div className={`p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                      isDark
+                        ? 'bg-emerald-900/30 text-emerald-200 border border-emerald-700'
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                    }`}>
+                      ✓ Perfil actualizado correctamente
+                    </div>
+                )}
 
                 <button 
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95 transition-all"
+                    className="w-full md:w-64 mx-auto bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95 transition-all"
                 >
                     <Save size={24} />
                     Guardar Cambios

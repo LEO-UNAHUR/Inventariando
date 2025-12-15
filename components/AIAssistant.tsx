@@ -1,31 +1,121 @@
 
-import React, { useState } from 'react';
-import { Product, Sale, BusinessIntelligence } from '../types';
-import { generateBusinessInsights } from '../services/geminiService';
+import React, { useState, useEffect } from 'react';
+import { Product, Sale, BusinessIntelligence, User, IAProvider } from '../types';
+import { generateBusinessInsightsWithKey } from '../services/geminiService';
+import { getOpenAISuggestion } from '../services/openaiService';
+import { getAnthropicSuggestion } from '../services/anthropicService';
 import { getStoredSales } from '../services/storageService';
-import { BrainCircuit, Loader2, RefreshCw, Lightbulb, Sun, Moon, TrendingUp, TrendingDown, Minus, ShoppingCart, AlertTriangle, ArrowRight } from 'lucide-react';
+import { getUserSettings, decryptCredential } from '../services/userSettingsService';
+import { BrainCircuit, Loader2, RefreshCw, Lightbulb, Sun, Moon, TrendingUp, TrendingDown, Minus, ShoppingCart, AlertTriangle, ArrowRight, Settings } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 
 interface AIAssistantProps {
   products: Product[];
   isDark: boolean;
   onToggleTheme: () => void;
+  currentUser?: User;
+  onOpenSettings?: () => void;
 }
 
-const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleTheme }) => {
+const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleTheme, currentUser, onOpenSettings }) => {
   const [data, setData] = useState<BusinessIntelligence | null>(null);
   const [loading, setLoading] = useState(false);
+  const [provider, setProvider] = useState<IAProvider>(IAProvider.GEMINI);
+  const [providerReady, setProviderReady] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Cargar preferencia de proveedor IA del usuario
+  useEffect(() => {
+    if (currentUser) {
+      const settings = getUserSettings(currentUser.id);
+      setProvider(settings.iaProvider);
+
+      const geminiKey = settings.geminiApiKey ? decryptCredential(settings.geminiApiKey) : '';
+      const googleToken = settings.googleAccessToken ? decryptCredential(settings.googleAccessToken) : '';
+      const geminiCredential = geminiKey || googleToken;
+
+      // Verificar que el proveedor esté configurado correctamente
+      if (settings.iaProvider === IAProvider.GEMINI && !geminiCredential) {
+        setProviderReady(false);
+        setError('Configura login o API key para Gemini.');
+      } else if (settings.iaProvider !== IAProvider.GEMINI && !settings.iaApiKey) {
+        setProviderReady(false);
+        setError('IA no configurada. Abre Configuración para agregar tu API key.');
+      } else {
+        setProviderReady(true);
+        setError(null);
+      }
+    }
+  }, [currentUser]);
 
   const handleAnalyze = async () => {
+    if (!providerReady) {
+      setError('IA no configurada. Abre Configuración para agregar tu API key.');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
     try {
       // Fetch fresh sales data directly from storage to ensure accuracy
       const sales = getStoredSales();
-      const result = await generateBusinessInsights(products, sales);
+
+      let result: BusinessIntelligence;
+
+      if (provider === IAProvider.GEMINI && currentUser) {
+        const settings = getUserSettings(currentUser.id);
+        const geminiKey = settings.geminiApiKey ? decryptCredential(settings.geminiApiKey) : '';
+        const googleToken = settings.googleAccessToken ? decryptCredential(settings.googleAccessToken) : '';
+        const credential = geminiKey || googleToken;
+
+        if (!credential) {
+          throw new Error('Configura login o API key para Gemini');
+        }
+
+        result = await generateBusinessInsightsWithKey(products, sales, { apiKey: credential });
+      } else if (provider === IAProvider.OPENAI && currentUser) {
+        // Usar OpenAI
+        const settings = getUserSettings(currentUser.id);
+        const apiKey = settings.iaApiKey ? decryptCredential(settings.iaApiKey) : '';
+
+        if (!apiKey) {
+          throw new Error('API key de OpenAI no configurada');
+        }
+
+        const prompt = `Analiza el siguiente inventario y ventas, proporciona insights en formato JSON:
+        Productos: ${JSON.stringify(products)}
+        Ventas últimos 30 días: ${JSON.stringify(sales.slice(-10))}
+        
+        Responde con un JSON con estructura: { recommendations: [], trends: { topProducts: [], lowStock: [] }, summary: "" }`;
+
+        const response = await getOpenAISuggestion(apiKey, prompt);
+        result = JSON.parse(response);
+      } else if (provider === IAProvider.ANTHROPIC && currentUser) {
+        // Usar Anthropic
+        const settings = getUserSettings(currentUser.id);
+        const apiKey = settings.iaApiKey ? decryptCredential(settings.iaApiKey) : '';
+
+        if (!apiKey) {
+          throw new Error('API key de Anthropic no configurada');
+        }
+
+        const prompt = `Analiza el siguiente inventario y ventas, proporciona insights en formato JSON:
+        Productos: ${JSON.stringify(products)}
+        Ventas últimos 30 días: ${JSON.stringify(sales.slice(-10))}
+        
+        Responde con un JSON con estructura: { recommendations: [], trends: { topProducts: [], lowStock: [] }, summary: "" }`;
+
+        const response = await getAnthropicSuggestion(apiKey, prompt);
+        result = JSON.parse(response);
+      } else {
+        throw new Error('Proveedor de IA no válido');
+      }
+
       setData(result);
     } catch (e) {
       console.error(e);
-      alert("No se pudo generar el análisis. Verifica tu conexión o intenta más tarde.");
+      const errorMsg = e instanceof Error ? e.message : 'Error desconocido';
+      setError(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -48,7 +138,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleThe
   };
 
   return (
-    <div className="h-full flex flex-col pb-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="h-full flex flex-col pb-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300" data-tour="ai-section">
       <header className="sticky top-0 bg-slate-50 dark:bg-slate-950 z-10 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center transition-colors">
         <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -67,6 +157,38 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleThe
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         
+        {/* Provider Configuration Card */}
+        <div className={`rounded-2xl p-4 border-2 ${
+          providerReady
+            ? isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+            : isDark ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-300'
+        }`}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <p className={`text-sm font-semibold mb-1 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                Proveedor IA: <span className="text-purple-600 dark:text-purple-400">{provider}</span>
+              </p>
+              {!providerReady && (
+                <p className={`text-xs ${isDark ? 'text-red-300' : 'text-red-700'}`}>
+                  ⚠ Necesitas configurar tu API key en Configuración
+                </p>
+              )}
+            </div>
+            {onOpenSettings && (
+              <button
+                onClick={onOpenSettings}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDark
+                    ? 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                    : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                }`}
+              >
+                <Settings size={18} />
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Intro / Action Card */}
         <div className="bg-gradient-to-br from-purple-700 to-indigo-800 rounded-2xl p-6 text-white shadow-lg">
           <div className="flex justify-between items-start mb-4">
@@ -81,13 +203,29 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ products, isDark, onToggleThe
           
           <button
             onClick={handleAnalyze}
-            disabled={loading}
-            className="w-full bg-white text-purple-700 font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform flex items-center justify-center gap-2 hover:bg-purple-50"
+            disabled={loading || !providerReady}
+            className={`w-full font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform flex items-center justify-center gap-2 ${
+              !providerReady
+                ? 'bg-slate-400 text-slate-600 cursor-not-allowed opacity-60'
+                : 'bg-white text-purple-700 hover:bg-purple-50'
+            }`}
           >
             {loading ? <Loader2 className="animate-spin" /> : <RefreshCw size={20} />}
             {data ? 'Actualizar Datos' : 'Generar Reporte'}
           </button>
         </div>
+
+        {error && (
+          <div className={`rounded-2xl p-4 border-l-4 ${
+            isDark
+              ? 'bg-red-900/20 border-red-700 border-red-600'
+              : 'bg-red-50 border-red-300 border-red-500'
+          }`}>
+            <p className={isDark ? 'text-red-300' : 'text-red-700'}>
+              {error}
+            </p>
+          </div>
+        )}
 
         {data && (
             <div className="space-y-6 animate-fade-in">

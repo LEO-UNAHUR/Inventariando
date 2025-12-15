@@ -2,9 +2,9 @@
 import React from 'react';
 import { View, User, Role } from '../types';
 import { 
-  X, LayoutDashboard, PackageSearch, ShoppingBag, Users, 
-  DollarSign, Shield, Sparkles, Truck, Tag, UserCircle, 
-  Database, LogOut, ChevronRight 
+    ChevronsLeft, LayoutDashboard, PackageSearch, ShoppingBag, Users, 
+    DollarSign, Shield, Sparkles, Truck, Tag, UserCircle, 
+    Database, LogOut, ChevronRight, BarChart3, Settings
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -15,13 +15,16 @@ interface SidebarProps {
   currentUser: User;
   onLogout: () => void;
   onOpenDataManagement: () => void;
+  onOpenUserSettings?: () => void;
+    onOpenSystemConfig?: () => void;
+  onOpenAnalyticsDashboard?: () => void;
   isDark: boolean;
   isDesktop: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-  isOpen, onClose, onNavigate, currentView, currentUser, 
-  onLogout, onOpenDataManagement, isDark, isDesktop 
+export const Sidebar: React.FC<SidebarProps> = ({ 
+    isOpen, onClose, onNavigate, currentView, currentUser, 
+    onLogout, onOpenDataManagement, onOpenUserSettings, onOpenAnalyticsDashboard, onOpenSystemConfig, isDark, isDesktop 
 }) => {
   
   const menuItems = [
@@ -59,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       />
 
       {/* Sidebar Panel */}
-      <div className={`fixed lg:static top-0 left-0 h-full w-[80%] max-w-xs lg:w-72 bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl lg:shadow-none flex flex-col ${isDesktop ? 'translate-x-0' : isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <div className={`fixed lg:static top-0 left-0 h-full w-[80%] max-w-xs lg:w-72 bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl lg:shadow-none flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`} data-tour="sidebar">
         
         {/* Header Profile */}
         <div className="p-6 bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4">
@@ -70,9 +73,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                     {getAvatarContent()}
                 </div>
-                <button onClick={onClose} className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm text-slate-500">
-                    <X size={20} />
-                </button>
+                {!isDesktop && (
+                    <button
+                        onClick={onClose}
+                        className={`p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm text-slate-500 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
+                        title="Cerrar panel"
+                        aria-label="Cerrar menú"
+                    >
+                        <ChevronsLeft size={20} />
+                    </button>
+                )}
             </div>
             <div>
                 <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">{currentUser.name}</h2>
@@ -113,8 +123,26 @@ const Sidebar: React.FC<SidebarProps> = ({
                     className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                     <Database size={18} />
-                    <span className="text-sm font-medium">Gestión de Datos (Importar/Exportar)</span>
+                    <span className="text-sm font-medium">Gestión de Datos</span>
                 </button>
+                {onOpenAnalyticsDashboard && (
+                    <button 
+                        onClick={() => { onOpenAnalyticsDashboard(); onClose(); }}
+                        className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                        <BarChart3 size={18} />
+                        <span className="text-sm font-medium">Métricas Internas</span>
+                    </button>
+                )}
+                {onOpenSystemConfig && (
+                    <button 
+                        onClick={() => { onOpenSystemConfig(); onClose(); }}
+                        className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                        <Settings size={18} />
+                        <span className="text-sm font-medium">Configuración</span>
+                    </button>
+                )}
             </div>
         </div>
 

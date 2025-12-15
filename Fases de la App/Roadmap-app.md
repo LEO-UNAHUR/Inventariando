@@ -32,7 +32,7 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 **Objetivo:** validar product-market fit con datos reales y pilotos controlados.
 
 **Funcionalidades nuevas**
-- Analytics (PostHog/Mixpanel) con eventos críticos (registro, producto añadido, venta completada, IA usada, backup creado, vistas clave).
+- Analytics (PostHog/Mixpanel) con eventos críticos (registro, producto añadido, inventario actualizado, exportación de categoría, venta completada, IA usada, backup creado, vistas clave).
 - Feedback widget in-app (rating + texto + contexto de vista).
 - Programa piloto 10 comercios (onboarding guiado, canal de soporte, seguimiento semanal).
 - Quick wins: landing simple con demo, tour guiado, exportar factura PDF, templates WhatsApp, toggle dark mode visible, indicador de sync/backup.
@@ -40,12 +40,37 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 
 **Cambios técnicos**
 - Instrumentación de eventos + dashboard interno.
+- Instrumentación de gestión de datos con eventos específicos: `data_exported`, `data_imported`, `data_cleared`, `backup_created`.
 - Alertas básicas de errores (Sentry/LogRocket opcional en beta tardía).
 
 **Betas**
-- Beta.1: eventos mínimos + landing + tour guiado.
-- Beta.2: feedback widget + PDF/WhatsApp + indicador de sync.
+- Beta.1: eventos mínimos + tour guiado + feedback widget + instrumentación Gestión de Datos (export/import/backup/clear) + exportación por categoría + edición de inventario.
+  - ✅ Completada: 2025-12-15
+  - Tag: `phase-1-beta.1`
+- Beta.2: PDF/WhatsApp + indicador de sync.
+  - ✅ Completada: 2025-12-15
+  - Tag: `phase-1-beta.2`
+  - Notas: SyncIndicator, PDF export (jsPDF), WhatsApp templates integrados en ventas/productos
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
+  - ✅ Completada: 2025-12-15
+  - Tag: `phase-1-beta.3`
+  - Notas de release: ver `docs/releases/PHASE-1-BETA.3.md`
+  - Tareas completadas:
+    1. User Settings Panel (WhatsApp, IA provider selection, notifications, dark mode)
+    2. Multi-Provider IA Selection (Gemini/OpenAI/Anthropic con credenciales del usuario)
+    3. Analytics Internal Dashboard (métricas de eventos, visualización con Recharts)
+
+### Estado Beta.3 (completada)
+- Fecha: 2025-12-15
+- Rama: `phase-1-validation`
+- Tag: `phase-1-beta.3`
+- Notas de release: ver `docs/releases/PHASE-1-BETA.3.md`
+
+### Estado Beta.1 (completada)
+- Fecha: 2025-12-15
+- Rama: `phase-1-validation`
+- Tag: `phase-1-beta.1`
+- Notas de release: ver `docs/releases/PHASE-1-BETA.1.md`
 
 **Criterios stable (v1.1.0)**
 - D7 ≥ 25%, D30 ≥ 15% en piloto; NPS ≥ 30.
