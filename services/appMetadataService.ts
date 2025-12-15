@@ -65,5 +65,5 @@ export const getFooterText = async (): Promise<string> => {
   const emoji = getBrandEmoji();
   const flag = await getUserCountryFlag();
   
-  return `Inventariando v${version} • © ${year} ${developer} ${emoji} ${flag}`;
+  return `Inventariando v${version} • © ${year}\n${developer} ${emoji} ${flag}`;
 };
