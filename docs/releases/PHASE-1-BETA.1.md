@@ -6,7 +6,7 @@ Tag sugerido: phase-1-beta.1
 
 ## Entregables
 - Feedback in-app: botón flotante + modal con rating y comentario (persistencia local) — components/FeedbackWidget.tsx
-- **Onboarding Tour mejorado:** guía interactiva con 4 pasos que navega automáticamente entre vistas, resalta elementos clave con spotlight y muestra punteros visuales — components/OnboardingTour.tsx + data-tour attributes en Dashboard, Sidebar, SalesDashboard, AIAssistant
+- **Onboarding Tour mejorado:** guía interactiva con 4 pasos que navega automáticamente entre vistas, resalta elementos clave con spotlight, muestra punteros visuales y posiciona dinámicamente el tooltip para mantenerlo visible en pantalla — components/OnboardingTour.tsx + data-tour attributes en Dashboard, Sidebar, SalesDashboard, AIAssistant
 - Analytics base (opt-in con env):
   - `feature_accessed` al navegar entre vistas
   - `sale_completed` al finalizar una venta
@@ -39,9 +39,16 @@ Tag sugerido: phase-1-beta.1
 - PWA y build Android no cambiaron en esta beta.
 
 ## Cambios relevantes
-- **components/OnboardingTour.tsx:** tour interactivo con spotlight, navegación automática entre vistas (View enum), detección de elementos (data-tour), y posicionamiento dinámico de tooltip.
-- App.tsx: pasa `onNavigate={setCurrentView}` a Dashboard para que tour pueda cambiar vistas.
-- components/Dashboard.tsx: recibe `onNavigate`, pasa a OnboardingTour; agrega `data-tour="dashboard-header"` para highlight.
+- **components/OnboardingTour.tsx:** tour interactivo con spotlight, navegación automática entre vistas (View enum), detección de elementos (data-tour), y posicionamiento dinámico de tooltip que verifica límites de pantalla.
+- **App.tsx:** 
+  - Agrega estado `showTour` al nivel global (junto con otros modales).
+  - Renderiza `<OnboardingTour>` de forma global (persiste a través de todas las vistas).
+  - Pasa `onShowTour` y `onHideTour` a Dashboard para control de tour.
+  - Pasa `onNavigate={setCurrentView}` a Dashboard para que tour pueda cambiar vistas.
+- **components/Dashboard.tsx:**
+  - Recibe `onShowTour` y `onHideTour` como props.
+  - Botón "Guía Rápida" llama `onShowTour?.()` para abrir tour globalizado.
+  - Ya no renderiza `<OnboardingTour>` (movido a App.tsx).
 - components/Sidebar.tsx: `data-tour="sidebar"` para detección en Paso 2.
 - components/SalesDashboard.tsx: `data-tour="new-sale-btn"` en botón de Nueva Venta para Paso 3.
 - components/AIAssistant.tsx: `data-tour="ai-section"` en contenedor principal para Paso 4.
