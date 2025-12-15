@@ -27,10 +27,11 @@ Documento vivo para guiar releases con betas intermedias y stable al cierre de c
 
 **Cambios técnicos**
 - Instrumentación de eventos + dashboard interno.
+- Instrumentación de gestión de datos con eventos específicos: `data_exported`, `data_imported`, `data_cleared`, `backup_created`.
 - Alertas básicas de errores (Sentry/LogRocket opcional en beta tardía).
 
 **Betas**
-- Beta.1: eventos mínimos + tour guiado + feedback widget.
+- Beta.1: eventos mínimos + tour guiado + feedback widget + instrumentación Gestión de Datos (export/import/backup/clear).
 - Beta.2: PDF/WhatsApp + indicador de sync.
 - Beta.3: piloto activo (10 cuentas) + monitoreo de métricas + IA con Gemini usando login del usuario (Google); sin keys gestionadas por nosotros.
 
