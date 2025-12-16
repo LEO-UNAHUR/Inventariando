@@ -1,0 +1,35 @@
+name: Update Copilot Instructions
+
+on:
+  push:
+    paths:
+      - 'scripts/update-copilot-instructions.js'
+      - '.github/copilot-instructions.md'
+  pull_request:
+    paths:
+      - 'scripts/update-copilot-instructions.js'
+      - '.github/copilot-instructions.md'
+  schedule:
+    - cron: '0 6 * * *' # daily at 06:00 UTC
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run update script
+        run: node scripts/update-copilot-instructions.js

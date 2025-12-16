@@ -28,6 +28,7 @@
     "release:create": "node scripts/create-release.js",
     "release:beta": "node scripts/create-release.js beta",
     "release:stable": "node scripts/create-release.js stable"
+    ,"update:copilot-instructions": "node scripts/update-copilot-instructions.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
