@@ -85,11 +85,17 @@ jobs:
           mkdir -p workflow-logs
           cp -r android/app/build workflow-logs/android-app-build || true
           cp -r android/build/reports workflow-logs/android-build-reports || true
-          cp -r android/app/build/outputs apk-outputs || true
+          cp -r android/app/build/outputs workflow-logs/apk-outputs || true
           cp -r dist workflow-logs/dist || true
           # Include any Gradle problem reports
           cp -r android/build/reports/problems workflow-logs/android-problems || true
           tar -czf workflow-logs.tar.gz workflow-logs || true
+
+      - name: Find built APK
+        id: find_apk
+        run: |
+          apk=$(find android/app/build/outputs -type f -name "*.apk" | sort | tail -n1 || true)
+          echo "apk_path=$apk" >> $GITHUB_OUTPUT
 
       - name: Read package.json version
         id: pkg
@@ -107,12 +113,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload APK to Release
+        if: steps.find_apk.outputs.apk_path != ''
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: android/app/build/outputs/apk/release/app-release.apk
+          asset_path: ${{ steps.find_apk.outputs.apk_path }}
           asset_name: Inventariando-${{ steps.pkg.outputs.version }}.apk
           asset_content_type: application/vnd.android.package-archive
+
+      - name: No APK found (skip upload)
+        if: steps.find_apk.outputs.apk_path == ''
+        run: echo "No APK found in android/app/build/outputs — skipping upload"
 
       - name: Upload workflow logs
         if: always()
