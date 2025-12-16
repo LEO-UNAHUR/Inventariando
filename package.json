@@ -21,7 +21,7 @@
     "cap:sync": "npx cap sync",
     "cap:open": "npx cap open android",
     "release:version": "node scripts/bump-version.js",
-    "release:build": "npm run build:android && node scripts/organize-apk.js",
+    "release:build": "npm run build:android",
     "release": "npm run release:version && npm run release:build",
     "release:auto": "node scripts/release-auto.js",
     "release:master": "node scripts/release-master.js",

@@ -86,7 +86,6 @@ function updateReadmeLatestRelease(version, releaseType, releaseDateLabel) {
 - **Tipo:** ${releaseType === 'stable' ? 'Stable' : 'Beta'}
 - **Fecha:** ${releaseDateLabel}
 - **Notas:** [GitHub Release](https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v${version})
-- **APK:** \`APK/v${version}/Inventariando-${version}.apk\`
 <!-- LATEST_RELEASE_END -->`;
 
   if (content.includes('<!-- LATEST_RELEASE_START -->')) {
@@ -122,7 +121,6 @@ function appendReleaseLog(version, releaseType, releaseDateIso) {
   const entry = `## v${version} (${releaseType.toUpperCase()}) - ${releaseDateIso}
 - Tipo: ${releaseType === 'stable' ? 'Stable' : 'Beta'}
 - GitHub Release: https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v${version}
-- APK disponible en: \`APK/v${version}/Inventariando-${version}.apk\`
 - Notas principales: [CHANGELOG.md](../CHANGELOG.md)
 
 `;
@@ -215,7 +213,7 @@ async function main() {
 
   logStep('07', 'Crear release en GitHub');
   const releaseNotes = getReleaseNotes(version);
-  const apkPath = path.join('APK', `v${version}`, `Inventariando-${version}.apk`);
+  const apkPath = path.join('android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk');
   if (!dryRun && !fs.existsSync(apkPath)) {
     throw new Error(`APK no encontrado en ${apkPath}. Asegurate de que npm run release:build termine correctamente.`);
   }

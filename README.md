@@ -26,7 +26,6 @@
 - **Tipo:** Stable
 - **Fecha:** 16 de diciembre de 2025
 - **Notas:** [Ver en GitHub](https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v1.8.0)
-- **APK:** `APK/v1.8.0/Inventariando-1.8.0.apk`
 <!-- LATEST_RELEASE_END -->
 
 ---
@@ -134,7 +133,7 @@ Inventariando se distribuye de **dos formas** simultáneamente:
 ### 2. **APK Android**
 - **Base URL:** `/` (para localhost/Capacitor WebView)
 - **Compilado con:** `npm run build:web` + `npx cap sync` + Gradle
-- **Ubicación post-release:** `APK/v{version}/`
+- **Ubicación post-release:** `GitHub Release (descarga directa)`
 - **Uso:** Instalar en dispositivos Android
 - **Ventaja:** Experiencia nativa, offline completo, notificaciones push
 
@@ -150,7 +149,7 @@ Cuando ejecutas `npm run release:beta` o `npm run release:stable`:
 1. ✅ Calcula versión (semver)
 2. ✅ Bumpa version en package.json
 3. ✅ Dispara GitHub Actions (compila APK)
-4. ✅ Descarga APK desde GitHub Releases → `APK/v{version}/`
+4. ✅ Descarga APK desde GitHub Releases → `GitHub Release (descarga directa)`
 5. ✅ **Compila Web App para Pages** → `BUILDS/web-pages/v{version}/` (base: /Inventariando/)
 6. ✅ Actualiza README, CHANGELOG, documentación
 7. ✅ Commit y push automático
@@ -340,7 +339,7 @@ Cada release genera **DOS versiones** automáticamente:
 
 | Versión | Base URL | Ubicación | Para |
 |---------|----------|-----------|------|
-| **📱 APK Android** | `/` | `APK/v{version}/` | Dispositivos Android |
+| **📱 APK Android** | `/` | `GitHub Release (descarga directa)` | Dispositivos Android |
 | **🌐 Web App PWA** | `/Inventariando/` | GitHub Pages | Navegadores web |
 
 **Técnica:** 
