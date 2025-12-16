@@ -74,6 +74,18 @@ jobs:
             ./android/gradlew assembleRelease
           fi
 
+      - name: Save build outputs and reports
+        if: always()
+        run: |
+          mkdir -p workflow-logs
+          cp -r android/app/build workflow-logs/android-app-build || true
+          cp -r android/build/reports workflow-logs/android-build-reports || true
+          cp -r android/app/build/outputs apk-outputs || true
+          cp -r dist workflow-logs/dist || true
+          # Include any Gradle problem reports
+          cp -r android/build/reports/problems workflow-logs/android-problems || true
+          tar -czf workflow-logs.tar.gz workflow-logs || true
+
       - name: Read package.json version
         id: pkg
         run: |
@@ -96,6 +108,15 @@ jobs:
           asset_path: android/app/build/outputs/apk/release/app-release.apk
           asset_name: Inventariando-${{ steps.pkg.outputs.version }}.apk
           asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload workflow logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-logs-${{ github.run_id }}
+          path: |
+            workflow-logs.tar.gz
+            workflow-logs
 
       - name: Build PWA for GitHub Pages (stable only)
         if: ${{ github.event.inputs.release_type == 'stable' }}
