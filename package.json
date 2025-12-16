@@ -15,7 +15,7 @@
     "build": "npm run build:web && npm run build:android",
     "build:web": "vite build",
     "build:web:pages": "vite build --mode pages",
-    "build:android": "npm run build:web && npx cap sync android && cd android && ./gradlew assembleDebug && cd ..",
+    "build:android": "npm run build:web && npx cap sync android && node scripts/build-android.js",
     "preview": "vite preview",
     "cap:add": "npx cap add android",
     "cap:sync": "npx cap sync",
