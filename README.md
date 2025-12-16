@@ -1,7 +1,7 @@
 
 # 🇦🇷 Inventariando | Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.6.1-beta-blue?style=for-the-badge&logo=appveyor)
+![Version](https://img.shields.io/badge/version-1.8.0-blue?style=for-the-badge&logo=appveyor)
 ![Status](https://img.shields.io/badge/status-Phase%201%20Complete-green?style=for-the-badge)
 ![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
 
@@ -15,8 +15,19 @@
 
 | Fase | Versión | Estado | Fecha |
 |------|---------|--------|-------|
-| **Phase 1 - Stable** | 1.4.4 | ✅ **COMPLETADO** | Dec 15, 2025 |
+| **Phase 1 - Stable** | 1.8.0 | ✅ **COMPLETADO** | 16 de diciembre de 2025 |
 | Phase 2 (Planificado) | TBD | 📋 Planning | Q1 2026 |
+
+---
+
+<!-- LATEST_RELEASE_START -->
+## ÐYs? Último Release
+- **Versión:** v1.8.0
+- **Tipo:** Stable
+- **Fecha:** 16 de diciembre de 2025
+- **Notas:** [Ver en GitHub](https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v1.8.0)
+- **APK:** `APK/v1.8.0/Inventariando-1.8.0.apk`
+<!-- LATEST_RELEASE_END -->
 
 ---
 
