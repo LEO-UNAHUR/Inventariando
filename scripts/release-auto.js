@@ -170,6 +170,23 @@ function commitAndPush(newVersion) {
   }
 }
 
+function createAndPushTag(newVersion) {
+  try {
+    const existing = execSync(`git tag --list v${newVersion}`, { encoding: 'utf8' }).trim();
+    if (existing) {
+      log.info(`Tag v${newVersion} ya existe. Se omite creación.`);
+      return;
+    }
+
+    log.info(`Creando tag v${newVersion}...`);
+    execSync(`git tag -a "v${newVersion}" -m "Release v${newVersion}"`, { stdio: 'inherit' });
+    execSync(`git push origin "v${newVersion}"`, { stdio: 'inherit' });
+    log.success(`Tag v${newVersion} creada y pusheada`);
+  } catch (error) {
+    log.warning(`No se pudo crear/pushear la tag v${newVersion}: ${error.message}`);
+  }
+}
+
 async function dispatchGitHubActionsWorkflow(releaseType) {
   // Token via env var o fallback a gh auth token para evitar setearlo cada sesión
   const getGithubToken = () => {
@@ -347,6 +364,24 @@ async function main() {
   }
 
   const releaseType = arg;
+
+  // Safety: ensure working tree is clean before making automatic commits/pushes
+  function ensureCleanWorkingTree() {
+    try {
+      const status = execSync('git status --porcelain', { encoding: 'utf8' }).trim();
+      if (status.length > 0) {
+        log.error('Working tree no está limpio. Commita o haz stash antes de ejecutar el release.');
+        log.info('Sugerencia: git add . && git commit -m "wip: save"  o git stash push -u');
+        process.exit(1);
+      }
+      log.debug('Working tree limpio.');
+    } catch (err) {
+      log.warning('No se pudo verificar el estado de git. Asegúrate de tener git instalado y estar en el repo.');
+    }
+  }
+
+  // Run safety check
+  ensureCleanWorkingTree();
   
   try {
     log.divider();
@@ -384,9 +419,11 @@ async function main() {
     log.info('Generando CHANGELOG...');
     updateChangelog(newVersion);
     
-    // 5. Commit y Push
+    // 5. Commit, Push y crear tag
     log.info('Commiteando y pusheando cambios...');
     commitAndPush(newVersion);
+    // 5.5 Crear y pushear tag anotada v{newVersion}
+    createAndPushTag(newVersion);
     
     // 6. Disparar GitHub Actions
     log.info('Disparando GitHub Actions workflow...');

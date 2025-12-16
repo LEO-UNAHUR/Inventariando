@@ -1,8 +1,11 @@
 import { readFile, writeFile, readdir } from 'fs/promises';
 import { execSync } from 'child_process';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const repoRoot = path.resolve(new URL(import.meta.url).pathname, '..', '..');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRoot = path.join(__dirname, '..');
 const outPath = path.join(repoRoot, '.github', 'copilot-instructions.md');
 
 async function listDirNames(relPath) {
