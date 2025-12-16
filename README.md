@@ -145,16 +145,18 @@ const basePath = isGitHubPagesMode ? '/Inventariando/' : '/';
 ```
 
 ### 🔄 Flujo de Release Automático
-Cuando ejecutas `npm run release:beta` o `npm run release:stable`:
-1. ✅ Calcula versión (semver)
-2. ✅ Bumpa version en package.json
-3. ✅ Dispara GitHub Actions (compila APK)
-4. ✅ Descarga APK desde GitHub Releases → `GitHub Release (descarga directa)`
-5. ✅ **Compila Web App para Pages** → `BUILDS/web-pages/v{version}/` (base: /Inventariando/)
-6. ✅ Actualiza README, CHANGELOG, documentación
-7. ✅ Commit y push automático
+Cuando ejecutas `npm run release:beta` o `npm run release:stable` el script realiza los siguientes pasos automáticamente:
 
-**Resultado:** Ambas versiones (Android + Web) listos para distribuir simultáneamente.
+0. 🔁 Sincroniza la rama local con `origin/main` (`git fetch` + `git pull --rebase`). Si hay cambios locales no commiteados, crea un `git stash` temporal y lo aplica después del pull. Si hay conflictos al reaplicar el stash, el proceso aborta y pide resolución manual.
+1. ✅ Calcula versión (semver) y determina `v{version}`
+2. ✅ Bumpa `package.json` a la nueva versión
+3. ✅ Dispara GitHub Actions para compilar artefactos (APK)
+4. ✅ Descarga APK desde GitHub Releases y lo guarda localmente en `APK/v{version}/` renombrado como `Inventariando-{version}.apk` (se generan `INFO.txt` y `CHECKSUMS.txt` automáticamente)
+5. ✅ Compila Web App para GitHub Pages → `BUILDS/web-pages/v{version}/` (base: /Inventariando/)
+6. ✅ Actualiza `README.md`, `CHANGELOG.md` y documentación de versión
+7. ✅ Commit y push automático de la documentación y metadata
+
+Resultado: Ambas versiones (Android + Web) quedan listas para distribución; los APKs se estandarizan y quedan disponibles en `APK/v{version}/`.
 
 ---
 
