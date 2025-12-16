@@ -1,90 +1,50 @@
-# 📚 Índice de Documentación - Inventariando
+# ÐY"s Índice de Documentación - Inventariando
 
-**Última Actualización:** 15 de diciembre de 2025
-
----
-
-## 🚀 DOCUMENTO MAESTRO DE RELEASES
-
-### **[RELEASE_SYSTEM.md](RELEASE_SYSTEM.md)** - ⭐ DOCUMENTO ÚNICO Y COMPLETO
-**Sistema Completo de Releases, Scripts, Workflows y Builds Duales**
-
-Este documento consolida TODA la información sobre:
-- ✅ Cómo hacer releases (beta y stable)
-- ✅ Arquitectura del sistema de releases
-- ✅ Scripts y herramientas (create-release.js, bump-version.js, etc.)
-- ✅ GitHub Actions workflow completo
-- ✅ Builds duales (Android APK + Web PWA)
-- ✅ Versionado automático (semver)
-- ✅ Despliegue a GitHub Pages
-- ✅ Troubleshooting completo
-
-**📖 Lee este documento para entender el sistema de releases completo.**
+**Última actualización:** 16 de diciembre de 2025
 
 ---
 
-## 📄 Estructura de Documentación
+## ÐYs? Documentación esencial de releases
 
-Este directorio contiene toda la documentación del proyecto Inventariando, organizada por propósito:
-
-### 🚀 **Releases & Roadmap** (`releases/`)
-Documentos oficiales de cada fase y versión del proyecto:
-- **Phase 1 - Beta.1:** [Release Notes](releases/PHASE-1-BETA.1.md)
-- **Phase 1 - Beta.2:** [Release Notes](releases/PHASE-1-BETA.2.md)
-- **Phase 1 - Beta.3:** [Release Notes](releases/PHASE-1-BETA.3.md) ✅ *Actual*
-- **Phase 2 (Q1 2026):** [Roadmap & Planning](releases/PHASE-2-ROADMAP.md)
-
-**Propósito:** Tracking de features, bugs, cambios y estado de cada fase de desarrollo.
+1. **[RELEASE_SYSTEM.md](RELEASE_SYSTEM.md)** – guía definitiva con los scripts clásicos (`bump-version`, `create-release`, `release-auto`, `organize-apk`, etc.), los workflows previos y los procedimientos duales (Android + PWA).  
+2. **[RELEASE_FLOW.md](RELEASE_FLOW.md)** – nuevo resumen del pipeline actual y explicación de `scripts/release-master.js`.  
+3. **[`scripts/release-master.js`](../scripts/release-master.js)** – el orquestador que reemplaza la dispersión de pasos: bump + build + tag + release + upload.
 
 ---
 
-### 📦 **Especificaciones de Producto**
+## ÐYs? Releases & Roadmap (`docs/releases/`)
 
-#### **Beta Versions** (`product beta/`)
-Documentos de especificación técnica y features para versiones beta:
-- `v1.2.0-beta.md` - Especificación de Beta 1.2.0
-- `v1.4.0-beta.md` - Especificación de Beta 1.4.0
+- **[PHASE-1-BETA.1.md](releases/PHASE-1-BETA.1.md)** – notas de la beta 1.1.  
+- **[PHASE-1-BETA.2.md](releases/PHASE-1-BETA.2.md)** – beta 1.2.  
+- **[PHASE-1-BETA.3.md](releases/PHASE-1-BETA.3.md)** – estado actual del Phase 1.  
+- **[PHASE-1-HOTFIXES.md](releases/PHASE-1-HOTFIXES.md)** y **[HOTFIXES-SUMMARY.md](releases/HOTFIXES-SUMMARY.md)** – correcciones validadas.  
+- **[PHASE-2-ROADMAP.md](releases/PHASE-2-ROADMAP.md)** – visión y backlog de Phase 2.
 
-**Propósito:** Detalles técnicos, features, cambios y estado de versiones en prueba.
-
-#### **Stable Versions** (`product stable/`)
-Documentos oficiales de especificación para versiones estables:
-- `v1.4.0.md` - Especificación estable de versión 1.4.0
-
-**Propósito:** Documentación oficial de características confirmadas y estables.
+> Propósito: seguimiento de features, bugs, correcciones y backlog de lanzamientos.
 
 ---
 
-### 📋 **Otros Documentos**
+## ÐY"Ý Especificaciones históricas (`product beta/`, `product stable/`)
 
-#### **General Documentation**
-- **Visión general:** [overview/PROJECT_DOCUMENTATION.md](overview/PROJECT_DOCUMENTATION.md)
-- **Configuración y setup:** [setup/SETUP_FINAL.md](setup/SETUP_FINAL.md)
-- **Análisis de producto:** [PM_ANALYSIS_V1.1.0.md](PM_ANALYSIS_V1.1.0.md)
-
-#### **Release Automation** (`release/`)
-- **Guía de automatización:** [release/AUTOMATION_SETUP.md](release/AUTOMATION_SETUP.md)
-
-**Propósito:** Procesos y scripts de automatización para crear releases.
+Estas carpetas conservan documentación de versiones anteriores. Úsalas solo como referencia histórica; la narración del lanzamiento activo está en los archivos anteriores.
 
 ---
 
-## 🔄 Diferencia: `releases/` vs `product beta/stable/`
+## ÐY"< Otros documentos clave
 
-| Aspecto | `releases/` | `product beta/stable/` |
-|---------|-------------|------------------------|
-| **Contenido** | Release Notes de Fases | Especificaciones técnicas |
-| **Enfoque** | Cambios, features, bugs | Features detalladas, stack |
-| **Versión** | Por Phase (Beta.1, Beta.2, etc.) | Por versión semántica (1.2.0, 1.4.0) |
-| **Uso** | Tracking del desarrollo | Documentación de producto |
-| **Actualización** | Al finalizar cada fase | Al hacer release de versión |
+- **[overview/PROJECT_DOCUMENTATION.md](overview/PROJECT_DOCUMENTATION.md)** – visión general del producto.  
+- **[setup/SETUP_FINAL.md](setup/SETUP_FINAL.md)** – pasos de configuración y estrategia de ramas.  
+- **[PM_ANALYSIS_V1.1.0.md](PM_ANALYSIS_V1.1.0.md)** – análisis de producto, mercado y roadmap.  
+- **[release/](release/)** – instrucciones puntuales de automatización y validación (`AUTOMATION_SETUP.md`, `VALIDATION-GUIDE.md`, etc.).
 
 ---
 
-## 📄 README.md
-Este archivo (guía de estructura).
+## ÐY"" Notas de mantenimiento
+
+- La información de release ahora se concentra en `RELEASE_SYSTEM.md`, `RELEASE_FLOW.md` y `docs/releases/`.  
+- `scripts/release-master.js` centraliza el pipeline, y `.github/workflows/release.yml` invoca ese script.  
+- Los demás documentos permanecen para contexto histórico; evita crear duplicados adicionales y apunta siempre a las guías anteriores.
 
 ---
 
-**Última actualización:** 15 de Diciembre de 2025  
 **Responsable:** Inventariando Team

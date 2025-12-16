@@ -3,7 +3,7 @@ export default {
   content: [
     './index.html',
     './App.tsx',
-    './components/**/*.{js,ts,jsx,tsx}',
+    './src/features/**/*.{js,ts,jsx,tsx}',
     './services/**/*.{js,ts,jsx,tsx}',
     './constants.ts',
     './types.ts'

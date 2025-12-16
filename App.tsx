@@ -15,31 +15,31 @@ import {
   getStoredPromotions, saveStoredPromotions,
   getStoredMovements, saveStoredMovements
 } from './services/storageService';
-import LoginScreen from './components/LoginScreen';
-import Dashboard from './components/Dashboard';
-import InventoryList from './components/InventoryList';
-import ProductForm from './components/ProductForm';
-import POS from './components/POS';
-import SalesDashboard from './components/SalesDashboard';
-import StockHistory from './components/StockHistory';
-import FinancialAnalysis from './components/FinancialAnalysis';
-import SupplierList from './components/SupplierList';
-import SupplierForm from './components/SupplierForm';
-import CustomerList from './components/CustomerList';
-import CustomerForm from './components/CustomerForm';
-import Promotions from './components/Promotions';
-import OnboardingTour from './components/OnboardingTour';
-import AIAssistant from './components/AIAssistant';
-import SecurityPanel from './components/SecurityPanel';
-import TeamManagement from './components/TeamManagement';
-import UserProfile from './components/UserProfile';
-import DataManagement from './components/DataManagement';
-import { Sidebar } from './components/Sidebar';
-import ExpenseForm from './components/ExpenseForm';
-import FeedbackWidget from './components/FeedbackWidget';
-import UserSettings from './components/UserSettings';
-import AnalyticsInternalDashboard from './components/AnalyticsInternalDashboard';
-import SystemConfig from './components/SystemConfig';
+import LoginScreen from '@features/auth/LoginScreen';
+import Dashboard from '@features/dashboard/Dashboard';
+import InventoryList from '@features/inventory/InventoryList';
+import ProductForm from '@features/inventory/ProductForm';
+import POS from '@features/sales/POS';
+import SalesDashboard from '@features/sales/SalesDashboard';
+import StockHistory from '@features/inventory/StockHistory';
+import FinancialAnalysis from '@features/finance/FinancialAnalysis';
+import SupplierList from '@features/suppliers/SupplierList';
+import SupplierForm from '@features/suppliers/SupplierForm';
+import CustomerList from '@features/customers/CustomerList';
+import CustomerForm from '@features/customers/CustomerForm';
+import Promotions from '@features/marketing/Promotions';
+import OnboardingTour from '@features/onboarding/OnboardingTour';
+import AIAssistant from '@features/assistant/AIAssistant';
+import SecurityPanel from '@features/security/SecurityPanel';
+import TeamManagement from '@features/security/TeamManagement';
+import UserProfile from '@features/auth/UserProfile';
+import DataManagement from '@features/data/DataManagement';
+import { Sidebar } from '@features/shared/Sidebar';
+import ExpenseForm from '@features/finance/ExpenseForm';
+import FeedbackWidget from '@features/data/FeedbackWidget';
+import UserSettings from '@features/auth/UserSettings';
+import AnalyticsInternalDashboard from '@features/dashboard/AnalyticsInternalDashboard';
+import SystemConfig from '@features/security/SystemConfig';
 import { Menu, LayoutDashboard, PackageSearch, ShoppingBag, Users } from 'lucide-react';
 
 const App: React.FC = () => {

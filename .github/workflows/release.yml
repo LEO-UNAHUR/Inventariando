@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Tipo de release'
+        description: Tipo de release
         required: true
-        default: 'beta'
+        default: beta
         type: choice
         options:
           - beta
@@ -15,137 +15,54 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
     permissions:
       contents: write
       packages: write
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🔧 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: npm
 
-      - name: 🔧 Setup Java (for Android build)
+      - name: Setup Java (Android build)
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '21'
 
-      - name:  Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: 🔑 Generate Android Keystore
+      - name: Generate Android keystore
         run: bash scripts/generate-keystore.sh
 
-      - name: 🔐 Fix Gradle Permissions
+      - name: Fix Gradle permissions
         run: chmod +x ./android/gradlew
 
-      - name: 🪪 Configure git identity
+      - name: Configure git identity
         run: |
           git config --global user.email "leonardo@inventariando.app"
           git config --global user.name "Leonardo Esteves"
           git config --global pull.rebase false
           git config --global init.defaultBranch main
 
-      - name: � Bump version
-        run: npm run release:version
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.release_type }}
-
-      - name: 📖 Extract version
-        id: extract_version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
-
-      - name: 📦 Build Android & APK
-        run: npm run release:build
-
-      - name: 🔐 Commit changes
-        run: |
-          git config --local user.email "leonardo@inventariando.app"
-          git config --local user.name "Leonardo Esteves"
-          git add -A
-          git commit -m "chore: Release v${{ steps.extract_version.outputs.version }}" || true
-
-      - name: 📤 Push changes
-        run: |
-          git push origin main --force-with-lease || true
-
-      - name: 🏷️ Create Git Tag
-        run: |
-          git tag -a "v${{ steps.extract_version.outputs.version }}" -m "Release v${{ steps.extract_version.outputs.version }}" || true
-          git push origin "v${{ steps.extract_version.outputs.version }}" || true
-
-      - name: 📦 Create GitHub Release (API)
-        run: |
-          RELEASE_BODY="# 🚀 Inventariando v${{ steps.extract_version.outputs.version }}
-
-          **Tipo de Release:** ${{ github.event.inputs.release_type }}
-
-          ## 📝 Cambios
-          - Consulta el CHANGELOG.md para detalles completos
-          - Actualización automática mediante GitHub Actions
-
-          ## 📥 Instalación (Android)
-          1. Descarga el archivo \`.apk\` desde este release
-          2. En tu teléfono, ve a Configuración > Seguridad > Permitir instalación de fuentes desconocidas
-          3. Abre el archivo APK y sigue las instrucciones
-
-          ## 🔗 Enlaces
-          - [GitHub Repository](https://github.com/LEO-UNAHUR/Inventariando)
-          - [Documentación](https://github.com/LEO-UNAHUR/Inventariando/blob/main/README.md)
-
-          ---
-          *Build automático: ${{ github.run_id }}*"
-          
-          IS_PRERELEASE=$([[ "${{ github.event.inputs.release_type }}" == "beta" ]] && echo "true" || echo "false")
-          
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"tag_name\": \"v${{ steps.extract_version.outputs.version }}\",
-              \"target_commitish\": \"main\",
-              \"name\": \"Inventariando v${{ steps.extract_version.outputs.version }}\",
-              \"body\": $(echo \"$RELEASE_BODY\" | jq -Rs .),
-              \"draft\": false,
-              \"prerelease\": $IS_PRERELEASE
-            }" \
-            "https://api.github.com/repos/LEO-UNAHUR/Inventariando/releases"
-
-      - name: 📤 Upload APK asset
-        run: |
-          APK_PATH="APK/v${{ steps.extract_version.outputs.version }}/Inventariando-${{ steps.extract_version.outputs.version }}.apk"
-          if [ ! -f "$APK_PATH" ]; then
-            echo "APK no encontrado en $APK_PATH"
-            exit 1
-          fi
-          gh release upload "v${{ steps.extract_version.outputs.version }}" "$APK_PATH" --clobber
+      - name: Run release orchestrator
+        run: node scripts/release-master.js ${{ github.event.inputs.release_type }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📊 Build Summary
-        run: |
-          echo "✅ Release completado exitosamente"
-          echo "🔖 Tag: v${{ steps.extract_version.outputs.version }}"
-          echo "📦 APK disponible en: APK/v${{ steps.extract_version.outputs.version }}/"
-          echo "🔗 GitHub Release: https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v${{ steps.extract_version.outputs.version }}"
-
-      - name: 🌐 Build PWA for GitHub Pages (stable only)
+      - name: Build PWA for GitHub Pages (stable only)
         if: ${{ github.event.inputs.release_type == 'stable' }}
-        run: |
-          npm run build:web:pages
+        run: npm run build:web:pages
 
-      - name: 🚀 Deploy to GitHub Pages (stable only)
+      - name: Deploy to GitHub Pages (stable only)
         if: ${{ github.event.inputs.release_type == 'stable' }}
         uses: peaceiris/actions-gh-pages@v3
         with:

@@ -21,6 +21,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@features/*": [
+        "./src/features/*"
       ]
     },
     "allowImportingTsExtensions": true,
@@ -29,7 +32,6 @@
   "include": [
     "*.tsx",
     "*.ts",
-    "components/**/*",
     "services/**/*",
     "src/**/*"
   ],
