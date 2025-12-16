@@ -50,8 +50,9 @@ function organizeAPK() {
     let apkPath = null;
     let aabPath = null;
     
-    // Buscar en la estructura de Android
+    // Buscar en la estructura de Android (debug y release)
     const searchPaths = [
+      path.join(projectRoot, 'android/app/build/outputs/apk/debug'),
       path.join(projectRoot, 'android/app/build/outputs/apk/release'),
       path.join(projectRoot, 'android/app/build/outputs/bundle/release'),
       androidReleaseDir
