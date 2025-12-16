@@ -23,9 +23,10 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const colors = {
+    // Descargar APK y renombrar a un nombre consistente
+    const finalApkName = `Inventariando-${version}.apk`;
+    const apkPath = path.join(apkDir, finalApkName);
+    log.info(`Descargando ${apkAsset.name} como ${finalApkName}...`);
   reset: '\x1b[0m',
   green: '\x1b[32m',
   red: '\x1b[31m',
@@ -38,12 +39,30 @@ const colors = {
 const log = {
   header: (msg) => console.log(`\n${colors.cyan}${colors.bold}═══════════════════════════════════════${colors.reset}\n${colors.blue}${msg}${colors.reset}\n${colors.cyan}═══════════════════════════════════════${colors.reset}\n`),
   success: (msg) => console.log(`${colors.green}✅ ${msg}${colors.reset}`),
-  error: (msg) => console.log(`${colors.red}❌ ${msg}${colors.reset}`),
+    fs.writeFileSync(checksumPath, `${checksum}  ${finalApkName}\n`);
   warning: (msg) => console.log(`${colors.yellow}⚠️  ${msg}${colors.reset}`),
   info: (msg) => console.log(`${colors.blue}ℹ  ${msg}${colors.reset}`),
   step: (num, msg) => console.log(`${colors.cyan}[${num}]${colors.reset} ${msg}`),
 };
+    const infoContent = `Inventariando v${version}
+Fecha: ${new Date().toISOString().split('T')[0]}
+Archivo: ${finalApkName}
+Tamaño: ${(apkAsset.size / 1024 / 1024).toFixed(2)} MB
+Descargado desde: https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${version}
 
+Requisitos:
+- Android 6.0 o superior
+- Mínimo 100 MB de espacio libre
+
+Instalación:
+1. Habilita "Fuentes desconocidas" en Configuración > Seguridad
+2. Abre el APK
+3. Sigue las instrucciones en pantalla
+
+Verificación:
+- Ejecuta: sha256sum ${finalApkName}
+- Compara con CHECKSUMS.txt
+`;
 const REPO_OWNER = 'LEO-UNAHUR';
 const REPO_NAME = 'Inventariando';
 const PROJECT_ROOT = path.join(__dirname, '..');
@@ -302,7 +321,28 @@ function updateReadme(releaseType, version) {
 function updateAPKReadme(version) {
   try {
     const apkReadmePath = path.join(PROJECT_ROOT, 'APK', 'README_APK.md');
-    let content = fs.readFileSync(apkReadmePath, 'utf8');
+    let content = '';
+
+    // Crear README_APK.md si no existe
+    if (!fs.existsSync(path.join(PROJECT_ROOT, 'APK'))) {
+      fs.mkdirSync(path.join(PROJECT_ROOT, 'APK'), { recursive: true });
+    }
+
+    if (fs.existsSync(apkReadmePath)) {
+      content = fs.readFileSync(apkReadmePath, 'utf8');
+    } else {
+      content = `# APKs
+
+Los APK generados por los releases se almacenan en la carpeta ` + "`APK/v{version}/`" + `.
+
+Cada release contiene:
+- ` + "`Inventariando-{version}.apk`" + ` - archivo de instalación
+- ` + "`INFO.txt`" + ` - información básica del build
+- ` + "`CHECKSUMS.txt`" + ` - SHA256 para verificación
+
+`;
+      fs.writeFileSync(apkReadmePath, content, 'utf8');
+    }
 
     // Actualizar la tabla de estructura
     const newEntry = `├── v${version}/
