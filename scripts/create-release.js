@@ -584,6 +584,37 @@ Distribuido bajo licencia MIT. Ver [LICENSE](https://github.com/${REPO_OWNER}/${
   }
 }
 
+function ensureGitSync() {
+  try {
+    log.step(0, 'Sincronizando rama local con remote (pull --rebase)...');
+    const status = execSync('git status --porcelain', { cwd: PROJECT_ROOT, encoding: 'utf8' }).trim();
+    const needsStash = status.length > 0;
+
+    if (needsStash) {
+      log.info('Cambios sin commitear detectados → creando stash temporal');
+      execSync('git stash push -u -m "pre-release-auto-stash"', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+    }
+
+    // Asegurar que tenemos la última info y rebase sobre main
+    execSync('git fetch', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+    execSync('git pull --rebase origin main', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+
+    if (needsStash) {
+      try {
+        execSync('git stash pop', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+      } catch (err) {
+        log.error('Conflicto al aplicar el stash después del pull. Resuelve manualmente y reintenta.');
+        process.exit(1);
+      }
+    }
+
+    log.success('Rama local sincronizada con origin/main');
+  } catch (error) {
+    log.error(`Error sincronizando git: ${error.message}`);
+    process.exit(1);
+  }
+}
+
 async function main() {
   const releaseType = process.argv[2];
 
@@ -594,6 +625,9 @@ async function main() {
   }
 
   log.header(`🚀 CREANDO RELEASE ${releaseType.toUpperCase()}`);
+
+  // Sincronizar la rama local con origin antes de proceder
+  ensureGitSync();
 
   try {
     // 1. Calcular versión
