@@ -1,3 +1,8 @@
+## [1.6.1-beta] - 2025-12-16
+
+### Changed
+- Release beta
+
 ## [1.6.0-beta] - 2025-12-16
 
 ### Changed
