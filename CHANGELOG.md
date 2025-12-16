@@ -1,3 +1,8 @@
+## [1.8.1] - 2025-12-16
+
+### Added
+- Release stable
+
 ## [1.6.1-beta] - 2025-12-16
 
 ### Changed
