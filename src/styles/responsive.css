@@ -1,0 +1,445 @@
+/* 📱 Responsive Design System for Inventariando */
+/* Mobile-first breakpoints and media queries */
+
+/* ===== BREAKPOINTS ===== */
+/* Mobile: 375px - 767px (default, no media query needed) */
+/* Tablet: 768px - 1023px */
+/* Desktop: 1024px+ */
+
+/* ===== TYPOGRAPHY RESPONSIVE ===== */
+
+/* Mobile (base) - already defined in theme-mobile.css */
+
+@media (min-width: 768px) {
+  :root {
+    /* Slightly larger fonts for tablet */
+    --font-size-sm: 14px;
+    --font-size-base: 15px;
+    --font-size-lg: 17px;
+    --font-size-xl: 19px;
+    --font-size-2xl: 22px;
+    --font-size-3xl: 26px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    /* More breathing room on desktop */
+    --font-size-sm: 14px;
+    --font-size-base: 15px;
+    --font-size-lg: 17px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --font-size-4xl: 40px;
+  }
+}
+
+/* ===== SPACING RESPONSIVE ===== */
+
+/* Mobile containers */
+@media (max-width: 767px) {
+  :root {
+    /* Reduce outer margins on small screens */
+    --spacing-page-inline: var(--spacing-md);  /* 12px */
+    --spacing-page-block: var(--spacing-lg);   /* 16px */
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  :root {
+    --spacing-page-inline: var(--spacing-xl);  /* 20px */
+    --spacing-page-block: var(--spacing-xl);   /* 20px */
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  :root {
+    --spacing-page-inline: var(--spacing-2xl); /* 24px */
+    --spacing-page-block: var(--spacing-2xl);  /* 24px */
+  }
+}
+
+/* ===== GRID LAYOUTS ===== */
+
+/* Two-column grid responsive */
+@media (max-width: 767px) {
+  .grid-cols-auto {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-cols-auto {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-auto {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ===== SIDEBAR RESPONSIVE ===== */
+
+@media (max-width: 1023px) {
+  /* Mobile: Sidebar should be hidden or drawer */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 400; /* Below modal but above content */
+  }
+  
+  .sidebar--hidden {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Desktop: Sidebar visible */
+  .sidebar {
+    position: static;
+    width: 250px;
+    height: auto;
+  }
+}
+
+/* ===== MODAL RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  /* Modals fullscreen on mobile */
+  .modal {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: var(--rounded-lg) var(--rounded-lg) 0 0;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Modals centered on tablet+ */
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 90vh;
+  }
+}
+
+/* ===== CARDS RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  .card {
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+  }
+}
+
+/* ===== BUTTON GROUP RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  /* Stack buttons vertically on mobile */
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .button-group > button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Horizontal layout on tablet+ */
+  .button-group {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-md);
+  }
+}
+
+/* ===== TABLES RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  /* Stack table cells on mobile */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  thead {
+    display: none; /* Hide headers on mobile, show in data attributes */
+  }
+  
+  tbody, tr, td {
+    display: block;
+  }
+  
+  tr {
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--rounded-md);
+    padding: var(--spacing-lg);
+  }
+  
+  td {
+    padding: var(--spacing-sm) 0;
+    border: none;
+  }
+  
+  /* Show cell labels via data attribute */
+  td::before {
+    content: attr(data-label);
+    display: inline-block;
+    width: 30%;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+  }
+}
+
+@media (min-width: 768px) {
+  /* Normal table layout on tablet+ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+  
+  tbody, tr, td {
+    display: table-row;
+  }
+  
+  th, td {
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-light);
+    text-align: left;
+  }
+}
+
+/* ===== FORM RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  .form-group {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ===== NAVIGATION RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  /* Bottom tab navigation on mobile */
+  .nav-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    padding: var(--spacing-sm) var(--spacing-md);
+    padding-bottom: calc(max(env(safe-area-inset-bottom), 12px) + var(--spacing-sm));
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border-light);
+    z-index: 300;
+  }
+  
+  .nav-tabs .nav-item {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    min-height: var(--touch-target-comfortable); /* 56px */
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Horizontal navigation on desktop */
+  .nav-tabs {
+    position: static;
+    flex-direction: row;
+    border: none;
+    padding: 0;
+    gap: var(--spacing-lg);
+  }
+}
+
+/* ===== SIDEBAR + CONTENT LAYOUT ===== */
+
+@media (min-width: 1024px) {
+  .app-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    min-height: 100vh;
+  }
+  
+  .app-layout__sidebar {
+    grid-column: 1;
+  }
+  
+  .app-layout__content {
+    grid-column: 2;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 1023px) {
+  .app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .app-layout__content {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+
+/* ===== TYPOGRAPHY RESPONSIVE ===== */
+
+@media (max-width: 767px) {
+  h1 {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  h2 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  h3 {
+    font-size: var(--font-size-xl);
+  }
+  
+  p {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  h2 {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  h3 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  p {
+    margin-bottom: var(--spacing-lg);
+  }
+}
+
+/* ===== PRINT MEDIA ===== */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .no-print {
+    display: none;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-secondary: #d0d0d0;
+    --color-border-light: #3a4351;
+  }
+}
+
+/* ===== DARK MODE PREFERENCE ===== */
+
+@media (prefers-color-scheme: dark) {
+  /* Already set as default, but explicit for clarity */
+  body {
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  /* Optional light theme - not implemented yet */
+}
+
+/* ===== HIGH DPI DEVICES ===== */
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+  /* 2x retina adjustments if needed */
+}
+
+/* ===== LANDSCAPE vs PORTRAIT ===== */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Very compact landscape mode */
+  :root {
+    --spacing-lg: 12px;
+    --spacing-xl: 16px;
+    --font-size-base: 13px;
+  }
+}

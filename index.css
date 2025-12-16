@@ -1,7 +1,12 @@
+/* 📱 v1.5.2+ Mobile-First Architecture */
+@import './src/styles/theme-mobile.css';
+@import './src/styles/responsive.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Legacy styles - kept for compatibility */
 body {
   overscroll-behavior-y: none;
   user-select: none;
