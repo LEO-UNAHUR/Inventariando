@@ -66,16 +66,17 @@ jobs:
           sudo apt-get update && sudo apt-get install -y zip unzip
 
       - name: Build Android Release
+        working-directory: android
         run: |
-          # If keystore is present, pass signing props to Gradle
-          if [ -f android/app/inventariando.keystore ]; then
-            ./android/gradlew assembleRelease \
-              -Pandroid.injected.signing.store.file=android/app/inventariando.keystore \
+          # If keystore is present, pass signing props to Gradle (paths are relative to android/)
+          if [ -f app/inventariando.keystore ]; then
+            ./gradlew assembleRelease \
+              -Pandroid.injected.signing.store.file=app/inventariando.keystore \
               -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
               -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
               -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
           else
-            ./android/gradlew assembleRelease
+            ./gradlew assembleRelease
           fi
 
       - name: Save build outputs and reports
