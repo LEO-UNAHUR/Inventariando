@@ -127,11 +127,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full sm:max-w-md h-[95vh] sm:h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col animate-slide-up transition-colors duration-300">
+      <div className="bg-secondary text-primary w-full sm:max-w-md h-[95vh] sm:h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl border border-border-light flex flex-col animate-slide-up transition-colors duration-300">
         
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+        <div className="flex justify-between items-center p-4 border-b border-border-light">
+          <h2 className="text-xl font-bold text-primary">
             {initialProduct ? 'Editar Producto' : 'Nuevo Producto'}
           </h2>
           <button onClick={onCancel} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
@@ -159,13 +159,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
           <div>
              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Código de Barras</label>
              <div className="flex gap-2">
-                 <input 
+                  <input 
                     type="text"
                     value={barcode}
                     onChange={(e) => setBarcode(e.target.value)}
-                    className="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="flex-1 form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     placeholder="Escanear o escribir..."
-                 />
+                  />
                  <button 
                     type="button"
                     onClick={() => setIsScannerOpen(true)}
@@ -183,7 +183,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="flex-1 form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Ej: Yerba Mate..."
                 required
               />
@@ -205,7 +205,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
-              className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               {Object.values(Category).map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -218,7 +218,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
               rows={2}
               placeholder="Detalles del producto..."
             />
@@ -231,7 +231,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 type="number"
                 value={cost}
                 onChange={(e) => setCost(e.target.value)}
-                className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="0.00"
               />
             </div>
@@ -241,7 +241,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold text-slate-900 dark:text-slate-100"
+                className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold"
                 placeholder="0.00"
               />
             </div>
@@ -254,7 +254,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 type="number"
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
-                className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="0"
               />
             </div>
@@ -264,7 +264,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 type="number"
                 value={minStock}
                 onChange={(e) => setMinStock(e.target.value)}
-                className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="5"
               />
             </div>
@@ -278,7 +278,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                type="date"
                value={expirationDate}
                onChange={(e) => setExpirationDate(e.target.value)}
-               className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+               className="w-full form-control focus:ring-2 focus:ring-blue-500 focus:outline-none"
              />
           </div>
 
@@ -293,7 +293,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
               <select 
                 value={selectedSupplierId}
                 onChange={(e) => setSelectedSupplierId(e.target.value)}
-                className="flex-1 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-2 py-2"
+                className="flex-1 form-control text-sm"
               >
                 <option value="">Seleccionar Proveedor</option>
                 {suppliers.map(s => (
@@ -305,13 +305,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSave, onCan
                 value={supplierCost}
                 onChange={(e) => setSupplierCost(e.target.value)}
                 placeholder="Costo"
-                className="w-20 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-2 py-2"
+                className="w-20 form-control text-sm"
               />
               <button 
                 type="button"
                 onClick={handleAddSupplier}
                 disabled={!selectedSupplierId || !supplierCost}
                 className="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 p-2 rounded-lg disabled:opacity-50"
+                style={{ minHeight: 'var(--touch-target-min)' }}
               >
                 <Plus size={18} />
               </button>

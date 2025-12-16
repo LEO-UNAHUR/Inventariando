@@ -154,7 +154,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                 {/* Top Grid: Avatar + Datos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Avatar Selection */}
-                  <div className="flex flex-col items-center gap-6 py-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                                    <div className="flex flex-col items-center gap-6 py-6 bg-secondary text-primary rounded-2xl shadow-sm border border-border-light">
                     <div className="relative group">
                         {renderAvatar(avatar, 'w-28 h-28')}
                         <button 
@@ -174,7 +174,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                     </div>
                     
                     <div className="flex flex-col items-center gap-2 w-full px-4">
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">O elegir predeterminado</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">O elegir predeterminado</p>
                         <div className="flex justify-center gap-3 w-full flex-wrap">
                             {AVATARS.map(av => (
                                 <button
@@ -193,41 +193,41 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                   {/* Datos Básicos */}
                   <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-5">
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nombre Completo</label>
+                        <label className="block text-sm font-bold text-secondary mb-2">Nombre Completo</label>
                         <div className="relative">
-                            <UserIcon className="absolute left-3 top-3.5 text-slate-400" size={18} />
+                            <UserIcon className="absolute left-3 top-3.5 text-secondary" size={18} />
                             <input 
                                 type="text" 
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base"
+                                className="w-full pl-10 pr-4 py-3 bg-tertiary text-primary border border-border-light rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Contraseña</label>
+                        <label className="block text-sm font-bold text-secondary mb-2">Contraseña</label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
+                            <Lock className="absolute left-3 top-3.5 text-secondary" size={18} />
                             <input 
                                 type="text" 
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base"
+                                className="w-full pl-10 pr-4 py-3 bg-tertiary text-primary border border-border-light rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">PIN (Acceso Rápido)</label>
+                        <label className="block text-sm font-bold text-secondary mb-2">PIN (Acceso Rápido)</label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
+                            <Lock className="absolute left-3 top-3.5 text-secondary" size={18} />
                             <input 
                                 type="number" 
                                 value={pin}
                                 maxLength={4}
                                 onChange={(e) => setPin(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base"
+                                className="w-full pl-10 pr-4 py-3 bg-tertiary text-primary border border-border-light rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base"
                             />
                         </div>
                     </div>
@@ -239,8 +239,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                                     <ShieldCheck size={24} />
                                 </div>
                                 <div>
-                                    <span className="block text-sm font-bold text-slate-700 dark:text-slate-200">Doble Factor (2FA)</span>
-                                    <span className="text-xs text-slate-500">Mayor seguridad al ingresar</span>
+                                    <span className="block text-sm font-bold text-secondary">Doble Factor (2FA)</span>
+                                    <span className="text-xs text-tertiary">Mayor seguridad al ingresar</span>
                                 </div>
                             </div>
                             <button 
@@ -257,31 +257,32 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
 
                 {/* Preferences Section (Right Column full width below on mobile) */}
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
-                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">Preferencias</h3>
+                    <h3 className="font-bold text-primary mb-4">Preferencias</h3>
 
                     {/* WhatsApp Phone */}
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                        <label className="block text-sm font-bold text-secondary mb-2 flex items-center gap-2">
                             <MessageCircle size={16} className="text-green-600" />
                             Teléfono WhatsApp
                         </label>
-                        <input
-                            type="tel"
-                            value={whatsappPhone}
-                            onChange={(e) => handlePhoneChange(e.target.value)}
-                            placeholder="+54 9 11 2345 6789"
-                            className={`w-full px-4 py-2 rounded-lg border ${
-                              phoneError
-                                ? 'border-red-300 bg-red-50 dark:bg-red-900/10'
-                                : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950'
-                            } text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500`}
-                        />
+                                                <input
+                                                    type="tel"
+                                                    value={whatsappPhone}
+                                                    onChange={(e) => handlePhoneChange(e.target.value)}
+                                                    placeholder="+54 9 11 2345 6789"
+                                                    className={`w-full px-4 py-2 rounded-lg border ${
+                                                        phoneError
+                                                        ? 'border-red-300 bg-red-50 dark:bg-red-900/10'
+                                                        : 'border-border-light bg-tertiary dark:bg-slate-950'
+                                                    } text-primary placeholder:text-tertiary focus:outline-none focus:ring-2 focus:ring-green-500`}
+                                                />
                         {phoneError && <p className="text-sm text-red-500 mt-1">{phoneError}</p>}
                         <div className="flex items-center gap-3 mt-2">
                             <button
                                 type="button"
                                 onClick={handleSendVerificationCode}
                                 className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 active:scale-95 transition"
+                                style={{ minHeight: 'var(--touch-target-min)' }}
                             >
                                 Enviar código
                             </button>
@@ -297,11 +298,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, isDark })
                               placeholder="Ingresa el código recibido"
                               className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm"
                             />
-                            <button
-                              type="button"
-                              onClick={handleVerifyCode}
-                              className="px-3 py-2 rounded-lg border border-blue-500 text-blue-600 text-sm font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                            >
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleVerifyCode}
+                                                            className="px-3 py-2 rounded-lg border border-blue-500 text-blue-600 text-sm font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                                            style={{ minHeight: 'var(--touch-target-min)' }}
+                                                        >
                               Verificar
                             </button>
                         </div>

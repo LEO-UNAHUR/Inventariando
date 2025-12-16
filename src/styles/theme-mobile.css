@@ -283,6 +283,18 @@ button:disabled {
   background-color: var(--color-bg-tertiary);
 }
 
+.form-control {
+  background-color: var(--color-bg-tertiary) !important;
+  border: 1px solid var(--color-border-light) !important;
+  color: var(--color-text-primary) !important;
+  border-radius: var(--rounded-lg);
+  padding: var(--spacing-md) !important;
+}
+
+.form-control::placeholder {
+  color: var(--color-text-tertiary) !important;
+}
+
 /* ===== VISUALLY HIDDEN ===== */
 .sr-only {
   position: absolute;

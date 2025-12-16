@@ -152,12 +152,12 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
     <div className="h-full overflow-y-auto no-scrollbar p-4 pb-24 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative">
       {/* Header */}
       <header className="mb-6 flex justify-between items-start" data-tour="dashboard-header">
-        <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Resumen del Negocio</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Estado actual de tu inventario • {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-            </p>
-        </div>
+                <div>
+                        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Resumen del Negocio</h1>
+                        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                            Estado actual de tu inventario • {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                </div>
         <div className="flex gap-2">
             <button 
                 onClick={() => onShowTour?.()}
@@ -197,31 +197,31 @@ const Dashboard: React.FC<DashboardProps> = ({ products, isDark, onToggleTheme, 
       <SyncIndicator isDark={isDark} compact={false} />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
-          <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg w-fit mb-2">
-            <DollarSign className="text-blue-600 dark:text-blue-400" size={20} />
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Valor Total (Venta)</p>
-          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">
-            {formatCurrency(stats.totalValue)}
-          </p>
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors" style={{ padding: 'var(--spacing-lg)' }}>
+                    <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg w-fit mb-3">
+                        <DollarSign className="text-blue-600 dark:text-blue-400" size={20} />
+                    </div>
+                    <p className="text-xs font-medium uppercase" style={{ color: 'var(--color-text-secondary)' }}>Valor Total (Venta)</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                        {formatCurrency(stats.totalValue)}
+                    </p>
+                </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
-          <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg w-fit mb-2">
-            <AlertTriangle className="text-orange-600 dark:text-orange-400" size={20} />
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Stock Bajo</p>
-          <p className="text-lg font-bold text-orange-600 dark:text-orange-400 leading-tight">
-            {stats.lowStockCount} <span className="text-xs font-normal text-slate-400 dark:text-slate-500">productos</span>
-          </p>
-        </div>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors" style={{ padding: 'var(--spacing-lg)' }}>
+                    <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg w-fit mb-3">
+                        <AlertTriangle className="text-orange-600 dark:text-orange-400" size={20} />
+                    </div>
+                    <p className="text-xs font-medium uppercase" style={{ color: 'var(--color-text-secondary)' }}>Stock Bajo</p>
+                    <p className="text-lg font-bold text-orange-600 dark:text-orange-400 leading-tight">
+                        {stats.lowStockCount} <span className="text-xs font-normal text-slate-400 dark:text-slate-500">productos</span>
+                    </p>
+                </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors" style={{ padding: 'var(--spacing-lg)' }}>
          <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase">Total Unidades</p>
+        <p className="text-xs font-medium uppercase" style={{ color: 'var(--color-text-secondary)' }}>Total Unidades</p>
             <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats.totalItems}</p>
          </div>
          <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">

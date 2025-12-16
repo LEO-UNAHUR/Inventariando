@@ -61,7 +61,7 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ user, isDark, onToggleThe
                 <Shield className="text-emerald-600 dark:text-emerald-400" />
                 Seguridad
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Respaldo y Acceso</p>
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Respaldo y Acceso</p>
         </div>
         <button 
             onClick={onToggleTheme}

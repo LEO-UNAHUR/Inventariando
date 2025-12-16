@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <div className={`fixed lg:static top-0 left-0 h-full w-[80%] max-w-xs lg:w-72 bg-white dark:bg-slate-900 z-[70] transform transition-transform duration-300 shadow-2xl lg:shadow-none flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`} data-tour="sidebar">
         
         {/* Header Profile */}
-        <div className="p-6 bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4">
+        <div className="p-6 bg-secondary border-b border-border-light flex flex-col gap-4 text-primary">
             <div className="flex justify-between items-start">
                 <div 
                     onClick={() => handleNav(View.PROFILE)}
@@ -96,8 +96,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
             </div>
             <div>
-                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">{currentUser.name}</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{currentUser.role}</p>
+                <h2 className="text-xl font-bold text-primary">{currentUser.name}</h2>
+                <p className="text-sm text-secondary">{currentUser.role}</p>
             </div>
             <button 
                 onClick={() => handleNav(View.PROFILE)}
@@ -118,9 +118,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <button
                             key={item.view}
                             onClick={() => handleNav(item.view)}
-                            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all active:scale-95 ${isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all active:scale-95 ${isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-secondary hover:bg-tertiary'}`}
                         >
-                            <item.icon size={20} className={isActive ? 'text-white' : 'text-slate-400'} />
+                            <item.icon size={20} className={isActive ? 'text-white' : 'text-secondary'} />
                             <span className="font-medium text-sm">{item.label}</span>
                         </button>
                     );
@@ -131,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sistema</p>
                 <button 
                     onClick={() => { onOpenDataManagement(); onClose(); }}
-                    className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="w-full flex items-center gap-3 px-0 py-3 text-secondary hover:text-primary transition-colors"
                 >
                     <Database size={18} />
                     <span className="text-sm font-medium">Gestión de Datos</span>
@@ -139,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {onOpenAnalyticsDashboard && (
                     <button 
                         onClick={() => { onOpenAnalyticsDashboard(); onClose(); }}
-                        className="w-full flex items-center gap-3 px-0 py-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        className="w-full flex items-center gap-3 px-0 py-3 text-secondary hover:text-primary transition-colors"
                     >
                         <BarChart3 size={18} />
                         <span className="text-sm font-medium">Métricas Internas</span>
@@ -165,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
                 <LogOut size={18} /> Cerrar Sesión
             </button>
-            <p className="text-xs text-center text-slate-400 dark:text-slate-500 mt-3 leading-relaxed px-2">{footerText}</p>
+            <p className="text-xs text-center text-tertiary mt-3 leading-relaxed px-2">{footerText}</p>
         </div>
       </div>
     </>

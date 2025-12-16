@@ -91,28 +91,28 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
   }, [isScannerOpen, products]);
 
   return (
-    <div className="h-full flex flex-col pb-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="h-full flex flex-col pb-20 bg-base transition-colors duration-300">
       
       {/* Sticky Header */}
-      <div className="sticky top-0 bg-slate-50 dark:bg-slate-950 z-10 p-4 space-y-3 shadow-sm border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <div className="sticky top-0 bg-base z-10 p-4 space-y-3 shadow-sm border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Inventario</h1>
+            <h1 className="text-2xl font-bold text-primary">Inventario</h1>
             <div className="flex gap-2">
                 <button 
                     onClick={onToggleTheme}
-                    className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    className="p-2 rounded-full bg-secondary text-secondary border border-slate-200 dark:border-slate-700"
                 >
                     {isDark ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
                 <button 
                     onClick={() => setShowFilters(!showFilters)} 
-                    className={`p-2 rounded-full border transition-colors ${showFilters ? 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'}`}
+                    className={`p-2 rounded-full border transition-colors ${showFilters ? 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' : 'bg-secondary text-secondary border-slate-200 dark:border-slate-700'}`}
                 >
                     <Filter size={20} />
                 </button>
                 <button
                     onClick={() => setViewMode(viewMode === 'LIST' ? 'GRID' : 'LIST')}
-                    className="p-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    className="p-2 rounded-full bg-secondary text-secondary border border-slate-200 dark:border-slate-700"
                 >
                     {viewMode === 'LIST' ? <LayoutGrid size={20} /> : <List size={20} />}
                 </button>
@@ -121,18 +121,18 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
         
         <div className="flex gap-2">
             <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
-                <input
-                    type="text"
-                    placeholder="Buscar producto, código..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-colors"
-                />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary" size={18} />
+              <input
+                type="text"
+                placeholder="Buscar producto, código..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 form-control focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
             <button 
                 onClick={() => setIsScannerOpen(true)}
-                className="bg-slate-800 dark:bg-slate-700 text-white p-3 rounded-xl"
+                className="bg-tertiary dark:bg-slate-700 text-secondary p-3 rounded-xl"
             >
                 <ScanLine size={20} />
             </button>
@@ -141,26 +141,26 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
         {/* Scanner Modal Overlay */}
         {isScannerOpen && (
             <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4">
-                <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl p-4 relative">
+                <div className="w-full max-w-sm bg-secondary dark:bg-slate-900 rounded-2xl p-4 relative">
                     <button 
                         onClick={() => setIsScannerOpen(false)} 
-                        className="absolute top-2 right-2 p-2 bg-slate-100 dark:bg-slate-800 rounded-full z-10"
+                        className="absolute top-2 right-2 p-2 bg-tertiary dark:bg-slate-800 rounded-full z-10"
                     >
-                        <X size={20} />
+                        <X size={20} className="text-secondary" />
                     </button>
-                    <h3 className="text-center font-bold mb-4 dark:text-white">Escanear Código</h3>
+                    <h3 className="text-center font-bold mb-4 text-primary">Escanear Código</h3>
                     <div id="reader" className="overflow-hidden rounded-lg"></div>
                 </div>
             </div>
         )}
 
         {showFilters && (
-            <div className="space-y-3 animate-slide-up bg-slate-100 dark:bg-slate-900/50 p-3 rounded-xl">
+            <div className="space-y-3 animate-slide-up bg-tertiary dark:bg-slate-900/50 p-3 rounded-xl">
                 {/* Categories */}
                 <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
                     <button 
                         onClick={() => setSelectedCategory('all')}
-                        className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-secondary dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-secondary'}`}
                     >
                         Todos
                     </button>
@@ -168,7 +168,7 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
                         <button 
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
-                            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === cat ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === cat ? 'bg-blue-600 text-white' : 'bg-secondary dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-secondary'}`}
                         >
                             {cat}
                         </button>
@@ -177,30 +177,30 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
                 
                 {/* Advanced Filters */}
                 <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
-                         <span className="text-xs text-slate-500">Precio</span>
+                    <div className="flex items-center gap-2 bg-secondary dark:bg-slate-800 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
+                         <span className="text-xs text-secondary">Precio</span>
                          <input 
-                            type="number" 
-                            placeholder="Min" 
-                            value={minPrice}
-                            onChange={(e) => setMinPrice(e.target.value)}
-                            className="w-full bg-transparent text-sm outline-none dark:text-white"
+                           type="number" 
+                           placeholder="Min" 
+                           value={minPrice}
+                           onChange={(e) => setMinPrice(e.target.value)}
+                           className="w-full form-control text-sm"
                          />
-                         <span className="text-slate-300">-</span>
+                         <span className="text-secondary">-</span>
                          <input 
-                            type="number" 
-                            placeholder="Max" 
-                            value={maxPrice}
-                            onChange={(e) => setMaxPrice(e.target.value)}
-                            className="w-full bg-transparent text-sm outline-none dark:text-white"
+                           type="number" 
+                           placeholder="Max" 
+                           value={maxPrice}
+                           onChange={(e) => setMaxPrice(e.target.value)}
+                           className="w-full form-control text-sm"
                          />
                     </div>
                     <div className="relative">
-                         <ArrowDownUp size={16} className="absolute left-3 top-3 text-slate-400" />
+                         <ArrowDownUp size={16} className="absolute left-3 top-3 text-secondary" />
                          <select 
-                            value={sortOption}
-                            onChange={(e) => setSortOption(e.target.value as SortOption)}
-                            className="w-full pl-9 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none appearance-none dark:text-white"
+                           value={sortOption}
+                           onChange={(e) => setSortOption(e.target.value as SortOption)}
+                           className="w-full pl-9 py-2 form-control text-sm appearance-none"
                          >
                              <option value="NAME_ASC">Nombre (A-Z)</option>
                              <option value="NAME_DESC">Nombre (Z-A)</option>
@@ -218,7 +218,7 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
       {/* List / Grid Content */}
       <div className={`flex-1 overflow-y-auto p-4 ${viewMode === 'GRID' ? 'grid grid-cols-2 gap-3 content-start' : 'space-y-3'}`}>
         {filteredProducts.length === 0 ? (
-          <div className="col-span-full text-center py-10 text-slate-400">
+          <div className="col-span-full text-center py-10 text-secondary">
             <p>No se encontraron productos.</p>
           </div>
         ) : (
@@ -227,24 +227,24 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
             
             if (viewMode === 'GRID') {
                 return (
-                    <div key={product.id} className="bg-white dark:bg-slate-900 rounded-xl p-3 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between active:scale-[0.98] transition-all">
+                    <div key={product.id} className="bg-secondary dark:bg-slate-900 rounded-xl p-3 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between active:scale-[0.98] transition-all">
                         <div>
                              <div className="flex justify-between items-start mb-1">
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${product.stock <= product.minStock ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${product.stock <= product.minStock ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-secondary'}`}>
                                     {product.stock} un.
                                 </span>
                                 {product.stock <= product.minStock && <AlertCircle size={14} className="text-orange-500" />}
                              </div>
-                             <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-sm line-clamp-2 h-10 mb-1">{product.name}</h3>
-                             <p className="text-xs text-slate-400 mb-2 truncate">{product.category}</p>
+                             <h3 className="font-semibold text-primary text-sm line-clamp-2 h-10 mb-1">{product.name}</h3>
+                             <p className="text-xs text-secondary mb-2 truncate">{product.category}</p>
                         </div>
                         <div className="flex justify-between items-end">
                              <p className="font-bold text-blue-600 dark:text-blue-400">{formatCurrency(product.price)}</p>
                              <div className="flex gap-1">
-                                <button onClick={() => onEdit(product)} className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded text-blue-500">
+                                <button onClick={() => onEdit(product)} className="p-1.5 bg-tertiary dark:bg-slate-800 rounded text-blue-500">
                                     <Edit2 size={14} />
                                 </button>
-                                <button onClick={() => onDelete(product.id)} className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded text-red-400">
+                                <button onClick={() => onDelete(product.id)} className="p-1.5 bg-tertiary dark:bg-slate-800 rounded text-red-400">
                                     <Trash2 size={14} />
                                 </button>
                              </div>
@@ -254,20 +254,20 @@ const InventoryList: React.FC<InventoryListProps> = ({ products, onEdit, onDelet
             }
 
             return (
-              <div key={product.id} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between active:scale-[0.99] transition-all">
-                <div className="flex-1 min-w-0 pr-4">
+              <div key={product.id} className="bg-secondary dark:bg-slate-900 rounded-xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between active:scale-[0.99] transition-all">
+                  <div className="flex-1 min-w-0 pr-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-slate-800 dark:text-slate-100 truncate">{product.name}</h3>
+                    <h3 className="font-semibold text-primary truncate">{product.name}</h3>
                     {product.stock <= product.minStock && (
                       <AlertCircle size={16} className="text-orange-500 flex-shrink-0" />
                     )}
                   </div>
-                  <p className="text-xs text-slate-400 font-mono mb-1">ID: {product.id}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{product.category}</p>
+                  <p className="text-xs text-secondary font-mono mb-1">ID: {product.id}</p>
+                  <p className="text-sm text-secondary truncate">{product.category}</p>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                      <span className="font-bold text-blue-600 dark:text-blue-400 mr-1">{formatCurrency(product.price)}</span>
                      
-                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${product.stock <= product.minStock ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${product.stock <= product.minStock ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' : 'bg-tertiary text-secondary dark:bg-slate-800 dark:text-slate-400'}`}>
                        Stock: {product.stock}
                      </span>
 
