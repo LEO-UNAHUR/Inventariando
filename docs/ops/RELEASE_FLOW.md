@@ -1,6 +1,7 @@
-# Flujo de Release Orquestado (release-master)
 
-Este documento resume el pipeline actual para publicar Inventariando tanto en Android (APK) como en web (PWA), y muestra qué hace `scripts/release-master.js`, la nueva entrada que reemplaza las secuencias manuales dispersas.
+# Flujo de Release Orquestado (release estable)
+
+Este documento resume el pipeline actual para publicar Inventariando tanto en Android (APK) como en web (PWA), y muestra el procedimiento correcto para ejecutar un release estable, tanto para humanos como para agentes IA.
 
 ## 1. Objetivo
 Mantener un solo procedimiento reproducible que:
@@ -10,13 +11,31 @@ Mantener un solo procedimiento reproducible que:
 - sube el APK a la release (sin dejar copias locales) y documenta el resultado,
 - respeta el pipeline de GH Actions sin pasos redundantes.
 
-## 2. Pasos del script maestro (`release-master`)
-1. **Verifica herramientas**: asegura que `gh` CLI esté instalada y `GITHUB_TOKEN` disponible en el entorno.  
-2. **Bump de versión**: ejecuta `npm run release:version` con `RELEASE_TYPE={beta|stable}` para actualizar `package.json`.  
-3. **Compila la app**: corre `npm run release:build` (incluye `npm run build:web` + `npx cap sync android` + `./android/gradlew assembleDebug`).  
-4. **Commit + Push**: guarda cambios en Git y empuja la rama `main` (se usa `--force-with-lease` igual que antes, pero ahora centralizado).  
-5. **Tag y Release**: etiqueta `v{version}`, hace `gh release create` con el APK generado y sube el binario. Para betas se agrega `--prerelease`.  
-6. **Resumen**: imprime la URL del release y sugiere compilar la PWA para GitHub Pages si se desea.
+## 2. Procedimiento para ejecutar un release estable
+
+### 1. Ejecutar el release estable
+Desde la raíz del proyecto, corre:
+
+```bash
+npm run release:stable
+```
+
+Esto ejecuta el script automatizado que:
+- Calcula y actualiza la nueva versión (bump),
+- Genera el changelog,
+- Hace commit y push a main,
+- Crea el tag y dispara el workflow de GitHub Actions para compilar y publicar el APK.
+
+### 2. Monitorear el workflow en GitHub Actions
+1. Ve a: https://github.com/LEO-UNAHUR/Inventariando/actions
+2. Busca el workflow "Release APK & Build" más reciente.
+3. Monitorea el proceso (2-5 minutos).
+4. Si el build es exitoso, el APK estará disponible en la sección de Releases.
+5. Si falla, revisa el log y aplica los parches necesarios.
+
+### 3. Notas para agentes IA
+- Siempre usa `npm run release:stable` para releases estables.
+- Después de ejecutar el comando, monitorea el workflow y reporta el resultado.
 
 ## 3. Integración con GitHub Actions
 - El workflow `.github/workflows/release.yml` ahora ejecuta `node scripts/release-master.js ${{ github.event.inputs.release_type }}`.
@@ -24,8 +43,9 @@ Mantener un solo procedimiento reproducible que:
 - Los pasos anteriores (`generate-keystore`, `chmod +x android/gradlew`, `gh-pages`) se mantienen como dependencias previas, pero el cambio centralizó la lógica en un solo script.
 
 ## 4. Cómo probar local
+Para pruebas de beta, usa:
 ```bash
-npm run release:master beta --dry-run
+npm run release:beta -- --dry-run
 ```
 El flag `--dry-run` imprime cada paso sin ejecutar comandos destructivos. La versión generada en ese modo (p. ej. `1.7.0-beta`) debe coincidir con `package.json` después de un `git restore package.json` si se quiere revertir.
 

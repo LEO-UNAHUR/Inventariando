@@ -8,10 +8,13 @@ Propósito: permitir que un agente IA sea productivo de inmediato en este repo R
 - Arquitectura: aplicación React (TypeScript, Vite) organizada por dominios en `src/features/`. Integraciones y lógica compartida en `services/`.
 - Dual targets: web (PWA) y Android (Capacitor). El `base` de `vite.config.ts` se ajusta según destino.
 
-2) Comandos y flujos críticos (ejecutables desde la raiz)
+
+2) Comandos y flujos críticos (ejecutables desde la raíz)
 - Desarrollo local: `npm install` y `npm run dev`.
 - Build web (producción): `npm run build:web` y para GitHub Pages: `npm run build:web:pages`.
 - Build Android (requiere Java 21+): `npm run build:android` (producción + Capacitor/Gradle en `android/`).
+- Release estable: `npm run release:stable` (automatiza bump, changelog, commit, tag y dispara el workflow de build y publicación de APK en GitHub Actions).
+- Monitoreo: tras ejecutar el release, ve a https://github.com/LEO-UNAHUR/Inventariando/actions y revisa el workflow "Release APK & Build". Si falla, revisa el log y reporta/parchea.
 - Scripts de release: `scripts/bump-version.js`, `scripts/create-release.js`, `release.ps1` / `release.sh`.
 
 3) Dónde mirar primero (archivos clave)
