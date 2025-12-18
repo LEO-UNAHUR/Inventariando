@@ -1,33 +1,30 @@
-name: Release APK & Build
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_type:
-        description: 'Tipo de release (usado por el script local)'
-        required: true
-        default: 'beta'
-        type: choice
-        options:
-          - beta
-          - stable
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    
     permissions:
-      contents: write # Permiso para crear y subir assets a un release
+      contents: write
 
     steps:
+      # ========================================
+      # 1. CHECKOUT Y SETUP
+      # ========================================
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Necesario para que actions/create-release encuentre el tag correcto
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
           cache: 'npm'
 
       - name: Setup Java (Android build)
@@ -36,20 +33,45 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      # ========================================
+      # 2. INSTALACIÓN DE DEPENDENCIAS
+      # ========================================
       - name: Install dependencies
         run: npm ci
 
+      # ========================================
+      # 3. BUILD WEB
+      # ========================================
+      - name: Build web app
+        run: npm run build
+
+      - name: Verify dist directory
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Error: dist/ directory not found"
+            exit 1
+          fi
+          echo "✅ dist/ directory exists"
+          ls -la dist/
+
+      # ========================================
+      # 4. CAPACITOR SYNC
+      # ========================================
       - name: Fix Gradle permissions
         run: chmod +x ./android/gradlew
 
       - name: Sync Capacitor (android)
         run: npx cap sync android
 
+      # ========================================
+      # 5. CREAR BUILD.GRADLE PARA CORDOVA PLUGINS
+      # ========================================
       - name: Create capacitor-cordova-android-plugins build.gradle
         run: |
           dir="android/capacitor-cordova-android-plugins"
           mkdir -p "$dir"
           
+          echo "📝 Creando build.gradle para $dir"
           cat > "$dir/build.gradle" << 'EOF'
           apply plugin: 'com.android.library'
           
@@ -79,6 +101,7 @@ jobs:
           }
           EOF
           
+          echo "📝 Creando cordova.variables.gradle para $dir"
           cat > "$dir/cordova.variables.gradle" << 'EOF'
           ext {
               cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
@@ -87,97 +110,183 @@ jobs:
           }
           EOF
           
-          echo "Archivos creados en $dir"
+          echo "✅ Archivos creados en $dir"
+          ls -la "$dir"
 
+      # ========================================
+      # 6. PREPARAR KEYSTORE
+      # ========================================
       - name: Prepare keystore (from secret)
         id: keystore
         run: |
           if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
-            echo "::warning::El secreto ANDROID_KEYSTORE_BASE64 no está configurado. El APK no será firmado."
+            echo "⚠️  Warning: ANDROID_KEYSTORE_BASE64 secret not configured"
             echo "is_signed=false" >> $GITHUB_OUTPUT
           else
-            echo "Keystore secret presente — decodificando a android/release.keystore"
+            echo "🔐 Decoding keystore to android/release.keystore"
             echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
+            
+            # Verificar que el archivo existe y tiene contenido
+            if [ ! -f "android/release.keystore" ]; then
+              echo "❌ Error: Keystore file not created"
+              exit 1
+            fi
+            
+            file_size=$(stat -f%z "android/release.keystore" 2>/dev/null || stat -c%s "android/release.keystore")
+            if [ "$file_size" -eq 0 ]; then
+              echo "❌ Error: Keystore file is empty"
+              exit 1
+            fi
+            
+            echo "✅ Keystore created successfully ($file_size bytes)"
+            ls -lh android/release.keystore
             echo "is_signed=true" >> $GITHUB_OUTPUT
-            ls -la android/*.keystore
           fi
 
-      - name: Ensure cordova variables file exists
-        run: |
-          dir=android/capacitor-cordova-android-plugins
-          file="$dir/cordova.variables.gradle"
-          if [ ! -f "$file" ]; then
-            echo "Creando $file (generado por CI)"
-            mkdir -p "$dir"
-            # Contenido mínimo para que Gradle no falle
-            echo "ext { cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24; cdvPluginPostBuildExtras = []; cordovaConfig = [:] }" > "$file"
-          fi
-
-      - name: Build Android Release
+      # ========================================
+      # 7. BUILD ANDROID APK
+      # ========================================
+      - name: Build Android Release APK
         working-directory: android
         run: |
+          echo "🏗️  Starting Android build..."
+          echo "Working directory: $(pwd)"
+          echo "Gradle version:"
+          ./gradlew --version
+          
           if [ "${{ steps.keystore.outputs.is_signed }}" == "true" ]; then
-            echo "Construyendo APK firmado..."
+            echo "📦 Building SIGNED release APK..."
+            echo "Keystore location: $(pwd)/release.keystore"
+            
             ./gradlew assembleRelease \
               -Pandroid.injected.signing.store.file=release.keystore \
-              -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-              -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
-              -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+              -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+              -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+              -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
+              --stacktrace
           else
-            echo "Construyendo APK de depuración (sin firmar)..."
-            ./gradlew assembleDebug
+            echo "📦 Building UNSIGNED debug APK..."
+            ./gradlew assembleDebug --stacktrace
           fi
+          
+          echo "✅ Build completed"
 
-      - name: Find built APK
-        id: find_apk
+      - name: Verify APK was created
         run: |
-          # Prioriza el APK de release, si no, busca el de debug
-          apk_path=$(find android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          if [ -z "$apk_path" ]; then
-            apk_path=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          if [ "${{ steps.keystore.outputs.is_signed }}" == "true" ]; then
+            apk_path="android/app/build/outputs/apk/release/app-release.apk"
+          else
+            apk_path="android/app/build/outputs/apk/debug/app-debug.apk"
           fi
-          if [ -z "$apk_path" ]; then
-            echo "::error::No se encontró ningún APK generado."
+          
+          if [ ! -f "$apk_path" ]; then
+            echo "❌ Error: APK not found at $apk_path"
             exit 1
           fi
-          echo "apk_path=$apk_path" >> $GITHUB_OUTPUT
-          echo "Found APK at $apk_path"
+          
+          echo "✅ APK found at $apk_path"
+          ls -lh "$apk_path"
 
-      - name: Read package.json version
-        id: pkg
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+      # ========================================
+      # 8. RENOMBRAR APK
+      # ========================================
+      - name: Rename APK
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          if [ "${{ steps.keystore.outputs.is_signed }}" == "true" ]; then
+            mv android/app/build/outputs/apk/release/app-release.apk \
+               "inventariando-${VERSION}.apk"
+            echo "apk_name=inventariando-${VERSION}.apk" >> $GITHUB_ENV
+          else
+            mv android/app/build/outputs/apk/debug/app-debug.apk \
+               "inventariando-${VERSION}-debug.apk"
+            echo "apk_name=inventariando-${VERSION}-debug.apk" >> $GITHUB_ENV
+          fi
+          
+          echo "✅ APK renamed to ${{ env.apk_name }}"
+          ls -lh "${{ env.apk_name }}"
 
-      - name: Create or Update GitHub Release
+      # ========================================
+      # 9. CREAR RELEASE EN GITHUB
+      # ========================================
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        with:
-          tag_name: v${{ steps.pkg.outputs.version }}
-          release_name: Release ${{ steps.pkg.outputs.version }}
-          body: |
-            Release automático para la versión ${{ steps.pkg.outputs.version }}.
-            APK generado por GitHub Actions.
-          draft: false
-          prerelease: ${{ contains(steps.pkg.outputs.version, '-beta') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## 📱 Inventariando ${{ github.ref }}
+            
+            ### 📥 Descargas
+            - APK para Android disponible más abajo
+            
+            ### ✨ Novedades
+            <!-- Agregar manualmente las novedades de esta versión -->
+            
+            ### 🔧 Información Técnica
+            - Build: ${{ github.run_number }}
+            - Commit: ${{ github.sha }}
+            - Firmado: ${{ steps.keystore.outputs.is_signed }}
+            
+            ---
+            Generado automáticamente por GitHub Actions
+          draft: false
+          prerelease: false
 
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apk.outputs.apk_path }}
-          asset_name: Inventariando-v${{ steps.pkg.outputs.version }}.apk
+          asset_path: ./${{ env.apk_name }}
+          asset_name: ${{ env.apk_name }}
           asset_content_type: application/vnd.android.package-archive
 
-      - name: Build PWA for GitHub Pages (stable only)
-        if: github.event.inputs.release_type == 'stable'
-        run: npm run build:web:pages
+      # ========================================
+      # 10. GENERAR DOCUMENTACIÓN (si existe)
+      # ========================================
+      - name: Generate TypeDoc documentation
+        if: hashFiles('typedoc.json') != ''
+        run: |
+          if npm run docs --if-present; then
+            echo "✅ Documentation generated"
+          else
+            echo "⚠️  Documentation generation skipped or failed"
+          fi
 
-      - name: Deploy to GitHub Pages (stable only)
-        if: github.event.inputs.release_type == 'stable'
+      - name: Deploy documentation to GitHub Pages
+        if: hashFiles('typedoc.json') != '' && hashFiles('docs/') != ''
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./docs
           publish_branch: gh-pages
-          force_orphan: true
+          
+      # ========================================
+      # 11. LIMPIEZA
+      # ========================================
+      - name: Cleanup sensitive files
+        if: always()
+        run: |
+          echo "🧹 Cleaning up sensitive files..."
+          rm -f android/release.keystore
+          rm -f android/app/release.keystore
+          echo "✅ Cleanup completed"
+
+      # ========================================
+      # 12. RESUMEN
+      # ========================================
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "## 📊 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Signed:** ${{ steps.keystore.outputs.is_signed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **APK:** `${{ env.apk_name }}`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** `${{ github.sha }}`" >> $GITHUB_STEP_SUMMARY

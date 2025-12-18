@@ -11,31 +11,40 @@ Mantener un solo procedimiento reproducible que:
 - sube el APK a la release (sin dejar copias locales) y documenta el resultado,
 - respeta el pipeline de GH Actions sin pasos redundantes.
 
-## 2. Procedimiento para ejecutar un release estable
+## 2. Procedimiento actual de releases
 
-### 1. Ejecutar el release estable
-Desde la raíz del proyecto, corre:
+### 1. Crear un tag semántico
+El pipeline ya no se dispara desde la rama `main`. Crea directamente un nuevo tag y púshalo:
 
 ```bash
-npm run release:stable
+git tag vMAJOR.MINOR.PATCH
+git push origin vMAJOR.MINOR.PATCH
 ```
 
-Esto ejecuta el script automatizado que:
-- Calcula y actualiza la nueva versión (bump),
-- Genera el changelog,
-- Hace commit y push a main,
-- Crea el tag y dispara el workflow de GitHub Actions para compilar y publicar el APK.
+Ejemplo: `git tag v1.8.13 && git push origin v1.8.13`.
 
-### 2. Monitorear el workflow en GitHub Actions
+### 2. Qué hace el workflow `Release`
+El tag crea un workflow que:
+- instala dependencias (`npm ci`),
+- genera el build web y valida `dist/`,
+- sincroniza Capacitor, crea el módulo `capacitor-cordova-android-plugins` con `build.gradle` válido y expone el `shadow` release,
+- decodifica `ANDROID_KEYSTORE_BASE64` en `android/release.keystore`,
+- ejecuta Gradle desde `android/` con `-Pandroid.injected.signing.store.file=release.keystore`,
+- verifica la existencia del APK, lo renombra a `inventariando-${TAG}.apk`,
+- crea automáticamente la Release en GitHub y sube el asset firmado,
+- opcionalmente genera y despliega docs si existen y limpia archivos sensibles.
+
+### 3. Qué monitorear
 1. Ve a: https://github.com/LEO-UNAHUR/Inventariando/actions
-2. Busca el workflow "Release APK & Build" más reciente.
-3. Monitorea el proceso (2-5 minutos).
-4. Si el build es exitoso, el APK estará disponible en la sección de Releases.
-5. Si falla, revisa el log y aplica los parches necesarios.
+2. El workflow se llama `Release` y se dispara por cada tag `v*.*.*`.
+3. Revisa los pasos de configuración del keystore y el build Android (imprime el working dir y el keystore usado).
+4. Si finaliza con `failure`, la terminal que ejecutó `npm run release:stable` ya habrá mostrado la URL del run (para verificar el log).
+5. Cuando termine correctamente, el APK firmado aparecerá en el Release correspondiente.
 
-### 3. Notas para agentes IA
-- Siempre usa `npm run release:stable` para releases estables.
-- Después de ejecutar el comando, monitorea el workflow y reporta el resultado.
+### 4. Notas para agentes IA
+- No hagas pushes directos: crea tags para cumplir el disparador del workflow.
+- Asegúrate de que los secrets (`ANDROID_KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`) existen antes de ejecutar el release.
+- Si es necesario un release de documento o docs, usa los outputs del summary (número de build, versión, APK generado) para documentar el resultado.
 
 ## 3. Integración con GitHub Actions
 - El workflow `.github/workflows/release.yml` ahora ejecuta `node scripts/release-master.js ${{ github.event.inputs.release_type }}`.
