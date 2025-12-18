@@ -232,6 +232,7 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
 
     // 2) Dispatch
     const payload = { ref: 'main', inputs: { release_type: releaseType } };
+    const dispatchTimestamp = Date.now();
     const dispatchResp = await fetch(`${base}/actions/workflows/${workflowId}/dispatches`, {
       method: 'POST',
       headers,
@@ -255,10 +256,14 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
       if (runsResp.ok) {
         const runsJson = await runsResp.json();
         const runs = runsJson.workflow_runs || [];
-        if (runs.length > 0) {
-          const latest = runs[0];
-          log.info(`Workflow run detectado: status=${latest.status}, conclusion=${latest.conclusion || 'n/a'}, id=${latest.id}`);
-          runId = latest.id;
+        const recentRuns = runs.filter((run) => {
+          const created = new Date(run.created_at).getTime();
+          return created >= dispatchTimestamp - 5000;
+        });
+        if (recentRuns.length > 0) {
+          const candidate = recentRuns[0];
+          log.info(`Workflow run detectado: status=${candidate.status}, conclusion=${candidate.conclusion || 'n/a'}, id=${candidate.id}`);
+          runId = candidate.id;
           break;
         }
       }
