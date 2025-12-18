@@ -140,6 +140,10 @@ jobs:
             
             echo "✅ Keystore created successfully ($file_size bytes)"
             ls -lh android/release.keystore
+            # Copy to the path expected by the Android signingConfig
+            mkdir -p android/app
+            cp android/release.keystore android/app/inventariando.keystore
+            echo "✅ Keystore copied to android/app/inventariando.keystore"
             echo "is_signed=true" >> $GITHUB_OUTPUT
           fi
 
