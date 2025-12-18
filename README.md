@@ -146,6 +146,35 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
     VITE_GEMINI_API_KEY=tu_api_key_aqui
     ```
 
+### Keystore y firma de APK
+
+La configuración de firma ya no debe contener contraseñas hardcodeadas. Define las siguientes variables de entorno en CI o en tu `~/.gradle/gradle.properties` (o usa `gradle.properties` local en desarrollo):
+
+- `KEYSTORE_PATH` — ruta al keystore (por ejemplo `android/app/inventariando.keystore`)
+- `KEYSTORE_PASSWORD` — contraseña del keystore
+- `KEY_ALIAS` — alias de la clave
+- `KEY_PASSWORD` — contraseña de la clave
+
+En GitHub Actions, configura estos valores como *Repository secrets* (`Settings → Secrets and variables → Actions`) o usando `gh`:
+
+```powershell
+gh secret set KEYSTORE_PATH --body "android/app/inventariando.keystore" --repo OWNER/REPO
+gh secret set KEYSTORE_PASSWORD --body "<value>" --repo OWNER/REPO
+gh secret set KEY_ALIAS --body "inventariando" --repo OWNER/REPO
+gh secret set KEY_PASSWORD --body "<value>" --repo OWNER/REPO
+```
+
+En local puedes añadirlos a `~/.gradle/gradle.properties` así (NO commitear este archivo):
+
+```
+KEYSTORE_PATH=android/app/inventariando.keystore
+KEYSTORE_PASSWORD=tu_contraseña
+KEY_ALIAS=inventariando
+KEY_PASSWORD=tu_contraseña
+```
+
+Si necesitas, puedo actualizar tu workflow de CI para leer estos secretos y colocarlos en `android/app/inventariando.keystore` antes del build.
+
 4.  **Iniciar en Desarrollo:**
     ```bash
     npm run dev

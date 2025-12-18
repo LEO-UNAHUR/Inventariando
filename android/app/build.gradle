@@ -17,12 +17,27 @@ android {
         }
     }
     
+    // Signing config reads from environment variables or project properties.
+    // Prefer setting these in CI via GitHub Secrets (see README instructions).
+    def keystorePath = System.getenv('KEYSTORE_PATH') ?: (project.hasProperty('KEYSTORE_PATH') ? project.property('KEYSTORE_PATH') : null)
+    def keystorePassword = System.getenv('KEYSTORE_PASSWORD') ?: (project.hasProperty('KEYSTORE_PASSWORD') ? project.property('KEYSTORE_PASSWORD') : null)
+    def keyAlias = System.getenv('KEY_ALIAS') ?: (project.hasProperty('KEY_ALIAS') ? project.property('KEY_ALIAS') : null)
+    def keyPassword = System.getenv('KEY_PASSWORD') ?: (project.hasProperty('KEY_PASSWORD') ? project.property('KEY_PASSWORD') : null)
+
     signingConfigs {
         release {
-            storeFile file('inventariando.keystore')
-            storePassword 'inventariando2024'
-            keyAlias 'inventariando'
-            keyPassword 'inventariando2024'
+            if (keystorePath) {
+                storeFile file(keystorePath)
+            }
+            if (keystorePassword) {
+                storePassword keystorePassword
+            }
+            if (keyAlias) {
+                keyAlias keyAlias
+            }
+            if (keyPassword) {
+                keyPassword keyPassword
+            }
         }
     }
     
