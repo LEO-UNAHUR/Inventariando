@@ -123,12 +123,10 @@
 ## [1.5.0-beta] - 2025-12-15
 
 ### Changed
-- Release beta
+- 🔄 **Documentation Structure**: referencias antiguas a `docs/releases/` eliminadas del repositorio.
 
-## [Unreleased]
-
-### Fixed
-- GitHub Actions workflow: Corregido deployment a GitHub Pages para usar `build:web:pages`
+### Documentation
+- 📚 **Notes:** Algunas entradas históricas referenciaban `docs/releases/*`, esos archivos ya no están presentes; consulta la página de Releases en GitHub o `CHANGELOG.md` para historial.
 - El workflow ahora compila correctamente con base: '/Inventariando/' para Pages
 - APK continúa usando base: '/' correctamente
 
@@ -222,8 +220,8 @@ Phase 1 ha sido completado exitosamente con todas las características principal
 ### Changed
 - 🔄 **App Layout**: Container raíz cambió de overflow-hidden a min-h-screen para permitir scroll
 - 🔄 **Main Content**: Ahora con overflow-y-auto y anclado al inicio para mejor UX
-- 🔄 **Documentation Structure**: Fase 2 movida a docs/releases/PHASE-2-ROADMAP.md (respetando estructura)
-- 🔄 **Release Notes**: PHASE-1-BETA.3.md actualizado con referencias a Phase 2
+- 🔄 **Documentation Structure**: referencias antiguas a `docs/releases/` fueron eliminadas del repositorio.
+- 🔄 **Release Notes**: entradas históricas referenciaban archivos en `docs/releases/` que ya no están presentes
 
 ### Fixed
 - 🐛 **Scroll Issue**: Secciones ahora completamente scrolleables sin contenido flotante
@@ -231,9 +229,7 @@ Phase 1 ha sido completado exitosamente con todas las características principal
 - 🐛 **Tour Progression**: Tour avanza sin interrupción cuando el usuario navega pasos
 
 ### Documentation
-- 📚 **Phase 2 Planning**: [docs/releases/PHASE-2-ROADMAP.md](docs/releases/PHASE-2-ROADMAP.md) con plan detallado
-- 📚 **Structure Update**: docs/README.md actualizado con referencias correctas a releases
-- 📚 **README Principal**: Sección "Próxima: Phase 2" añadida
+- 📚 **Documentation:** Referencias a `docs/releases/*` fueron eliminadas; consulta la página de Releases en GitHub o este `CHANGELOG.md` para historial de versiones.
 
 ---
 
