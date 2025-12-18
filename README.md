@@ -8,61 +8,7 @@ Nota importante (2025-12-18): este repositorio fue limpiado recientemente. Se el
 
 ## 📌 Estado del Proyecto
 
-- **Phase 1:** Implementación principal completada (PWA + APK). Muchos documentos históricos y automatizaciones fueron removidos para iniciar un reinicio del flujo de release.
-
 Consulta `CHANGELOG.md` y la pestaña Releases en GitHub para ver artefactos y versiones publicadas si existen.
-
----
-
-<!-- LATEST_RELEASE_START -->
-## Último Release
-
-Revisa la página de Releases en GitHub para la versión más reciente:
-- https://github.com/LEO-UNAHUR/Inventariando/releases
-
-Si necesitas que publique o regenere una release específica, dime y lo coordinamos (actualmente el proceso es manual).
-<!-- LATEST_RELEASE_END -->
-
----
-
-## 🎉 Phase 1 Completado
-
-### 🔥 Novedades 1.4.4 (2025-12-15)
-- Arquitectura de Builds Duales implementada ✅
-  - Web App compilada automáticamente para GitHub Pages (base: /Inventariando/)
-  - APK compilado para Android (base: /)
-  - Ambas versiones generadas en cada release
-- Pantalla blanca en Android solucionada ✅
-- Service Worker básico agregado ✅
-- Documentación completa actualizada ✅
-
-### ✅ Phase 1 - Beta.3 (2025-12-15)
-- Verificación de WhatsApp con código de 6 dígitos y caducidad
-- Gemini por usuario con login token o API Key
-- Asistente IA con credencial por usuario
-- Detalles en [docs/releases/PHASE-1-BETA.3.md](docs/releases/PHASE-1-BETA.3.md)
-
-### 🏆 Logros de Phase 1
-- ✨ 21 componentes React totalmente funcionales
-- 🤖 Integración multi-provider IA (Gemini, OpenAI, Anthropic)
-- 📊 Dashboard de análisis interno con eventos
-- 🛒 Sistema POS completo con múltiples métodos de pago
-- 🔐 Autenticación RBAC y 2FA
-- ☁️ Backup/Export de datos robusto
-- 📱 PWA con soporte offline
-- 🎨 Dark mode y diseño responsive
-
----
-
-## 🚀 Phase 2 Próxima (Q1 2026)
-- 🎓 Enhanced Onboarding Tour — 12+ pasos cubriendo todas las secciones
-- 🔔 First-Visit Notification — Banner de bienvenida para nuevos usuarios
-- 📊 Real-time team notifications
-- 📄 Advanced reporting (PDF exports con charts)
-- 👥 Multi-user collaboration
-- 🔌 API integration (ERP, accounting systems)
-
-[Ver Roadmap Completo](docs/releases/PHASE-2-ROADMAP.md)
 
 ---
 
