@@ -286,8 +286,6 @@ Cada release genera **DOS versiones** automáticamente:
 - Aplica `base` path correcto automáticamente
 - Evita conflictos entre Capacitor (Android) y GitHub Pages
 
-Detalles completos en: **[docs/RELEASE_SYSTEM.md](docs/RELEASE_SYSTEM.md)**
-
 ### 🔧 Estrategia de Versiones
 ```
 1.4.4 (actual stable)
@@ -301,17 +299,9 @@ Detalles completos en: **[docs/RELEASE_SYSTEM.md](docs/RELEASE_SYSTEM.md)**
 1.5.2 (siguiente stable)
 ```
 
-### 📖 Documentación Completa del Sistema de Releases
+### 📖 Nota sobre la documentación
 
-**👉 [docs/RELEASE_SYSTEM.md](docs/RELEASE_SYSTEM.md)** - Documento maestro único que explica:
-- ✅ Arquitectura completa del sistema
-- ✅ Flujo detallado de cada paso
-- ✅ Scripts y herramientas (create-release.js, bump-version.js, etc.)
-- ✅ GitHub Actions workflow explicado
-- ✅ Builds duales (Android + Web)
-- ✅ Versionado automático (semver)
-- ✅ Despliegue a GitHub Pages
-- ✅ Troubleshooting completo
+La documentación detallada del sistema de releases fue removida del repositorio durante la limpieza reciente. Consulta `CHANGELOG.md` y la página de Releases en GitHub para historial y notas de versiones. Si necesitas que regenere documentación de release, puedo prepararla nuevamente.
 
 ---
 

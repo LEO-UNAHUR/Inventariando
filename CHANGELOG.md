@@ -106,13 +106,10 @@
 ## [1.6.1-beta] - 2025-12-16
 
 ### Changed
-- Release beta
-
+-- 🔄 **Documentation Structure**: referencias a rutas antiguas en `docs/releases/` fueron removidas del repositorio.
 ## [1.6.0-beta] - 2025-12-16
 
-### Changed
-- Release beta
-
+- 📚 **Documentation:** Algunas referencias internas a `docs/releases/` fueron eliminadas; consulta `CHANGELOG.md` y Releases para historial.
 ## [1.5.1] - 2025-12-16
 
 ### Added
