@@ -150,7 +150,7 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
     ```bash
     npm run dev
     ```
-    Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+    Abre `http://localhost:3000` en tu navegador (desarrollo).
 
 5.  **Build Web:**
     ```bash
@@ -191,7 +191,7 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
 
 ### 📱 APK (Android Nativo)
 Descarga la última versión compilada desde:
-- **GitHub Releases:** https://github.com/LEO-UNAHUR/Inventariando/releases
+- **GitHub:** https://github.com/LEO-UNAHUR/Inventariando
 - **Carpeta Local:** `APK/v[version]/` en el repositorio
 
 **Requisitos:** Android 6.0+
