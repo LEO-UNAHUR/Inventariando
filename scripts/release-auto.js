@@ -230,19 +230,37 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
       log.warning('No se encontró release.yml en la lista; se intentará con el filename.');
     }
 
-    // 2) Dispatch
-    const payload = { ref: 'main', inputs: { release_type: releaseType } };
-    const dispatchTimestamp = Date.now();
-    const dispatchResp = await fetch(`${base}/actions/workflows/${workflowId}/dispatches`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
-    });
-    if (!dispatchResp.ok) {
-      throw new Error(`Dispatch failed: ${dispatchResp.status} ${dispatchResp.statusText}`);
+    // 2) Comprobar si el workflow soporta `workflow_dispatch`.
+    let supportsDispatch = false;
+    try {
+      const contentResp = await fetch(`${base}/contents/.github/workflows/release.yml`, { headers });
+      if (contentResp.ok) {
+        const contentJson = await contentResp.json();
+        const fileContent = Buffer.from(contentJson.content || '', 'base64').toString('utf8');
+        if (fileContent.includes('workflow_dispatch')) {
+          supportsDispatch = true;
+        }
+      }
+    } catch (err) {
+      log.debug('No se pudo leer el contenido de release.yml para verificar workflow_dispatch.');
     }
 
-    log.success('GitHub Actions workflow disparado');
+    const dispatchTimestamp = Date.now();
+    if (supportsDispatch) {
+      // Dispatch via API
+      const payload = { ref: 'main', inputs: { release_type: releaseType } };
+      const dispatchResp = await fetch(`${base}/actions/workflows/${workflowId}/dispatches`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      if (!dispatchResp.ok) {
+        throw new Error(`Dispatch failed: ${dispatchResp.status} ${dispatchResp.statusText}`);
+      }
+      log.success('GitHub Actions workflow disparado via dispatch API');
+    } else {
+      log.info('El workflow no soporta `workflow_dispatch` o no se pudo verificar; omitiendo POST de dispatch y esperando el run creado por el push (tag).');
+    }
 
     // 3) Poll de estado hasta ver el run
     const start = Date.now();
