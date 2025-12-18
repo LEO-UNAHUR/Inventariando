@@ -1,7 +1,3 @@
-## v1.0.0 - beta
-
-- Initial beta release. Versioning reset: archived previous releases and tags.
-
 ## [1.8.21] - 2025-12-18
 
 ### Added
