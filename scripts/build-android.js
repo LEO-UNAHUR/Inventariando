@@ -63,17 +63,10 @@ android {
         }
     }
     publishing {
-        publications {
-            release(MavenPublication) {
-                afterEvaluate {
-                    from components.release
-                }
-            }
-        }
-        singleVariant("release") {
-            withSourcesJar(false)
-            withJavadocJar(false)
-        }
+      singleVariant("release") {
+        withSourcesJar(false)
+        withJavadocJar(false)
+      }
     }
 }
 
