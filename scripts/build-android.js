@@ -44,7 +44,6 @@ function ensureCordovaPluginsGradle() {
   }
 
   const expected = `apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 
 android {
     namespace "com.inventariando.capacitorcordova"
@@ -57,24 +56,10 @@ android {
         abortOnError false
     }
     buildTypes {
-        debug {
-        }
-        release {
-        }
+        debug {}
+        release {}
     }
-    // no publishing block here; publications will be declared afterEvaluate
 }
-
-  // Crear publicación Maven consumible para la variante release (AGP compatible)
-  publishing {
-    publications {
-      release(MavenPublication) {
-        afterEvaluate {
-          from components.release
-        }
-      }
-    }
-  }
 
 dependencies {
     implementation fileTree(dir: 'src/main/libs', include: ['*.jar'])
