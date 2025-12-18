@@ -32,3 +32,12 @@ android/app/*.keystore
 *.njsproj
 *.sln
 *.sw?
+
+# Private keystores and secrets (ignore generated and encoded keystores)
+keystore.b64
+*.keystore
+
+# Environment files (local overrides)
+.env
+.env.local
+.env.*.local
