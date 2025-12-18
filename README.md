@@ -1,31 +1,26 @@
 
-# 🇦🇷 Inventariando | Gestión de Inventario Inteligente
+# 🇦🇷 Inventariando — Gestión de Inventario Inteligente
 
-![Version](https://img.shields.io/badge/version-1.8.1-blue?style=for-the-badge&logo=appveyor)
-![Status](https://img.shields.io/badge/status-Phase%201%20Complete-green?style=for-the-badge)
-![Tech](https://img.shields.io/badge/stack-React_19_•_Capacitor_•_Gemini_AI-222?style=for-the-badge)
+Proyecto React + Capacitor (PWA + Android) orientado a PyMEs. Contiene la aplicación web (PWA) y la configuración para generar APKs Android.
 
-**🌐 [Prueba la PWA en vivo](https://LEO-UNAHUR.github.io/Inventariando/)** | 📱 [Descarga APK](https://github.com/LEO-UNAHUR/Inventariando/releases)
-
-> **La solución definitiva para PyMEs argentinas.**  
-> Gestión de stock, punto de venta (POS) y análisis financiero potenciado por Inteligencia Artificial, todo en tu bolsillo.
+Nota importante (2025-12-18): este repositorio fue limpiado recientemente. Se eliminaron las automatizaciones de release y las instrucciones automáticas de Copilot; el proceso de publicación debe realizarse manualmente hasta que se reimplante una nueva automatización.
 
 
 ## 📌 Estado del Proyecto
 
-| Fase | Versión | Estado | Fecha |
-|------|---------|--------|-------|
-| **Phase 1 - Stable** | 1.8.1 | ✅ Publicado | 16 de diciembre de 2025 |
-| Phase 2 (Planificado) | TBD | 📋 Planning | Q1 2026 |
+- **Phase 1:** Implementación principal completada (PWA + APK). Muchos documentos históricos y automatizaciones fueron removidos para iniciar un reinicio del flujo de release.
+
+Consulta `CHANGELOG.md` y la pestaña Releases en GitHub para ver artefactos y versiones publicadas si existen.
 
 ---
 
 <!-- LATEST_RELEASE_START -->
-## ÐYs? Último Release
-- **Versión:** v1.8.1
-- **Tipo:** Stable
-- **Fecha:** 16 de diciembre de 2025
-- **Notas:** [GitHub Release](https://github.com/LEO-UNAHUR/Inventariando/releases/tag/v1.8.1)
+## Último Release
+
+Revisa la página de Releases en GitHub para la versión más reciente:
+- https://github.com/LEO-UNAHUR/Inventariando/releases
+
+Si necesitas que publique o regenere una release específica, dime y lo coordinamos (actualmente el proceso es manual).
 <!-- LATEST_RELEASE_END -->
 
 ---
@@ -144,19 +139,36 @@ const isGitHubPagesMode = mode === 'pages';
 const basePath = isGitHubPagesMode ? '/Inventariando/' : '/';
 ```
 
-### 🔄 Flujo de Release Automático
-Cuando ejecutas `npm run release:beta` o `npm run release:stable` el script realiza los siguientes pasos automáticamente:
+### Flujo de publicación (actual)
 
-0. 🔁 Sincroniza la rama local con `origin/main` (`git fetch` + `git pull --rebase`). Si hay cambios locales no commiteados, crea un `git stash` temporal y lo aplica después del pull. Si hay conflictos al reaplicar el stash, el proceso aborta y pide resolución manual.
-1. ✅ Calcula versión (semver) y determina `v{version}`
-2. ✅ Bumpa `package.json` a la nueva versión
-3. ✅ Dispara GitHub Actions para compilar artefactos (APK)
-4. ✅ Descarga APK desde GitHub Releases y lo guarda localmente en `APK/v{version}/` renombrado como `Inventariando-{version}.apk` (se generan `INFO.txt` y `CHECKSUMS.txt` automáticamente)
-5. ✅ Compila Web App para GitHub Pages → `BUILDS/web-pages/v{version}/` (base: /Inventariando/)
-6. ✅ Actualiza `README.md`, `CHANGELOG.md` y documentación de versión
-7. ✅ Commit y push automático de la documentación y metadata
+Las automatizaciones de release fueron eliminadas en la limpieza de repositorio; a continuación se indican los pasos manuales recomendados para publicar una release:
 
-Resultado: Ambas versiones (Android + Web) quedan listas para distribución; los APKs se estandarizan y quedan disponibles en `APK/v{version}/`.
+1. Actualiza y prueba localmente (`npm run dev`, `npm test`).
+2. Compila la Web para producción:
+
+```bash
+npm run build:web
+```
+
+3. Para publicar la PWA en GitHub Pages:
+
+```bash
+npm run build:web:pages
+# luego deploy manual a la rama gh-pages según tu flujo
+```
+
+4. Para generar APK (local / CI):
+
+```bash
+npm run build:web
+npx cap sync android
+cd android && ./gradlew assembleRelease
+# recoge APK en android/app/build/outputs/apk/release/
+```
+
+5. Crea la Release en GitHub y sube el APK manualmente.
+
+Si quieres, puedo ayudar a reimplementar la automatización de release una vez que decidamos el flujo y la compatibilidad con la versión actual de Gradle/CI.
 
 ---
 
@@ -247,7 +259,7 @@ Descarga la última versión compilada desde:
 
 ---
 
-## 🚀 Plan de Fases (Roadmap 2025-2026)
+## 🚀 Plan de Fases (Roadmap)
 
 Inventariando evolucionará en 4 fases principales, cada una con betas intermedias y un release stable al cierre.
 
@@ -310,30 +322,9 @@ Inventariando evolucionará en 4 fases principales, cada una con betas intermedi
 
 ---
 
-## 🚀 Release Process (Completamente Automatizado)
+## 📦 Release Process (nota)
 
-### 📋 Resumen Rápido
-
-```bash
-# Beta (aprendizaje/validación)
-npm run release:beta
-
-# Stable (despliegue amplio)
-npm run release:stable
-```
-
-**El sistema hace automáticamente:**
-- ✅ Calcula y valida la siguiente versión (semver automático)
-- ✅ Actualiza `package.json` + `CHANGELOG.md`
-- ✅ Dispara GitHub Actions workflow
-- ✅ Compila APK Android (Java 21 + Gradle 8.14)
-- ✅ Compila Web App PWA para GitHub Pages
-- ✅ Crea GitHub Release con APK adjunto
-- ✅ Despliega PWA a GitHub Pages (solo stable)
-- ✅ Genera documentación de versión
-- ✅ Commit + push automático
-
-**Resultado:** En 5-6 minutos tienes APK + Web App listos para distribución.
+Las referencias a comandos `npm run release:*` y a scripts automáticos (`scripts/*`) fueron eliminadas del repositorio en la limpieza reciente. Actualmente el proceso de publicación es manual; si quieres que restaure o rehaga la automatización, puedo proponer una implementación compatible con la versión actual de Gradle/CI.
 
 ### 🏗️ Arquitectura de Builds Duales (PWA + Android)
 
