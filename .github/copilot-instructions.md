@@ -18,8 +18,8 @@ Propósito: permitir que un agente IA sea productivo de inmediato en este repo R
 - Scripts de release: `scripts/bump-version.js`, `scripts/create-release.js`, `release.ps1` / `release.sh`.
 
 3) Dónde mirar primero (archivos clave)
--- Configuraciones: [vite.config.ts](../vite.config.ts#L1) y [capacitor.config.ts](../capacitor.config.ts#L1).
--- Integraciones/IA: `services/` — ejemplos: [services/geminiService.ts](../services/geminiService.ts#L1), [services/openaiService.ts](../services/openaiService.ts#L1), [services/storageService.ts](../services/storageService.ts#L1).
+-- Configuraciones: [vite.config.ts](../vite.config.ts) y [capacitor.config.ts](../capacitor.config.ts).
+-- Integraciones/IA: `services/` — ejemplos: [services/geminiService.ts](../services/geminiService.ts), [services/openaiService.ts](../services/openaiService.ts), [services/storageService.ts](../services/storageService.ts).
 - Android: `android/` contiene Gradle, `local.properties` y configuraciones de build; revisa `android/app/build.gradle`.
 
 4) Patrones y convenciones específicas del proyecto
