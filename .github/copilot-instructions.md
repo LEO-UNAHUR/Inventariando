@@ -43,7 +43,7 @@ Propósito: permitir que un agente IA sea productivo de inmediato en este repo R
 
 8) Qué cambiar con precaución
 - `vite.config.ts`, `capacitor.config.ts`, y cualquier ajuste en `android/` pueden romper builds multiplataforma.
-- Scripts de release y `package.json` — revisar `scripts/*` antes de actualizar versiones o pipeline.
+- Scripts de release y `packageb.json` — revisar `scripts/*` antes de actualizar versiones o pipeline.
 
 9) Preguntas útiles para el mantenedor
 - ¿Dónde documentamos la política para `keystore.b64` y claves de producción?
