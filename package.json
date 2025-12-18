@@ -1,7 +1,7 @@
 {
   "name": "inventariando",
   "private": true,
-  "version": "1.8.15",
+  "version": "1.8.16",
   "type": "module",
   "description": "Gestión de inventario y POS inteligente para PyMEs argentinas. PWA con IA integrada.",
   "author": "Leonardo Esteves",
