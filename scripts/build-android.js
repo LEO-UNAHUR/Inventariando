@@ -62,13 +62,19 @@ android {
         release {
         }
     }
-    publishing {
-      singleVariant("release") {
-        withSourcesJar(false)
-        withJavadocJar(false)
+    // no publishing block here; publications will be declared afterEvaluate
+}
+
+  // Crear publicación Maven consumible para la variante release (AGP compatible)
+  publishing {
+    publications {
+      release(MavenPublication) {
+        afterEvaluate {
+          from components.release
+        }
       }
     }
-}
+  }
 
 dependencies {
     implementation fileTree(dir: 'src/main/libs', include: ['*.jar'])
