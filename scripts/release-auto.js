@@ -208,7 +208,7 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
     log.warning('GITHUB_TOKEN no configurado y gh auth token no disponible.');
     log.info('Solución rápida: export GITHUB_TOKEN=tu_token (repo + workflow).');
     log.info('Alternativa persistente: gh auth login y luego gh auth token queda almacenado.');
-    return false;
+    return { success: false, reason: 'Token de GitHub ausente' };
   }
 
   const base = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
@@ -267,7 +267,7 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
     }
     if (!runId) {
       log.warning('No se pudo detectar el run en tiempo de espera, revisa Actions manualmente.');
-      return true; // dispatch fue OK pero sin monitor
+      return { success: false, reason: 'No se detectó el run en GitHub Actions' };
     }
 
     // Monitorear hasta conclusión
@@ -279,31 +279,41 @@ async function dispatchGitHubActionsWorkflow(releaseType) {
         const run = await runResp.json();
         log.info(`Run ${runId}: status=${run.status}, conclusion=${run.conclusion || 'n/a'}`);
         if (run.status === 'completed') {
-          if (run.conclusion === 'success') {
+          const conclusion = run.conclusion || 'n/a';
+          if (conclusion === 'success') {
             log.success('Workflow completado con éxito.');
-          } else {
-            log.warning(`Workflow finalizó con estado: ${run.conclusion}`);
+            return { success: true, runUrl: run.html_url, conclusion };
           }
-          break;
+          log.error(`Workflow finalizó con estado: ${conclusion}`);
+          return {
+            success: false,
+            reason: `Workflow finalizó con estado ${conclusion}`,
+            runUrl: run.html_url,
+            conclusion,
+          };
         }
       }
       await new Promise(r => setTimeout(r, intervalMs));
     }
     if (Date.now() - startRun >= timeoutRunMs) {
       log.warning('Tiempo de espera agotado monitoreando el run, revisa Actions.');
+      return { success: false, reason: 'Timeout monitoreando el run' };
     }
 
-    return true;
+    return { success: true, reason: 'Workflow completado satisfactoriamente' };
   } catch (error) {
     log.warning(`No se pudo disparar/monitorizar el workflow: ${error.message}`);
     log.info('https://github.com/LEO-UNAHUR/Inventariando/actions');
-    return false;
+    return { success: false, reason: error.message };
   }
 }
 
 
-function printSummary(currentVersion, newVersion, releaseType, latestRelease) {
+function printSummary(currentVersion, newVersion, releaseType, latestRelease, workflowResult) {
   log.divider();
+  const workflowLine = workflowResult && workflowResult.runUrl
+    ? `   Workflow run: ${workflowResult.runUrl}`
+    : '';
   console.log(`
 ${colors.cyan}╔═══════════════════════════════════════════╗${colors.reset}
 ${colors.cyan}║  INVENTARIANDO - RELEASE SUMMARY          ║${colors.reset}
@@ -331,6 +341,7 @@ ${colors.cyan}╚═════════════════════
    Releases: https://github.com/${REPO_OWNER}/${REPO_NAME}/releases
    Actions:  https://github.com/${REPO_OWNER}/${REPO_NAME}/actions
    APK Repo: APK/v${newVersion}/Inventariando-${newVersion}.apk
+${workflowLine ? workflowLine : ''}
 
 ${colors.cyan}╚═══════════════════════════════════════════╝${colors.reset}
   `);
@@ -354,11 +365,11 @@ async function main() {
     console.log(`${colors.cyan}🚀 INVENTARIANDO - DISPATCH ONLY${colors.reset}`);
     log.divider();
     log.info(`Disparando workflow sin modificar versión (target=${releaseType})...`);
-    const ok = await dispatchGitHubActionsWorkflow(releaseType);
-    if (ok) {
+    const workflowResult = await dispatchGitHubActionsWorkflow(releaseType);
+    if (workflowResult.success) {
       log.success('Workflow disparado correctamente (dispatch-only).');
     } else {
-      log.warning('No se pudo disparar el workflow en modo dispatch-only.');
+      log.warning(`No se pudo disparar el workflow en modo dispatch-only (${workflowResult.reason}).`);
     }
     return;
   }
@@ -427,10 +438,19 @@ async function main() {
     
     // 6. Disparar GitHub Actions
     log.info('Disparando GitHub Actions workflow...');
-    await dispatchGitHubActionsWorkflow(releaseType);
+    const workflowResult = await dispatchGitHubActionsWorkflow(releaseType);
     
     // 7. Resumen
-    printSummary(currentVersion, newVersion, releaseType, latestRelease);
+    printSummary(currentVersion, newVersion, releaseType, latestRelease, workflowResult);
+
+    if (!workflowResult.success) {
+      log.error(`El workflow no se completó correctamente: ${workflowResult.reason}`);
+      if (workflowResult.runUrl) {
+        log.info(`Ver ejecución en Actions: ${workflowResult.runUrl}`);
+      }
+      process.exit(1);
+    }
+
     
     log.success('✨ Release completado exitosamente');
     
