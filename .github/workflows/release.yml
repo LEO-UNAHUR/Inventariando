@@ -90,15 +90,16 @@ jobs:
           echo "Archivos creados en $dir"
 
       - name: Prepare keystore (from secret)
-        id: prepare_keystore
+        id: keystore
         run: |
           if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
             echo "::warning::El secreto ANDROID_KEYSTORE_BASE64 no está configurado. El APK no será firmado."
             echo "is_signed=false" >> $GITHUB_OUTPUT
           else
-            echo "Keystore secret presente — decodificando a android/app/inventariando.keystore"
-            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/inventariando.keystore
+            echo "Keystore secret presente — decodificando a android/release.keystore"
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
             echo "is_signed=true" >> $GITHUB_OUTPUT
+            ls -la android/*.keystore
           fi
 
       - name: Ensure cordova variables file exists
@@ -115,10 +116,10 @@ jobs:
       - name: Build Android Release
         working-directory: android
         run: |
-          if [ "${{ steps.prepare_keystore.outputs.is_signed }}" == "true" ]; then
+          if [ "${{ steps.keystore.outputs.is_signed }}" == "true" ]; then
             echo "Construyendo APK firmado..."
             ./gradlew assembleRelease \
-              -Pandroid.injected.signing.store.file=app/inventariando.keystore \
+              -Pandroid.injected.signing.store.file=release.keystore \
               -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
               -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
               -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
