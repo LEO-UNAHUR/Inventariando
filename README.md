@@ -191,7 +191,7 @@ Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler
 
 ### 📱 APK (Android Nativo)
 Descarga la última versión compilada desde:
-- **GitHub:** https://github.com/LEO-UNAHUR/Inventariando
+- **Releases:** https://github.com/LEO-UNAHUR/Inventariando/releases
 - **Carpeta Local:** `APK/v[version]/` en el repositorio
 
 **Requisitos:** Android 6.0+
