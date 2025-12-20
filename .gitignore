@@ -41,3 +41,7 @@ keystore.b64
 .env
 .env.local
 .env.*.local
+
+# Mantener local: carpeta de instrucciones para IA (no subir al repo)
+Instrucciones- IA/
+Instrucciones- IA/**
