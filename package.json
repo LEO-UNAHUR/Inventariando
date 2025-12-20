@@ -12,21 +12,38 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:host": "vite --host",
     "build": "npm run build:web && npm run build:android",
     "build:web": "vite build",
     "build:web:pages": "vite build --mode pages",
     "build:android": "npm run build:web && npx cap sync android && node scripts/build-android.js",
     "preview": "vite preview",
+    "preview:host": "vite preview --host",
     "cap:add": "npx cap add android",
     "cap:sync": "npx cap sync",
     "cap:open": "npx cap open android",
+    "cap:run": "npx cap run android",
+    "beta": "node scripts/trigger-beta.js",
+    "release": "node scripts/trigger-release.js",
     "release:build": "npm run build:android",
-    "release": "node scripts/release-auto.js",
     "release:beta": "node scripts/release-auto.js beta",
     "release:stable": "node scripts/release-auto.js stable",
     "release:dispatch": "node scripts/release-auto.js dispatch",
     "update:copilot-instructions": "node scripts/update-copilot-instructions.js",
-    "test": "vitest"
+    "test": "vitest",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
+    "type-check": "tsc --noEmit"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
