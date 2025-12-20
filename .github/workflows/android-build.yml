@@ -23,13 +23,13 @@ jobs:
 
       - name: Restore keystore from secret (if provided)
         env:
-          KEYSTORE_B64: '${{ secrets.KEYSTORE_B64 }}'
+          ANDROID_KEYSTORE_BASE64: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
           KEYSTORE_PATH: '${{ env.KEYSTORE_PATH }}'
         run: |
-          if [ -n "$KEYSTORE_B64" ]; then
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
             mkdir -p android/app
-            echo "Decoding KEYSTORE_B64 to $KEYSTORE_PATH"
-            echo "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
+            echo "Decoding ANDROID_KEYSTORE_BASE64 to $KEYSTORE_PATH"
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
           else
             echo "No KEYSTORE_B64 provided; skipping keystore restore"
           fi
