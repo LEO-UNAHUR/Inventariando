@@ -23,8 +23,8 @@ jobs:
 
       - name: Restore keystore from secret (if provided)
         env:
-          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
-          KEYSTORE_PATH: ${{ env.KEYSTORE_PATH }}
+          KEYSTORE_B64: '${{ secrets.KEYSTORE_B64 }}'
+          KEYSTORE_PATH: '${{ env.KEYSTORE_PATH }}'
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
             mkdir -p android/app
@@ -51,9 +51,9 @@ jobs:
       - name: Build Release APK
         working-directory: android
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: '${{ secrets.KEYSTORE_PASSWORD }}'
+          KEY_ALIAS: '${{ secrets.KEY_ALIAS }}'
+          KEY_PASSWORD: '${{ secrets.KEY_PASSWORD }}'
         run: |
           ./gradlew assembleRelease --no-daemon
 
