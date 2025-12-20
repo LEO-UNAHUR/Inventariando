@@ -1,10 +1,8 @@
-
 # 🇦🇷 Inventariando — Gestión de Inventario Inteligente
 
 Proyecto React + Capacitor (PWA + Android) orientado a PyMEs. Contiene la aplicación web (PWA) y la configuración para generar APKs Android.
 
 Nota importante (2025-12-18): este repositorio fue limpiado recientemente. Se eliminaron las automatizaciones de release y las instrucciones automáticas de Copilot; el proceso de publicación debe realizarse manualmente hasta que se reimplante una nueva automatización.
-
 
 ## 📌 Estado del Proyecto
 
@@ -14,20 +12,20 @@ Consulta `CHANGELOG.md` y la pestaña Releases en GitHub para ver artefactos y v
 
 ## 🚀 Sobre el Proyecto
 
-**Inventariando** no es solo una hoja de cálculo glorificada. Es una **Progressive Web App (PWA)** diseñada desde cero para enfrentar los desafíos reales del comercio minorista en Argentina. 
+**Inventariando** no es solo una hoja de cálculo glorificada. Es una **Progressive Web App (PWA)** diseñada desde cero para enfrentar los desafíos reales del comercio minorista en Argentina.
 
 Combina una interfaz móvil fluida ("Mobile-First") con herramientas poderosas como **Google Gemini AI** para predicción de demanda y un módulo financiero adaptado a economías inflacionarias.
 
 ### ✨ Características Estrella (MVP 1.0.0)
 
-| Módulo | Funcionalidad Destacada |
-| :--- | :--- |
-| **🤖 IA Integrada** | Asistente **Gemini** que sugiere precios, descripciones y predice tendencias de compra basándose en tu historial. |
-| **📈 Escudo Anti-Inflación** | Herramienta masiva de **re-ajuste de precios** por categoría o global, ideal para actualizaciones rápidas del dólar. |
-| **🛒 POS Ágil** | Punto de venta con escáner de **Códigos de Barras**, soporte para **Cuenta Corriente (Fiado)**, QR/Transferencia y selectores fiscales (Factura A/B/C). |
-| **📊 Business Intelligence** | Métricas en tiempo real: Ganancia latente, márgenes de remarcación, productos de alta rotación y reportes de caja. |
-| **🔐 Seguridad RBAC** | Roles de usuario (Admin, Encargado, Vendedor), simulación de **2FA** y sesiones activas. |
-| **☁️ Backup Local** | Sistema robusto de Importación/Exportación (JSON/CSV) con puntos de restauración automáticos. |
+| Módulo                       | Funcionalidad Destacada                                                                                                                                 |
+| :--------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **🤖 IA Integrada**          | Asistente **Gemini** que sugiere precios, descripciones y predice tendencias de compra basándose en tu historial.                                       |
+| **📈 Escudo Anti-Inflación** | Herramienta masiva de **re-ajuste de precios** por categoría o global, ideal para actualizaciones rápidas del dólar.                                    |
+| **🛒 POS Ágil**              | Punto de venta con escáner de **Códigos de Barras**, soporte para **Cuenta Corriente (Fiado)**, QR/Transferencia y selectores fiscales (Factura A/B/C). |
+| **📊 Business Intelligence** | Métricas en tiempo real: Ganancia latente, márgenes de remarcación, productos de alta rotación y reportes de caja.                                      |
+| **🔐 Seguridad RBAC**        | Roles de usuario (Admin, Encargado, Vendedor), simulación de **2FA** y sesiones activas.                                                                |
+| **☁️ Backup Local**          | Sistema robusto de Importación/Exportación (JSON/CSV) con puntos de restauración automáticos.                                                           |
 
 ---
 
@@ -35,27 +33,30 @@ Combina una interfaz móvil fluida ("Mobile-First") con herramientas poderosas c
 
 Construido con las últimas tecnologías para garantizar performance, escalabilidad y una experiencia de usuario (UX) superior.
 
-*   **Core:** React 19 (Hooks, Context API).
-*   **Estilos:** Tailwind CSS (Diseño responsivo, Dark Mode nativo).
-*   **Mobile:** Capacitor (Android APK nativo).
-*   **Bundler:** Vite (Desarrollo rápido, builds optimizados).
-*   **IA:** Google GenAI SDK (`gemini-2.5-flash`).
-*   **Gráficos:** Recharts (Visualización de datos interactiva).
-*   **Hardware:** Html5-Qrcode (Uso de cámara como escáner).
-*   **Persistencia:** LocalStorage + PWA (Offline-first architecture).
-*   **Iconografía:** Lucide React.
+- **Core:** React 19 (Hooks, Context API).
+- **Estilos:** Tailwind CSS (Diseño responsivo, Dark Mode nativo).
+- **Mobile:** Capacitor (Android APK nativo).
+- **Bundler:** Vite (Desarrollo rápido, builds optimizados).
+- **IA:** Google GenAI SDK (`gemini-2.5-flash`).
+- **Gráficos:** Recharts (Visualización de datos interactiva).
+- **Hardware:** Html5-Qrcode (Uso de cámara como escáner).
+- **Persistencia:** LocalStorage + PWA (Offline-first architecture).
+- **Iconografía:** Lucide React.
 
 ---
 
 ## 📱 Galería de Funciones
 
 ### 1. Dashboard Interactivo
+
 Vista general del negocio con alertas de stock bajo, vencimientos próximos y gráficos de distribución interactivos.
 
 ### 2. Finanzas & Estrategia
+
 Calculadora de rentabilidad, análisis de márgenes y simulador de impacto inflacionario en tiempo real.
 
 ### 3. Gestión de Equipo
+
 Control total sobre quién accede a qué. Asigna PINs de acceso rápido para vendedores y protege las finanzas con permisos de Administrador.
 
 ---
@@ -65,6 +66,7 @@ Control total sobre quién accede a qué. Asigna PINs de acceso rápido para ven
 Inventariando se distribuye de **dos formas** simultáneamente:
 
 ### 1. **Web App (PWA) - GitHub Pages**
+
 - **Base URL:** `/Inventariando/` (para GitHub Pages)
 - **Compilado con:** `npm run build:web:pages`
 - **Ubicación post-release:** `BUILDS/web-pages/v{version}/`
@@ -72,6 +74,7 @@ Inventariando se distribuye de **dos formas** simultáneamente:
 - **Ventaja:** Sin instalación, acceso instantáneo desde cualquier navegador
 
 ### 2. **APK Android**
+
 - **Base URL:** `/` (para localhost/Capacitor WebView)
 - **Compilado con:** `npm run build:web` + `npx cap sync` + Gradle
 - **Ubicación post-release:** `GitHub Release (descarga directa)`
@@ -79,6 +82,7 @@ Inventariando se distribuye de **dos formas** simultáneamente:
 - **Ventaja:** Experiencia nativa, offline completo, notificaciones push
 
 ### 📋 Configuración (vite.config.ts)
+
 ```typescript
 // Detecta automáticamente el modo de build
 const isGitHubPagesMode = mode === 'pages';
@@ -123,19 +127,22 @@ Si quieres, puedo ayudar a reimplementar la automatización de release una vez q
 Este proyecto utiliza **Vite** o **Create React App** (dependiendo de tu bundler preferido, aquí asumimos estructura estándar).
 
 ### Prerrequisitos
-*   Node.js (v18 o superior)
-*   NPM o Yarn
-*   **Google Gemini API Key** (Para las funciones de IA)
+
+- Node.js (v18 o superior)
+- NPM o Yarn
+- **Google Gemini API Key** (Para las funciones de IA)
 
 ### Pasos
 
 1.  **Clonar el repositorio:**
+
     ```bash
     git clone https://github.com/tu-usuario/inventariando.git
     cd inventariando
     ```
 
 2.  **Instalar dependencias:**
+
     ```bash
     npm install
     ```
@@ -155,7 +162,7 @@ La configuración de firma ya no debe contener contraseñas hardcodeadas. Define
 - `KEY_ALIAS` — alias de la clave
 - `KEY_PASSWORD` — contraseña de la clave
 
-En GitHub Actions, configura estos valores como *Repository secrets* (`Settings → Secrets and variables → Actions`) o usando `gh`:
+En GitHub Actions, configura estos valores como _Repository secrets_ (`Settings → Secrets and variables → Actions`) o usando `gh`:
 
 ```powershell
 gh secret set KEYSTORE_PATH --body "android/app/inventariando.keystore" --repo OWNER/REPO
@@ -176,18 +183,23 @@ KEY_PASSWORD=tu_contraseña
 Si necesitas, puedo actualizar tu workflow de CI para leer estos secretos y colocarlos en `android/app/inventariando.keystore` antes del build.
 
 4.  **Iniciar en Desarrollo:**
+
     ```bash
     npm run dev
     ```
+
     Abre `http://localhost:3000` en tu navegador (desarrollo).
 
 5.  **Build Web:**
+
     ```bash
     npm run build:web
     ```
+
     Genera archivos optimizados en la carpeta `dist/`.
 
 6.  **Desplegar PWA:**
+
     - La PWA se despliega automáticamente a GitHub Pages en cada **release stable**
     - URL de producción: https://LEO-UNAHUR.github.io/Inventariando/
     - Configuración en `.github/workflows/release.yml`
@@ -203,7 +215,9 @@ Si necesitas, puedo actualizar tu workflow de CI para leer estos secretos y colo
 ## 📥 Acceso a la App
 
 ### 🌐 PWA (Web App - Recomendado)
+
 **Acceso directo sin instalación:**
+
 - **URL:** https://LEO-UNAHUR.github.io/Inventariando/
 - Compatible con cualquier navegador moderno (Chrome, Firefox, Safari, Edge)
 - Funciona en escritorio, tablet y móvil
@@ -213,19 +227,23 @@ Si necesitas, puedo actualizar tu workflow de CI para leer estos secretos y colo
   3. La PWA se instalará como una app independiente
 
 **Ventajas:**
+
 - ✅ Sin descargas, acceso instantáneo
 - ✅ Actualizaciones automáticas
 - ✅ Funciona offline después de la primera carga
 - ✅ Multiplataforma (Android, iOS, Windows, macOS, Linux)
 
 ### 📱 APK (Android Nativo)
+
 Descarga la última versión compilada desde:
+
 - **Releases:** https://github.com/LEO-UNAHUR/Inventariando/releases
 - **Carpeta Local:** `APK/v[version]/` en el repositorio
 
 **Requisitos:** Android 6.0+
 
 **Instalación:**
+
 1. Descarga el archivo `.apk`
 2. Habilita "Fuentes desconocidas" en Configuración > Seguridad
 3. Abre el APK y sigue las instrucciones
@@ -239,9 +257,11 @@ Descarga la última versión compilada desde:
 Inventariando evolucionará en 4 fases principales, cada una con betas intermedias y un release stable al cierre.
 
 ### 📋 Fase 1 — Validación y Analytics (v1.1.x - Q1 2026)
+
 **Objetivo:** Validar product-market fit con datos reales de usuarios piloto.
 
 **Funcionalidades:**
+
 - ✅ Analytics (PostHog) con eventos críticos
 - ✅ Feedback widget in-app (rating + comentarios)
 - ✅ Programa piloto con 10 comercios reales
@@ -253,9 +273,11 @@ Inventariando evolucionará en 4 fases principales, cada una con betas intermedi
 ---
 
 ### 📊 Fase 2 — Escalabilidad y Sincronización (v2.0.x - Q2 2026)
+
 **Objetivo:** Superar límites de LocalStorage y habilitar multi-dispositivo.
 
 **Funcionalidades:**
+
 - ✅ Backend (Supabase free-tier) + sincronización automática cada 5 min
 - ✅ Autenticación real (owner + equipo)
 - ✅ Migrador LocalStorage → nube (seguro)
@@ -268,9 +290,11 @@ Inventariando evolucionará en 4 fases principales, cada una con betas intermedi
 ---
 
 ### 💰 Fase 3 — Monetización e IA Segura (v2.5.x - Q3 2026)
+
 **Objetivo:** Activar ingresos y controlar costos de IA.
 
 **Funcionalidades:**
+
 - ✅ Tiers: FREE, PRO ($5 USD/mes), ENTERPRISE ($13 USD/mes)
 - ✅ Selector de modelos IA: Gemini (login Google), ChatGPT (OpenAI), Anthropic
 - ✅ Cada usuario trae su propia API key (no gestionamos credenciales)
@@ -283,9 +307,11 @@ Inventariando evolucionará en 4 fases principales, cada una con betas intermedi
 ---
 
 ### 🌍 Fase 4 — Expansión e Internacionalización (v3.0.x - Q4 2026)
+
 **Objetivo:** Crecer a 500+ usuarios y expandir a LATAM.
 
 **Funcionalidades:**
+
 - ✅ i18n (ES/PT) y multi-moneda
 - ✅ API pública + webhooks
 - ✅ Marketplace de plugins
@@ -305,17 +331,19 @@ Las referencias a comandos `npm run release:*` y a scripts automáticos (`script
 
 Cada release genera **DOS versiones** automáticamente:
 
-| Versión | Base URL | Ubicación | Para |
-|---------|----------|-----------|------|
-| **📱 APK Android** | `/` | `GitHub Release (descarga directa)` | Dispositivos Android |
-| **🌐 Web App PWA** | `/Inventariando/` | GitHub Pages | Navegadores web |
+| Versión            | Base URL          | Ubicación                           | Para                 |
+| ------------------ | ----------------- | ----------------------------------- | -------------------- |
+| **📱 APK Android** | `/`               | `GitHub Release (descarga directa)` | Dispositivos Android |
+| **🌐 Web App PWA** | `/Inventariando/` | GitHub Pages                        | Navegadores web      |
 
-**Técnica:** 
+**Técnica:**
+
 - Vite detecta modo de compilación (`mode === 'pages'`)
 - Aplica `base` path correcto automáticamente
 - Evita conflictos entre Capacitor (Android) y GitHub Pages
 
 ### 🔧 Estrategia de Versiones
+
 ```
 1.4.4 (actual stable)
   ↓

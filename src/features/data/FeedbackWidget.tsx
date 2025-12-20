@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { X, MessageSquare, Send, Star } from 'lucide-react';
 import { trackEvent } from '@/services/analyticsService';
 
@@ -75,7 +75,10 @@ const FeedbackWidget: React.FC<{ currentView?: string }> = ({ currentView }) => 
           <div className="w-full max-w-md rounded-lg bg-white dark:bg-zinc-900 p-4 shadow-xl">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">¿Sugerencias o problemas?</h3>
-              <button onClick={() => setOpen(false)} className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              <button
+                onClick={() => setOpen(false)}
+                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -83,7 +86,7 @@ const FeedbackWidget: React.FC<{ currentView?: string }> = ({ currentView }) => 
             <div className="mt-3">
               <label className="block text-sm opacity-80 mb-1">Califica esta sección</label>
               <div className="flex gap-1">
-                {[1,2,3,4,5].map(n => (
+                {[1, 2, 3, 4, 5].map((n) => (
                   <button
                     key={n}
                     onClick={() => setRating(n)}
@@ -107,7 +110,9 @@ const FeedbackWidget: React.FC<{ currentView?: string }> = ({ currentView }) => 
             </div>
 
             <div className="mt-4 flex items-center justify-end gap-2">
-              {justSent && <span className="text-green-600 text-sm">¡Gracias por tu feedback!</span>}
+              {justSent && (
+                <span className="text-green-600 text-sm">¡Gracias por tu feedback!</span>
+              )}
               <button
                 onClick={submit}
                 className="inline-flex items-center gap-2 rounded bg-green-600 px-3 py-2 text-white text-sm hover:bg-green-700"

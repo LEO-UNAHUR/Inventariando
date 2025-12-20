@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -89,13 +88,13 @@ export interface StockMovement {
 export enum NotificationType {
   LOW_STOCK = 'low_stock',
   EXPIRATION = 'expiration',
-  VELOCITY = 'velocity'
+  VELOCITY = 'velocity',
 }
 
 export enum NotificationSeverity {
   INFO = 'info',
   WARNING = 'warning',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export interface AppNotification {
@@ -128,7 +127,7 @@ export interface Sale {
   customerId?: string; // Linked customer
   userId?: string; // Seller who made the sale
   userName?: string;
-  fiscalType?: 'A' | 'B' | 'C' | 'X'; // AFIP Invoice Type 
+  fiscalType?: 'A' | 'B' | 'C' | 'X'; // AFIP Invoice Type
 }
 
 export enum ExpenseCategory {
@@ -173,7 +172,13 @@ export interface BusinessIntelligence {
 
 // --- Sorting & Filtering ---
 
-export type SortOption = 'NAME_ASC' | 'NAME_DESC' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_ASC' | 'STOCK_DESC';
+export type SortOption =
+  | 'NAME_ASC'
+  | 'NAME_DESC'
+  | 'PRICE_ASC'
+  | 'PRICE_DESC'
+  | 'STOCK_ASC'
+  | 'STOCK_DESC';
 export type ViewMode = 'LIST' | 'GRID';
 
 // --- Users & Security ---

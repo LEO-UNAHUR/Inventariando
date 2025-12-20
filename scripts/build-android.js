@@ -27,7 +27,7 @@ console.log(`Ejecutando ${gradleCommand} ${task} en ${androidDir}`);
 try {
   execSync(`${gradleCommand} ${task}`, {
     cwd: androidDir,
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
   console.log('APK compilado correctamente. Revisa android/app/build/outputs/apk/');
 } catch (err) {
@@ -72,5 +72,7 @@ dependencies {
   }
 
   fs.writeFileSync(pluginsGradlePath, expected, 'utf8');
-  console.log('Patcheado capacitor-cordova-android-plugins/build.gradle para exponer variante release.');
+  console.log(
+    'Patcheado capacitor-cordova-android-plugins/build.gradle para exponer variante release.'
+  );
 }

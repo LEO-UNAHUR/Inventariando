@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { User as UserType, IAProvider } from '@/types';
-import { getUserSettings, saveUserSettings, encryptCredential, decryptCredential } from '@/services/userSettingsService';
-import { openGoogleOAuthPopup, validateGoogleToken } from '@/services/googleOAuthService';
+import {
+  getUserSettings,
+  saveUserSettings,
+  encryptCredential,
+  decryptCredential,
+} from '@/services/userSettingsService';
+import { openGoogleOAuthPopup } from '@/services/googleOAuthService';
 import { X, Save, Lock, Zap, Sparkles, CheckCircle2, LogIn } from 'lucide-react';
 
 interface UserSettingsProps {
@@ -15,7 +20,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
   const [iaApiKey, setIaApiKey] = useState(''); // OpenAI/Anthropic
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [googleToken, setGoogleToken] = useState('');
-  const [geminiLoginValidatedAt, setGeminiLoginValidatedAt] = useState<number | undefined>(undefined);
+  const [geminiLoginValidatedAt, setGeminiLoginValidatedAt] = useState<number | undefined>(
+    undefined
+  );
   const [geminiMode, setGeminiMode] = useState<'login' | 'apikey'>('login');
   const [showApiKey, setShowApiKey] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -38,17 +45,23 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
     saveUserSettings({
       ...settings,
       iaProvider,
-      iaApiKey: iaApiKey && (iaProvider === IAProvider.OPENAI || iaProvider === IAProvider.ANTHROPIC) ? encryptCredential(iaApiKey) : undefined,
-      geminiApiKey: geminiApiKey && geminiMode === 'apikey' ? encryptCredential(geminiApiKey) : undefined,
-      googleAccessToken: googleToken && geminiMode === 'login' ? encryptCredential(googleToken) : undefined,
-      geminiLoginValidatedAt: geminiMode === 'login' && googleToken ? (geminiLoginValidatedAt || Date.now()) : undefined,
+      iaApiKey:
+        iaApiKey && (iaProvider === IAProvider.OPENAI || iaProvider === IAProvider.ANTHROPIC)
+          ? encryptCredential(iaApiKey)
+          : undefined,
+      geminiApiKey:
+        geminiApiKey && geminiMode === 'apikey' ? encryptCredential(geminiApiKey) : undefined,
+      googleAccessToken:
+        googleToken && geminiMode === 'login' ? encryptCredential(googleToken) : undefined,
+      geminiLoginValidatedAt:
+        geminiMode === 'login' && googleToken ? geminiLoginValidatedAt || Date.now() : undefined,
     });
 
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  const handleValidateGeminiLogin = () => {
+  const _handleValidateGeminiLogin = () => {
     if (!googleToken) {
       setValidationMessage('Ingresa tu token de Google antes de validar.');
       return;
@@ -60,7 +73,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
   const handleOpenGoogleLogin = async () => {
     setIsLoggingIn(true);
     setValidationMessage('Abriendo ventana de autenticación...');
-    
+
     try {
       const token = await openGoogleOAuthPopup();
       setGoogleToken(token);
@@ -68,7 +81,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
       setValidationMessage('✓ Autenticación exitosa. Token recibido.');
       setIsLoggingIn(false);
     } catch (error) {
-      setValidationMessage(`Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      setValidationMessage(
+        `Error: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      );
       setIsLoggingIn(false);
     }
   };
@@ -117,9 +132,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
           </div>
           <button
             onClick={onClose}
-            className={`p-2 rounded-full ${
-              isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'
-            }`}
+            className={`p-2 rounded-full ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
           >
             <X size={20} className={isDark ? 'text-slate-400' : 'text-slate-600'} />
           </button>
@@ -129,9 +142,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
         <div className="p-6 space-y-6">
           {/* IA Provider */}
           <div>
-            <label className={`flex items-center gap-2 font-semibold mb-2 ${
-              isDark ? 'text-slate-200' : 'text-slate-800'
-            }`}>
+            <label
+              className={`flex items-center gap-2 font-semibold mb-2 ${
+                isDark ? 'text-slate-200' : 'text-slate-800'
+              }`}
+            >
               <Zap size={18} className="text-purple-600" />
               Proveedor de IA
             </label>
@@ -139,7 +154,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
               {[
                 { value: IAProvider.GEMINI, label: 'Google Gemini (Login)', color: 'blue' },
                 { value: IAProvider.OPENAI, label: 'ChatGPT (API Key)', color: 'emerald' },
-                { value: IAProvider.ANTHROPIC, label: 'Anthropic Claude (API Key)', color: 'amber' },
+                {
+                  value: IAProvider.ANTHROPIC,
+                  label: 'Anthropic Claude (API Key)',
+                  color: 'amber',
+                },
               ].map((option) => (
                 <label
                   key={option.value}
@@ -170,8 +189,16 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
 
           {/* Gemini Mode */}
           {iaProvider === IAProvider.GEMINI && (
-            <div className={`p-3 rounded-xl border ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-slate-50'}`}>
-              <p className={`text-sm font-bold mb-2 ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>Modo de Autenticación Gemini</p>
+            <div
+              className={`p-3 rounded-xl border ${
+                isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-slate-50'
+              }`}
+            >
+              <p
+                className={`text-sm font-bold mb-2 ${isDark ? 'text-slate-100' : 'text-slate-800'}`}
+              >
+                Modo de Autenticación Gemini
+              </p>
               <div className="flex gap-3 mb-3">
                 <button
                   type="button"
@@ -203,7 +230,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
 
               {geminiMode === 'login' && (
                 <div className="space-y-2">
-                  <label className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  <label
+                    className={`text-sm font-semibold ${
+                      isDark ? 'text-slate-200' : 'text-slate-800'
+                    }`}
+                  >
                     Token de acceso Google (obtenido automáticamente)
                   </label>
                   <div className="flex gap-2">
@@ -212,7 +243,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
                       value={googleToken}
                       onChange={(e) => setGoogleToken(e.target.value)}
                       placeholder="Token será llenado automáticamente..."
-                      className={`flex-1 px-4 py-2 rounded-lg border ${isDark ? 'border-slate-700 bg-slate-800 text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-900'}`}
+                      className={`flex-1 px-4 py-2 rounded-lg border ${
+                        isDark
+                          ? 'border-slate-700 bg-slate-800 text-slate-100'
+                          : 'border-slate-200 bg-slate-50 text-slate-900'
+                      }`}
                     />
                   </div>
                   <button
@@ -234,14 +269,21 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
                     </p>
                   )}
                   <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Se abrirá una ventana para autenticar con tu cuenta de Google. El token se completará automáticamente.
+                    Se abrirá una ventana para autenticar con tu cuenta de Google. El token se
+                    completará automáticamente.
                   </p>
                 </div>
               )}
 
               {geminiMode === 'apikey' && (
                 <div className="space-y-2">
-                  <label className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>API Key de Gemini</label>
+                  <label
+                    className={`text-sm font-semibold ${
+                      isDark ? 'text-slate-200' : 'text-slate-800'
+                    }`}
+                  >
+                    API Key de Gemini
+                  </label>
                   <div className="relative">
                     <input
                       type={showApiKey ? 'text' : 'password'}
@@ -258,7 +300,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
                       type="button"
                       onClick={() => setShowApiKey(!showApiKey)}
                       className={`absolute right-3 top-2.5 ${
-                        isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'
+                        isDark
+                          ? 'text-slate-400 hover:text-slate-200'
+                          : 'text-slate-500 hover:text-slate-700'
                       }`}
                     >
                       {showApiKey ? '👁️' : '🔒'}
@@ -279,9 +323,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
           {/* IA API Key (solo para OpenAI/Anthropic) */}
           {iaProvider !== IAProvider.GEMINI && (
             <div>
-              <label className={`flex items-center gap-2 font-semibold mb-2 ${
-                isDark ? 'text-slate-200' : 'text-slate-800'
-              }`}>
+              <label
+                className={`flex items-center gap-2 font-semibold mb-2 ${
+                  isDark ? 'text-slate-200' : 'text-slate-800'
+                }`}
+              >
                 <Lock size={18} className="text-red-600" />
                 API Key
               </label>
@@ -300,7 +346,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
                 <button
                   onClick={() => setShowApiKey(!showApiKey)}
                   className={`absolute right-3 top-2.5 ${
-                    isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'
+                    isDark
+                      ? 'text-slate-400 hover:text-slate-200'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {showApiKey ? '👁️' : '🔒'}
@@ -314,16 +362,20 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, isDark, onClose }) =>
 
           {/* Success Message */}
           {saveSuccess && (
-            <div className={`p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${
-              isDark
-                ? 'bg-emerald-900/30 text-emerald-200 border border-emerald-700'
-                : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-            }`}>
+            <div
+              className={`p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                isDark
+                  ? 'bg-emerald-900/30 text-emerald-200 border border-emerald-700'
+                  : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+              }`}
+            >
               ✓ Configuración guardada
             </div>
           )}
           {validationMessage && (
-            <div className={`p-3 rounded-lg text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+            <div
+              className={`p-3 rounded-lg text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}
+            >
               {validationMessage}
             </div>
           )}

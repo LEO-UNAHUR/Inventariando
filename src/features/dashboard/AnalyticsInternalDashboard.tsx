@@ -1,6 +1,24 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { Activity, Calendar, TrendingUp, Users, FileText, Database, Sun, Moon, X } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
+import {
+  Activity,
+  TrendingUp,
+  FileText,
+  Sun,
+  Moon,
+  X,
+} from 'lucide-react';
 
 interface EventRecord {
   id: string;
@@ -68,7 +86,16 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
     };
   }, [events, timeRange]);
 
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b', '#06b6d4'];
+  const COLORS = [
+    '#3b82f6',
+    '#10b981',
+    '#f59e0b',
+    '#ef4444',
+    '#8b5cf6',
+    '#ec4899',
+    '#64748b',
+    '#06b6d4',
+  ];
 
   const eventTypeLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
     app_opened: { label: 'App Abierta', icon: '📱', color: 'blue' },
@@ -86,38 +113,38 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
   };
 
   return (
-    <div className={`fixed inset-0 z-[60] flex items-center justify-center pl-64 ${
-      isDark ? 'bg-black/50' : 'bg-black/30'
-    }`}>
-      <div className={`w-full max-w-5xl max-h-[90vh] overflow-auto rounded-2xl ${
-        isDark ? 'bg-slate-900' : 'bg-white'
-      } shadow-2xl`}>
+    <div
+      className={`fixed inset-0 z-[60] flex items-center justify-center pl-64 ${
+        isDark ? 'bg-black/50' : 'bg-black/30'
+      }`}
+    >
+      <div
+        className={`w-full max-w-5xl max-h-[90vh] overflow-auto rounded-2xl ${
+          isDark ? 'bg-slate-900' : 'bg-white'
+        } shadow-2xl`}
+      >
         {/* Header */}
-        <div className={`sticky top-0 flex items-center justify-between p-6 border-b ${
-          isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-100 bg-white'
-        }`}>
+        <div
+          className={`sticky top-0 flex items-center justify-between p-6 border-b ${
+            isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-100 bg-white'
+          }`}
+        >
           <div className="flex items-center gap-3">
             <Activity className={isDark ? 'text-blue-400' : 'text-blue-600'} size={28} />
-            <h1 className={`text-2xl font-bold ${
-              isDark ? 'text-slate-100' : 'text-slate-900'
-            }`}>
+            <h1 className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
               Métricas Internas
             </h1>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={onToggleTheme}
-              className={`p-2 rounded-lg ${
-                isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'
-              }`}
+              className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <button
               onClick={onClose}
-              className={`p-2 rounded-lg ${
-                isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'
-              }`}
+              className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
             >
               <X size={20} />
             </button>
@@ -149,12 +176,16 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className={`p-4 rounded-xl border ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
-            }`}>
+            <div
+              className={`p-4 rounded-xl border ${
+                isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+              }`}
+            >
               <div className="flex items-center gap-3 mb-2">
                 <FileText className="text-blue-600 dark:text-blue-400" size={20} />
-                <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <p
+                  className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                >
                   Total Eventos
                 </p>
               </div>
@@ -163,26 +194,36 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
               </p>
             </div>
 
-            <div className={`p-4 rounded-xl border ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
-            }`}>
+            <div
+              className={`p-4 rounded-xl border ${
+                isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+              }`}
+            >
               <div className="flex items-center gap-3 mb-2">
                 <TrendingUp className="text-emerald-600 dark:text-emerald-400" size={20} />
-                <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <p
+                  className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                >
                   Evento Top
                 </p>
               </div>
               <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-                {processedData.byType && Object.entries(processedData.byType).sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A'}
+                {(processedData.byType &&
+                  Object.entries(processedData.byType).sort(([, a], [, b]) => b - a)[0]?.[0]) ||
+                  'N/A'}
               </p>
             </div>
 
-            <div className={`p-4 rounded-xl border ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
-            }`}>
+            <div
+              className={`p-4 rounded-xl border ${
+                isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+              }`}
+            >
               <div className="flex items-center gap-3 mb-2">
                 <Activity className="text-purple-600 dark:text-purple-400" size={20} />
-                <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <p
+                  className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                >
                   Tipos de Evento
                 </p>
               </div>
@@ -196,9 +237,11 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Pie Chart */}
             {processedData.pieData.length > 0 && (
-              <div className={`p-4 rounded-xl border ${
-                isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
-              }`}>
+              <div
+                className={`p-4 rounded-xl border ${
+                  isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+                }`}
+              >
                 <h3 className={`font-bold mb-4 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                   Distribución de Eventos
                 </h3>
@@ -226,17 +269,19 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
 
             {/* Line Chart */}
             {processedData.lineData.length > 0 && (
-              <div className={`p-4 rounded-xl border ${
-                isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
-              }`}>
+              <div
+                className={`p-4 rounded-xl border ${
+                  isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+                }`}
+              >
                 <h3 className={`font-bold mb-4 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                   Eventos por Día
                 </h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={processedData.lineData}>
                     <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e2e8f0'} />
-                    <XAxis dataKey="day" tick={{fill: isDark ? '#94a3b8' : '#64748b'}} />
-                    <YAxis tick={{fill: isDark ? '#94a3b8' : '#64748b'}} />
+                    <XAxis dataKey="day" tick={{ fill: isDark ? '#94a3b8' : '#64748b' }} />
+                    <YAxis tick={{ fill: isDark ? '#94a3b8' : '#64748b' }} />
                     <Tooltip />
                     <Line type="monotone" dataKey="eventos" stroke="#3b82f6" strokeWidth={2} />
                   </LineChart>
@@ -246,28 +291,37 @@ const AnalyticsInternalDashboard: React.FC<AnalyticsInternalDashboardProps> = ({
           </div>
 
           {/* Event Details Table */}
-          <div className={`p-4 rounded-xl border ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
-          }`}>
+          <div
+            className={`p-4 rounded-xl border ${
+              isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
+            }`}
+          >
             <h3 className={`font-bold mb-4 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
               Detalles por Tipo
             </h3>
             <div className="space-y-2">
               {Object.entries(processedData.byType)
-                .sort(([,a], [,b]) => b - a)
+                .sort(([, a], [, b]) => b - a)
                 .map(([type, count]) => {
                   const info = eventTypeLabels[type] || { label: type, icon: '📊', color: 'gray' };
                   return (
-                    <div key={type} className={`flex items-center justify-between p-3 rounded-lg ${
-                      isDark ? 'bg-slate-700' : 'bg-white border border-slate-200'
-                    }`}>
+                    <div
+                      key={type}
+                      className={`flex items-center justify-between p-3 rounded-lg ${
+                        isDark ? 'bg-slate-700' : 'bg-white border border-slate-200'
+                      }`}
+                    >
                       <div className="flex items-center gap-3">
                         <span className="text-xl">{info.icon}</span>
                         <span className={isDark ? 'text-slate-200' : 'text-slate-800'}>
                           {info.label}
                         </span>
                       </div>
-                      <span className={`font-bold text-lg ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                      <span
+                        className={`font-bold text-lg ${
+                          isDark ? 'text-blue-400' : 'text-blue-600'
+                        }`}
+                      >
                         {count}
                       </span>
                     </div>

@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Wifi, WifiOff, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { WifiOff, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 interface NetworkStatusProps {
   isOnline: boolean;

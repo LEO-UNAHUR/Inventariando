@@ -1,4 +1,3 @@
-
 import { Category, Product, User, Role } from './types';
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -45,43 +44,61 @@ export const INITIAL_PRODUCTS: Product[] = [
     stock: 30,
     minStock: 8,
     lastUpdated: Date.now(),
-  }
+  },
 ];
 
 export const INITIAL_USERS: User[] = [
-  { 
-    id: '1', 
-    name: 'Dueño (Admin)', 
-    role: Role.ADMIN, 
-    pin: '1111', 
-    password: 'admin', 
+  {
+    id: '1',
+    name: 'Dueño (Admin)',
+    role: Role.ADMIN,
+    pin: '1111',
+    password: 'admin',
     avatar: 'AVATAR_1',
     is2FAEnabled: true,
     sessions: [
-      { id: 's1', deviceName: 'PC Escritorio (Windows)', ip: '192.168.1.5', lastActive: Date.now(), isCurrent: true },
-      { id: 's2', deviceName: 'Samsung S21', ip: '192.168.1.12', lastActive: Date.now() - 3600000, isCurrent: false }
-    ]
+      {
+        id: 's1',
+        deviceName: 'PC Escritorio (Windows)',
+        ip: '192.168.1.5',
+        lastActive: Date.now(),
+        isCurrent: true,
+      },
+      {
+        id: 's2',
+        deviceName: 'Samsung S21',
+        ip: '192.168.1.12',
+        lastActive: Date.now() - 3600000,
+        isCurrent: false,
+      },
+    ],
   },
-  { 
-    id: '2', 
-    name: 'Juan (Encargado)', 
-    role: Role.MANAGER, 
-    pin: '2222', 
-    password: 'juan', 
+  {
+    id: '2',
+    name: 'Juan (Encargado)',
+    role: Role.MANAGER,
+    pin: '2222',
+    password: 'juan',
     avatar: 'AVATAR_2',
     is2FAEnabled: false,
     sessions: [
-      { id: 's3', deviceName: 'Tablet Mostrador', ip: '192.168.1.20', lastActive: Date.now(), isCurrent: true }
-    ]
+      {
+        id: 's3',
+        deviceName: 'Tablet Mostrador',
+        ip: '192.168.1.20',
+        lastActive: Date.now(),
+        isCurrent: true,
+      },
+    ],
   },
-  { 
-    id: '3', 
-    name: 'Sofía (Vendedora)', 
-    role: Role.SELLER, 
-    pin: '3333', 
-    password: 'sofia', 
+  {
+    id: '3',
+    name: 'Sofía (Vendedora)',
+    role: Role.SELLER,
+    pin: '3333',
+    password: 'sofia',
     avatar: 'AVATAR_3',
-    is2FAEnabled: false 
+    is2FAEnabled: false,
   },
 ];
 

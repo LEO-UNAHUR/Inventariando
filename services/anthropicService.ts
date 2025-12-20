@@ -3,10 +3,7 @@
  * El usuario proporciona su propia API key (guardada encriptada localmente)
  */
 
-interface ClaudeMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+// Interface kept for reference; removed unused `ClaudeMessage` to satisfy linter
 
 interface ClaudeResponse {
   content: Array<{
@@ -51,9 +48,7 @@ export const getAnthropicSuggestion = async (
         model: 'claude-3-sonnet-20240229',
         max_tokens: 1024,
         system: systemPrompt,
-        messages: [
-          { role: 'user', content: prompt },
-        ],
+        messages: [{ role: 'user', content: prompt }],
       }),
     });
 
@@ -62,7 +57,7 @@ export const getAnthropicSuggestion = async (
       throw new Error(error.error?.message || 'Error en Anthropic API');
     }
 
-    const data: ClaudeResponse = await response.json();
+      const data: ClaudeResponse = await response.json();
     return data.content[0]?.text || 'Sin respuesta';
   } catch (error) {
     console.error('Error en Anthropic:', error);

@@ -18,7 +18,7 @@ export type AnalyticsEvent =
 interface AnalyticsConfig {
   enabled: boolean;
   endpoint?: string; // e.g., PostHog capture endpoint
-  apiKey?: string;   // user-provided or environment
+  apiKey?: string; // user-provided or environment
 }
 
 let config: AnalyticsConfig = {
@@ -45,7 +45,7 @@ function safePost(body: Record<string, unknown>) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`,
+        Authorization: `Bearer ${config.apiKey}`,
       },
       body: JSON.stringify(body),
       keepalive: true,

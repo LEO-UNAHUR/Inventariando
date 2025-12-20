@@ -28,32 +28,36 @@ interface OnboardingTourProps {
 const steps: Step[] = [
   {
     title: 'Bienvenido a Inventariando',
-    description: 'Aquí verás un resumen de tu negocio: valor total, stock bajo y distribución por categorías. Usa el botón de base de datos para respaldos rápidos.',
+    description:
+      'Aquí verás un resumen de tu negocio: valor total, stock bajo y distribución por categorías. Usa el botón de base de datos para respaldos rápidos.',
     view: View.DASHBOARD,
     highlightSelector: '[data-tour="dashboard-header"]',
     highlightPosition: 'bottom',
   },
   {
     title: 'Navegación y Flujo',
-    description: 'Desde el menú lateral accedés a Stock, Ventas, Clientes y más. En móviles, usá la barra inferior para saltar entre vistas.',
+    description:
+      'Desde el menú lateral accedés a Stock, Ventas, Clientes y más. En móviles, usá la barra inferior para saltar entre vistas.',
     view: View.INVENTORY,
     highlightSelector: '[data-tour="sidebar"]',
     highlightPosition: 'right',
   },
   {
     title: 'Punto de Venta (POS)',
-    description: 'Iniciá una venta desde Ventas → Cobrar. El POS aplica promociones activas, calcula totales y ajusta stock automáticamente.',
+    description:
+      'Iniciá una venta desde Ventas → Cobrar. El POS aplica promociones activas, calcula totales y ajusta stock automáticamente.',
     view: View.SALES,
     highlightSelector: '[data-tour="new-sale-btn"]',
     highlightPosition: 'bottom',
   },
   {
     title: 'IA y Análisis',
-    description: 'En Análisis, el asistente de IA (Gemini) te ayuda con insights de precios, sugerencias de reposición y análisis inteligente del inventario.',
+    description:
+      'En Análisis, el asistente de IA (Gemini) te ayuda con insights de precios, sugerencias de reposición y análisis inteligente del inventario.',
     view: View.ANALYSIS,
     highlightSelector: '[data-tour="ai-section"]',
     highlightPosition: 'left',
-  }
+  },
 ];
 
 const OnboardingTour: React.FC<OnboardingTourProps> = ({ open, onClose, onNavigate }) => {
@@ -114,7 +118,7 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ open, onClose, onNaviga
   };
 
   // Posición del tooltip según el elemento resaltado
-  let tooltipStyle: React.CSSProperties = {
+  const tooltipStyle: React.CSSProperties = {
     position: 'fixed',
     zIndex: 72,
     backgroundColor: 'white',
@@ -130,18 +134,33 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ open, onClose, onNaviga
     const padding = 20;
     const tooltipWidth = Math.min(320, window.innerWidth - 32);
     const tooltipHeight = 250; // Estimado
-    
+
     if (current.highlightPosition === 'bottom') {
       tooltipStyle.top = highlightRect.bottom + padding;
-      tooltipStyle.left = Math.max(16, Math.min(highlightRect.left - 100, window.innerWidth - tooltipWidth - 16));
+      tooltipStyle.left = Math.max(
+        16,
+        Math.min(highlightRect.left - 100, window.innerWidth - tooltipWidth - 16)
+      );
     } else if (current.highlightPosition === 'top') {
       tooltipStyle.bottom = window.innerHeight - highlightRect.top + padding;
-      tooltipStyle.left = Math.max(16, Math.min(highlightRect.left - 100, window.innerWidth - tooltipWidth - 16));
+      tooltipStyle.left = Math.max(
+        16,
+        Math.min(highlightRect.left - 100, window.innerWidth - tooltipWidth - 16)
+      );
     } else if (current.highlightPosition === 'right') {
-      tooltipStyle.top = Math.max(16, Math.min(highlightRect.top, window.innerHeight - tooltipHeight - 16));
-      tooltipStyle.left = Math.min(highlightRect.right + padding, window.innerWidth - tooltipWidth - 16);
+      tooltipStyle.top = Math.max(
+        16,
+        Math.min(highlightRect.top, window.innerHeight - tooltipHeight - 16)
+      );
+      tooltipStyle.left = Math.min(
+        highlightRect.right + padding,
+        window.innerWidth - tooltipWidth - 16
+      );
     } else if (current.highlightPosition === 'left') {
-      tooltipStyle.top = Math.max(16, Math.min(highlightRect.top, window.innerHeight - tooltipHeight - 16));
+      tooltipStyle.top = Math.max(
+        16,
+        Math.min(highlightRect.top, window.innerHeight - tooltipHeight - 16)
+      );
       tooltipStyle.left = Math.max(16, highlightRect.left - tooltipWidth - padding);
     }
   } else {
@@ -192,17 +211,12 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ open, onClose, onNaviga
             <Sparkles size={18} />
             <h3 className="text-base font-semibold">{current.title}</h3>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded hover:bg-slate-100 flex-shrink-0"
-          >
+          <button onClick={onClose} className="p-1 rounded hover:bg-slate-100 flex-shrink-0">
             <X size={18} />
           </button>
         </div>
 
-        <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-          {current.description}
-        </p>
+        <p className="text-sm text-slate-600 mb-4 leading-relaxed">{current.description}</p>
 
         {/* Indicador visual de "haz clic aquí" si hay elemento */}
         {highlightRect && (

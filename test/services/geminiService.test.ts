@@ -20,14 +20,16 @@ describe('geminiService', () => {
     // Mock the module used internally by geminiService before importing it
     vi.mock('@google/genai', () => {
       return {
-        GoogleGenAI: function() {
+        GoogleGenAI: function () {
           return {
             models: {
-              generateContent: async () => ({ text: JSON.stringify({ description: 'test', category: 'Almacen' }) })
-            }
+              generateContent: async () => ({
+                text: JSON.stringify({ description: 'test', category: 'Almacen' }),
+              }),
+            },
           };
         },
-        Type: { OBJECT: 'object', STRING: 'string', NUMBER: 'number', ARRAY: 'array' }
+        Type: { OBJECT: 'object', STRING: 'string', NUMBER: 'number', ARRAY: 'array' },
       };
     });
 

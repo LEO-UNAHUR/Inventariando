@@ -4,8 +4,9 @@
  * User authenticates in a popup window and token is returned via postMessage
  */
 
-// @ts-ignore
-const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || 'YOUR_CLIENT_ID.apps.googleusercontent.com';
+// @ts-expect-error: Vite env types not present in this runtime context
+const GOOGLE_OAUTH_CLIENT_ID =
+  import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || 'YOUR_CLIENT_ID.apps.googleusercontent.com';
 const GOOGLE_OAUTH_REDIRECT_URI = `${window.location.origin}/google-oauth-callback`;
 const GOOGLE_OAUTH_SCOPE = 'https://www.googleapis.com/auth/generative-language';
 
@@ -29,10 +30,18 @@ export const openGoogleOAuthPopup = (): Promise<string> => {
     authUrl.searchParams.append('access_type', 'online');
 
     // Open popup
-    const popup = window.open(authUrl.toString(), 'google-oauth', 'width=500,height=600,left=100,top=100');
-    
+    const popup = window.open(
+      authUrl.toString(),
+      'google-oauth',
+      'width=500,height=600,left=100,top=100'
+    );
+
     if (!popup) {
-      reject(new Error('No se pudo abrir la ventana de autenticación. Verifica que los popups no estén bloqueados.'));
+      reject(
+        new Error(
+          'No se pudo abrir la ventana de autenticación. Verifica que los popups no estén bloqueados.'
+        )
+      );
       return;
     }
 
@@ -47,7 +56,7 @@ export const openGoogleOAuthPopup = (): Promise<string> => {
         // Clean up
         window.removeEventListener('message', handleMessage);
         if (!popup.closed) popup.close();
-        
+
         if (event.data.token) {
           resolve(event.data.token);
         } else {
@@ -84,7 +93,7 @@ export const validateGoogleToken = async (token: string): Promise<boolean> => {
   try {
     const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.ok;

@@ -152,13 +152,9 @@ const SyncIndicator: React.FC<SyncIndicatorProps> = ({ isDark = false, compact =
       className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${getStatusBgColor()} border-current/20`}
       title={`${getStatusText()}`}
     >
-      <div className={`flex-shrink-0 ${getStatusColor()}`}>
-        {getStatusIcon()}
-      </div>
+      <div className={`flex-shrink-0 ${getStatusColor()}`}>{getStatusIcon()}</div>
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold ${getStatusColor()}`}>
-          {getStatusText()}
-        </p>
+        <p className={`text-sm font-semibold ${getStatusColor()}`}>{getStatusText()}</p>
         <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
           Última sincronización: {formatLastSync()}
         </p>

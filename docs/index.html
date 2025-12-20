@@ -1,33 +1,41 @@
-
 <!DOCTYPE html>
 <html lang="es-AR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2697/2697430.png" />
     <link rel="manifest" href="/Inventariando/assets/manifest-C3s1bqZ-.json" />
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2697/2697430.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2697/2697430.png" />
     <title>Inventariando</title>
-  <script type="module" crossorigin src="/Inventariando/assets/index-BQyWiLoR.js"></script>
-  <link rel="stylesheet" crossorigin href="/Inventariando/assets/index-Dg7qjV20.css">
-</head>
-  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen w-screen overflow-x-hidden transition-colors duration-300">
-    <div id="root" class="min-h-screen w-full"></div>
+    <script type="module" crossorigin src="/Inventariando/assets/index-BQyWiLoR.js"></script>
+    <link rel="stylesheet" crossorigin href="/Inventariando/assets/index-Dg7qjV20.css" />
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen w-screen overflow-x-hidden transition-colors duration-300"
+  >
+    <div id="root" class="min-h-screen w-full"></div>
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('SW registrado correctamente (Modo PWA Activo)'))
-            .catch(err => {
+          navigator.serviceWorker
+            .register('./service-worker.js')
+            .then((reg) => console.log('SW registrado correctamente (Modo PWA Activo)'))
+            .catch((err) => {
               // Filtrar errores de entorno de desarrollo (Sandbox/Preview)
               if (err.message.includes('origin') || err.message.includes('scriptURL')) {
-                 console.warn('PWA: Service Worker omitido por restricciones del entorno de vista previa. Funcionará en producción.');
+                console.warn(
+                  'PWA: Service Worker omitido por restricciones del entorno de vista previa. Funcionará en producción.'
+                );
               } else {
-                 console.error('SW Error:', err);
+                console.error('SW Error:', err);
               }
             });
         });

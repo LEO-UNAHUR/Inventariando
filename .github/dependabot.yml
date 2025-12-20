@@ -1,27 +1,27 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
     open-pull-requests-limit: 5
     labels:
-      - "dependencies"
-      - "automated"
+      - 'dependencies'
+      - 'automated'
     reviewers:
-      - "LEO-UNAHUR"
+      - 'LEO-UNAHUR'
     commit-message:
-      prefix: "chore"
-      include: "scope"
-    
-  - package-ecosystem: "github-actions"
-    directory: "/"
+      prefix: 'chore'
+      include: 'scope'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     open-pull-requests-limit: 3
     labels:
-      - "github-actions"
-      - "automated"
+      - 'github-actions'
+      - 'automated'

@@ -30,12 +30,12 @@ export const getUserCountryFlag = async (): Promise<string> => {
     // Intenta obtener país del navegador (menos preciso pero no requiere API)
     const languageTag = navigator.language || 'es-AR';
     const region = languageTag.split('-')[1] || 'AR';
-    
+
     // Intentar obtener país más preciso desde API (opcional, comentado por default)
     // const response = await fetch('https://ipapi.co/json/');
     // const data = await response.json();
     // return countryCodeToFlag(data.country_code);
-    
+
     return countryCodeToFlag(region);
   } catch {
     // Default a Argentina (🇦🇷)
@@ -51,7 +51,7 @@ export const countryCodeToFlag = (countryCode: string): string => {
   const codePoints = countryCode
     .toUpperCase()
     .split('')
-    .map(char => 127397 + char.charCodeAt(0));
+    .map((char) => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
 };
 
@@ -64,6 +64,6 @@ export const getFooterText = async (): Promise<string> => {
   const developer = getDeveloperName();
   const emoji = getBrandEmoji();
   const flag = await getUserCountryFlag();
-  
+
   return `Inventariando v${version} • © ${year}\n${developer} ${emoji} ${flag}`;
 };

@@ -77,11 +77,11 @@ jobs:
           prerelease: false
           body: |
             ## 📱 Inventariando ${{ github.ref_name }}
-            
+
             ### Instalación
             1. Descarga el APK
             2. Habilita "Instalar apps desconocidas" en Android
             3. Instala la app
-            
+
             ### Changelog
             Ver cambios generados automáticamente abajo ⬇️

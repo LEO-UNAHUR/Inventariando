@@ -1,12 +1,19 @@
-import { Sale, Product, Customer } from '../types';
+import { Sale, Product } from '../types';
 import { formatCurrency } from '../constants';
 
 /**
  * Generar mensaje de WhatsApp con detalles de venta
  */
-export const generateSaleWhatsAppMessage = (sale: Sale, products: Product[], customerName?: string): string => {
+export const generateSaleWhatsAppMessage = (
+  sale: Sale,
+  products: Product[],
+  customerName?: string
+): string => {
   const saleDate = new Date(sale.date).toLocaleDateString('es-AR');
-  const saleTime = new Date(sale.date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  const saleTime = new Date(sale.date).toLocaleTimeString('es-AR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   let message = `🛒 *Resumen de Venta*\n\n`;
   message += `📅 ${saleDate} ${saleTime}\n`;
@@ -19,7 +26,7 @@ export const generateSaleWhatsAppMessage = (sale: Sale, products: Product[], cus
   message += `\n*Productos:*\n`;
 
   sale.items.forEach((item, index) => {
-    const product = products.find(p => p.id === item.productId);
+    const product = products.find((p) => p.id === item.productId);
     const productName = product?.name || 'Producto desconocido';
     const total = item.quantity * item.price;
 
@@ -28,14 +35,14 @@ export const generateSaleWhatsAppMessage = (sale: Sale, products: Product[], cus
   });
 
   message += `\n*Totales:*\n`;
-  
+
   // Calcular subtotal (monto antes de descuentos/impuestos)
-  const subtotal = sale.items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-  
+  const subtotal = sale.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+
   if (subtotal !== sale.total) {
     message += `Subtotal: ${formatCurrency(subtotal)}\n`;
   }
-  
+
   message += `💰 *TOTAL: ${formatCurrency(sale.total)}*\n`;
   message += `💳 Pago: ${sale.paymentMethod || 'No especificado'}`;
 
@@ -90,7 +97,12 @@ export const generateWhatsAppAppLink = (phoneNumber: string, message: string): s
 /**
  * Compartir venta por WhatsApp (abre Web si está disponible)
  */
-export const shareViaWhatsApp = (sale: Sale, products: Product[], phoneNumber: string, customerName?: string) => {
+export const shareViaWhatsApp = (
+  sale: Sale,
+  products: Product[],
+  phoneNumber: string,
+  customerName?: string
+) => {
   const message = generateSaleWhatsAppMessage(sale, products, customerName);
   const webLink = generateWhatsAppWebLink(phoneNumber, message);
 
@@ -106,7 +118,11 @@ export const shareViaWhatsApp = (sale: Sale, products: Product[], phoneNumber: s
 /**
  * Compartir producto por WhatsApp
  */
-export const shareProductViaWhatsApp = (product: Product, phoneNumber: string, quantity: number = 1) => {
+export const shareProductViaWhatsApp = (
+  product: Product,
+  phoneNumber: string,
+  quantity: number = 1
+) => {
   const message = generateProductWhatsAppMessage(product, quantity);
   const webLink = generateWhatsAppWebLink(phoneNumber, message);
 

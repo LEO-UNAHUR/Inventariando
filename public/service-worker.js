@@ -7,24 +7,18 @@ const OFFLINE_ASSETS = [
   '/index.css',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/screenshots/screenshot-1.png'
+  '/screenshots/screenshot-1.png',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_ASSETS)));
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      );
+      return Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
     })
   );
   self.clients.claim();

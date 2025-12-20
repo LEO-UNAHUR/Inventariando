@@ -5,7 +5,11 @@ import { formatCurrency } from '../constants';
 /**
  * Generar PDF de factura de venta
  */
-export const generateSalePDF = (sale: Sale, products: Product[], companyName: string = 'Inventariando') => {
+export const generateSalePDF = (
+  sale: Sale,
+  products: Product[],
+  companyName: string = 'Inventariando'
+) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 10;
@@ -47,8 +51,8 @@ export const generateSalePDF = (sale: Sale, products: Product[], companyName: st
   doc.setTextColor(0, 0, 0);
 
   // Items
-  sale.items.forEach(item => {
-    const product = products.find(p => p.id === item.productId);
+  sale.items.forEach((item) => {
+    const product = products.find((p) => p.id === item.productId);
     const productName = product?.name || 'Producto desconocido';
     const total = item.quantity * item.price;
 
@@ -70,7 +74,7 @@ export const generateSalePDF = (sale: Sale, products: Product[], companyName: st
   doc.setTextColor(0, 0, 0);
 
   // Calcular subtotal (monto antes de descuentos/impuestos)
-  const subtotal = sale.items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  // (valor calculado pero no mostrado explícitamente; se mantiene calculo si se necesita más adelante)
 
   doc.text('TOTAL:', margin + contentWidth * 0.6, yPosition);
   doc.text(formatCurrency(sale.total), margin + contentWidth * 0.85, yPosition);
@@ -102,14 +106,14 @@ export const generateSalePDF = (sale: Sale, products: Product[], companyName: st
 /**
  * Generar PDF de etiqueta de producto (para imprimir)
  */
-export const generateProductLabelPDF = (product: Product, quantity: number = 1) => {
+export const generateProductLabelPDF = (product: Product, _quantity: number = 1) => {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: [100, 150], // Etiqueta pequeña
   });
 
-  const pageWidth = doc.internal.pageSize.getWidth();
+  const _pageWidth = doc.internal.pageSize.getWidth();
   const margin = 5;
   let yPosition = margin;
 

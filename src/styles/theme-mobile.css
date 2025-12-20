@@ -3,80 +3,82 @@
 
 :root {
   /* ===== COLOR PALETTE ===== */
-  
+
   /* Primary Colors */
-  --color-primary: #3b82f6;        /* Blue (actions) */
+  --color-primary: #3b82f6; /* Blue (actions) */
   --color-primary-dark: #1e40af;
   --color-primary-light: #60a5fa;
-  
+
   /* Secondary Colors */
-  --color-success: #10b981;        /* Green */
-  --color-warning: #f59e0b;        /* Orange/Amber */
-  --color-danger: #ef4444;         /* Red */
-  --color-info: #06b6d4;           /* Cyan */
-  
+  --color-success: #10b981; /* Green */
+  --color-warning: #f59e0b; /* Orange/Amber */
+  --color-danger: #ef4444; /* Red */
+  --color-info: #06b6d4; /* Cyan */
+
   /* Text Colors - WCAG AA Compliant (4.5:1 ratio minimum) */
-  --color-text-primary: #f5f5f5;      /* Main text (was #999) */
-  --color-text-secondary: #c0c0c0;    /* Secondary text (was #666) */
-  --color-text-tertiary: #909090;     /* Hint/placeholder text */
-  --color-text-disabled: #707070;     /* Disabled state */
-  
+  --color-text-primary: #f5f5f5; /* Main text (was #999) */
+  --color-text-secondary: #c0c0c0; /* Secondary text (was #666) */
+  --color-text-tertiary: #909090; /* Hint/placeholder text */
+  --color-text-disabled: #707070; /* Disabled state */
+
   /* Background Colors */
-  --color-bg-base: #0f1419;          /* Main background */
-  --color-bg-secondary: #1a1f2e;     /* Cards, containers */
-  --color-bg-tertiary: #242d3d;      /* Hover state */
+  --color-bg-base: #0f1419; /* Main background */
+  --color-bg-secondary: #1a1f2e; /* Cards, containers */
+  --color-bg-tertiary: #242d3d; /* Hover state */
   --color-bg-overlay: rgba(0, 0, 0, 0.4); /* Modals, overlays */
-  
+
   /* Border Colors */
   --color-border-light: #2a3341;
   --color-border-medium: #3a4351;
   --color-border-strong: #4a5361;
-  
+
   /* ===== SPACING SYSTEM ===== */
   /* Base unit: 4px */
   --spacing-2xs: 2px;
   --spacing-xs: 4px;
   --spacing-sm: 8px;
-  --spacing-md: 12px;     /* Default inner padding */
-  --spacing-lg: 16px;     /* Cards, sections */
-  --spacing-xl: 20px;     /* Section margins */
-  --spacing-2xl: 24px;    /* Major sections */
-  --spacing-3xl: 32px;    /* Page margins (desktop) */
-  
+  --spacing-md: 12px; /* Default inner padding */
+  --spacing-lg: 16px; /* Cards, sections */
+  --spacing-xl: 20px; /* Section margins */
+  --spacing-2xl: 24px; /* Major sections */
+  --spacing-3xl: 32px; /* Page margins (desktop) */
+
   /* ===== TYPOGRAPHY ===== */
   /* Font family */
-  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+    monospace;
+
   /* Font sizes - mobile optimized */
-  --font-size-2xs: 11px;    /* Extra small labels */
-  --font-size-xs: 12px;     /* Labels, hints */
-  --font-size-sm: 13px;     /* Small body text */
-  --font-size-base: 14px;   /* Default body text */
-  --font-size-lg: 16px;     /* Subtitle, larger text */
-  --font-size-xl: 18px;     /* Section headers */
-  --font-size-2xl: 20px;    /* Page titles */
-  --font-size-3xl: 24px;    /* Modal headers */
-  --font-size-4xl: 32px;    /* Large titles (desktop) */
-  
+  --font-size-2xs: 11px; /* Extra small labels */
+  --font-size-xs: 12px; /* Labels, hints */
+  --font-size-sm: 13px; /* Small body text */
+  --font-size-base: 14px; /* Default body text */
+  --font-size-lg: 16px; /* Subtitle, larger text */
+  --font-size-xl: 18px; /* Section headers */
+  --font-size-2xl: 20px; /* Page titles */
+  --font-size-3xl: 24px; /* Modal headers */
+  --font-size-4xl: 32px; /* Large titles (desktop) */
+
   /* Font weights */
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   /* Line heights */
   --line-height-tight: 1.2;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
-  
+
   /* ===== SHADOWS ===== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-  
+
   /* ===== BORDER RADIUS ===== */
   --rounded-xs: 2px;
   --rounded-sm: 4px;
@@ -84,17 +86,17 @@
   --rounded-lg: 12px;
   --rounded-xl: 16px;
   --rounded-full: 9999px;
-  
+
   /* ===== TRANSITIONS ===== */
   --transition-fast: 150ms ease-out;
   --transition-normal: 250ms ease-out;
   --transition-slow: 350ms ease-out;
-  
+
   /* ===== TOUCH TARGETS ===== */
   /* Minimum 48px for Android, 44px for iOS */
   --touch-target-min: 48px;
   --touch-target-comfortable: 56px;
-  
+
   /* ===== Z-INDEX STACK ===== */
   --z-dropdown: 100;
   --z-sticky: 200;
@@ -120,25 +122,25 @@ body {
   padding-bottom: max(env(safe-area-inset-bottom), 12px);
   padding-left: max(env(safe-area-inset-left), 12px);
   padding-right: max(env(safe-area-inset-right), 12px);
-  
+
   /* Prevent overscroll bounce */
   overscroll-behavior-y: none;
   overscroll-behavior-x: none;
-  
+
   /* Font stack */
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
   background-color: var(--color-bg-base);
-  
+
   /* Mobile optimizations */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  
+
   /* Ensure full height */
   min-height: 100%;
   min-height: 100vh;
@@ -170,7 +172,9 @@ a:active {
 }
 
 /* Input/Select/Textarea */
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: var(--font-family-base);
   font-size: inherit;
   line-height: inherit;
@@ -179,22 +183,27 @@ input, select, textarea {
   border: 1px solid var(--color-border-light);
   border-radius: var(--rounded-md);
   padding: var(--spacing-md);
-  
+
   /* Prevent iOS auto-zoom on input focus */
   font-size: 16px;
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--color-text-tertiary);
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-input:disabled, textarea:disabled, select:disabled {
+input:disabled,
+textarea:disabled,
+select:disabled {
   color: var(--color-text-disabled);
   background-color: var(--color-bg-tertiary);
   cursor: not-allowed;

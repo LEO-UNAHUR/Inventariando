@@ -43,7 +43,7 @@ export const getOpenAISuggestion = async (
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -77,7 +77,7 @@ export const validateOpenAIKey = async (apiKey: string): Promise<boolean> => {
   try {
     const response = await fetch('https://api.openai.com/v1/models', {
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
     });
     return response.ok;
