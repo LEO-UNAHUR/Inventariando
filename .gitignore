@@ -45,3 +45,5 @@ keystore.b64
 # Mantener local: carpeta de instrucciones para IA (no subir al repo)
 Instrucciones- IA/
 Instrucciones- IA/**
+
+
