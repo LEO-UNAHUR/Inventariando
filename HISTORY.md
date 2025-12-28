@@ -89,26 +89,41 @@ npm run build:web
 
 ---
 
+## Resultado: Verificación de tipos y lint por `@DEV`
+
+- Fecha: 2025-12-28
+- Actor: @DEV
+- Tarea: `npm run type-check` y `npm run lint`
+- Descripción: Ejecuté la verificación de tipos con TypeScript y la verificación estática con ESLint para identificar errores antes de avanzar con optimizaciones.
+- Estado: done
+- Tiempo reportado: 0.5h
+- Notas / resultados relevantes:
+  - `npm run type-check`: sin errores (TypeScript `tsc --noEmit` completó correctamente).
+  - `npm run lint`: completó sin errores bloqueantes, pero mostró una advertencia de compatibilidad de versiones:
+
+```
+WARNING: You are currently running a version of TypeScript which is not officially supported by @typescript-eslint/typescript-estree.
+SUPPORTED TYPESCRIPT VERSIONS: >=4.3.5 <5.4.0
+YOUR TYPESCRIPT VERSION: 5.8.3
+```
+
+- Recomendación: Alinear la versión de `typescript` con las versiones soportadas por `@typescript-eslint` o actualizar `@typescript-eslint/*` a versiones compatibles con TS 5.8+. Preferible: actualizar `@typescript-eslint/parser` y `@typescript-eslint/eslint-plugin` a versiones que soporten TS 5.8, o fijar `typescript` a una versión compatible si no se desea actualizar reglas.
+
+Acciones siguientes sugeridas (priorizar):
+
+1. `@DEV` / `@FRONTEND`: Crear Issue para evaluar la actualización de `@typescript-eslint` vs `typescript` y decidir estrategia (actualizar plugin o downgrading TS). (0.5h)
+2. `@FRONTEND`: Ejecutar `npm audit` y priorizar parcheo de vulnerabilidades (ver entrada previa en `HISTORY.md`). (1-2h)
+
+---
+
 ## Resultado: Build web ejecutada por `@DEV`
 
-- Fecha: 2025-12-27
-- Actor: @DEV
-- Tarea: Build web local (`npm install` + `npm run build:web`)
-- Descripción: Ejecuté la instalación de dependencias y la compilación de producción con Vite para validar generación de la PWA y artefactos `dist/`.
-- Estado: done
-- Tiempo reportado: 1.5h
-- Dependencias: Node.js instalado localmente (instalado vía paquete del sistema), acceso a internet para descargar paquetes.
-- Notas / resultados relevantes:
-  - Comandos ejecutados:
+- Comandos ejecutados:
 
 ```bash
 npm install
 npm run build:web
 ```
-
-- `npm install` devolvió advertencias de paquetes deprecated y reportó 6 vulnerabilidades de severidad moderada. Recomiendo ejecutar `npm audit` y evaluar correcciones no rompientes (`npm audit fix`) o planificar actualizaciones de dependencias.
-- Build Vite: completada correctamente. Artefactos generados en `dist/`.
-- Salida relevante de la build (resumen):
 
 ```
 dist/registerSW.js                           0.13 kB
@@ -121,13 +136,43 @@ dist/assets/html2canvas.esm-QH1iLAAe.js    202.38 kB │ gzip:  48.04 kB
 dist/assets/index-Cdao7QhP.js            1,878.84 kB │ gzip: 529.43 kB
 ```
 
-- Observaciones:
+- Vite mostró una advertencia: "Some chunks are larger than 500 kB after minification". Recomendado: aplicar code-splitting dinámico o `manualChunks` en `vite.config.ts` para reducir el tamaño del bundle principal.
+- PWA generado con `vite-plugin-pwa` (v1.2.0), modo `generateSW`, 19 entradas precacheadas (~2.23 MB).
+- Husky ejecutó su `prepare` script durante `npm install` y mostró mensaje deprecado, pero la instalación continuó.
 
-  - Vite mostró una advertencia: "Some chunks are larger than 500 kB after minification". Recomendado: aplicar code-splitting dinámico o `manualChunks` en `vite.config.ts` para reducir el tamaño del bundle principal.
-  - PWA generado con `vite-plugin-pwa` (v1.2.0), modo `generateSW`, 19 entradas precacheadas (~2.23 MB).
-  - Husky ejecutó su `prepare` script durante `npm install` y mostró mensaje deprecado, pero la instalación continuó.
+1. Analizar `dist/assets/index-Cdao7QhP.js` para identificar módulos que pueden cargarse de forma dinámica y reducir el chunk principal.
+2. Ejecutar `npm audit` y priorizar parcheo de vulnerabilidades; abrir Issues para dependencias que requieran actualizaciones mayores.
+3. Ejecutar `npm run type-check` y `npm run lint` para detectar problemas de tipado o estilo antes de continuar con optimizaciones.
 
-- Acciones recomendadas inmediatas (asignar a `@FRONTEND`):
-  1. Analizar `dist/assets/index-Cdao7QhP.js` para identificar módulos que pueden cargarse de forma dinámica y reducir el chunk principal.
-  2. Ejecutar `npm audit` y priorizar parcheo de vulnerabilidades; abrir Issues para dependencias que requieran actualizaciones mayores.
-  3. Ejecutar `npm run type-check` y `npm run lint` para detectar problemas de tipado o estilo antes de continuar con optimizaciones.
+---
+
+## Acciones realizadas por `@DEV` (28-12-2025)
+
+- Fecha: 2025-12-28
+- Actor: @DEV
+- Tareas realizadas:
+
+  1. Ejecuté `npm audit` y generé un resumen de vulnerabilidades. (ver `issues/002-npm-audit-vulnerabilities.md`)
+  2. Creé un Issue local con la recomendación para alinear `typescript` y `@typescript-eslint`. (ver `issues/001-ts-eslint-version-mismatch.md`)
+  3. Implementé `manualChunks` básico en `vite.config.ts` para reducir el tamaño del bundle principal y ejecuté la build de producción para validar.
+
+- Resultados técnicos:
+  - `npm audit`: 6 vulnerabilidades de severidad moderada (principalmente `esbuild`, `vitest`, `vite-node`, `lint-staged`, `micromatch`). Recomendado: actualizar `vitest` y `lint-staged` a las versiones sugeridas y correr CI.
+  - `vite.config.ts`: añadido `build.rollupOptions.output.manualChunks` para separar `react`, `html2canvas`, `recharts` y un `vendor` general.
+  - `npm run build:web`: completado OK. Archivos generados (`dist/assets`):
+
+```
+index-DHFHnRQ5.css    61K
+index-XKCJDF5N.js    219K
+vendor_html2canvas-QH1iLAAe.js 198K
+vendor-RaAnqSXP.js   1.3M
+vendor_react-Cu1RB3CG.js 230K
+vendor_recharts-B835h6Rm.js 241K
+```
+
+- Observación: el chunk `vendor-RaAnqSXP.js` sigue siendo grande (~1.3 MB). Se recomienda analizar su contenido (por ejemplo: jspdf, other libs) y aplicar splitting adicional o lazy-loading en componentes que lo requieran.
+
+- Próximas acciones recomendadas (prioridad):
+  1. `@DEV`/`@FRONTEND`: Inspeccionar `vendor-RaAnqSXP.js` (source map) para identificar módulos que mover a chunks dinámicos. (1d)
+  2. `@DEV`: Crear PR que actualice `vitest` y `lint-staged` (branch `chore/update-vitest-lint-staged`) y ejecutar pruebas en CI. (0.5-1d)
+  3. `@FRONTEND`: Decidir sobre la estrategia `typescript` vs `@typescript-eslint` y aplicar la actualización/rollback necesaria. (0.5d)

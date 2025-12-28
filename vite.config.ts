@@ -63,5 +63,21 @@ export default defineConfig(({ mode }) => {
         '@features': path.resolve(__dirname, 'src/features'),
       },
     },
+    build: {
+      // Improve chunking to avoid very large main bundle
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react')) return 'vendor_react';
+              if (id.includes('html2canvas')) return 'vendor_html2canvas';
+              if (id.includes('recharts')) return 'vendor_recharts';
+              return 'vendor';
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 800, // KB - increase limit slightly after splitting
+    },
   };
 });
