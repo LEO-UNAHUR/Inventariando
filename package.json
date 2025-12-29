@@ -70,7 +70,7 @@
     "vite": "^6.2.0",
     "vitest": "4.0.16",
     "vite-plugin-pwa": "^1.2.0",
-    "eslint": "^8.48.0",
+    "eslint": "^9.39.2",
     "prettier": "^2.8.8",
     "@typescript-eslint/parser": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
