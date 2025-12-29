@@ -176,3 +176,41 @@ vendor_recharts-B835h6Rm.js 241K
   1. `@DEV`/`@FRONTEND`: Inspeccionar `vendor-RaAnqSXP.js` (source map) para identificar módulos que mover a chunks dinámicos. (1d)
   2. `@DEV`: Crear PR que actualice `vitest` y `lint-staged` (branch `chore/update-vitest-lint-staged`) y ejecutar pruebas en CI. (0.5-1d)
   3. `@FRONTEND`: Decidir sobre la estrategia `typescript` vs `@typescript-eslint` y aplicar la actualización/rollback necesaria. (0.5d)
+
+---
+
+## Entrada: Cambios implementados por `@DEV`
+
+- Fecha: 2025-12-28
+- Actor: @DEV
+- Tarea: Optimización de bundle — lazy-load de scanner y PDF; actualización de dev-deps
+- Descripción: Se implementaron imports dinámicos para `html5-qrcode` y `jspdf` (evitando su inclusión en el vendor principal). Se añadió `manualChunks` en `vite.config.ts` para mejorar el splitting y se creó la rama `chore/update-vitest-lint-staged` con la actualización de `vitest` y `lint-staged`. Archivos modificados: `src/features/inventory/InventoryList.tsx`, `src/features/inventory/ProductForm.tsx`, `services/pdfService.ts`, `src/features/sales/SalesDashboard.tsx`, `vite.config.ts`.
+- Estado: done
+- Tiempo reportado: 1.5h
+- Dependencias: Node >=18; keystore para Android no presente (necesario para builds firmados).
+- Notas: Se verificó `npm run build:web` y `npm run type-check`. `npm audit` quedó en 0 tras actualizar dev-deps. Próximo paso recomendado: ejecutar build de producción + visualizador de bundle para cuantificar impacto y aplicar splitting adicional (html2canvas, pdf-utils, recharts).
+
+## Fix: Corrección runtime - `isDark` undefined
+
+- Fecha: 2025-12-28
+- Actor: @DEV
+- Tarea: Corregir ReferenceError en runtime por uso de `isDark`
+- Descripción: Durante la ejecución del build de producción en preview apareció un error en consola que impedía renderizar la app: "Cannot read properties of undefined (reading 'useLayoutEffect')" y, tras inspección del código, se identificó que varios componentes destructuraban la prop `isDark` renombrándola a un alias (`_isDark`) pero el JSX seguía usando `isDark`, provocando referencias indefinidas en tiempo de ejecución. Se corrigieron las destructuraciones para conservar el nombre `isDark` y se aplicaron cambios mínimos en los componentes afectados.
+- Estado: done
+- Tiempo reportado: 0.5h
+- Dependencias: Ninguna adicional.
+- Notas:
+  - Archivos modificados:
+    - `src/features/shared/Sidebar.tsx` — `isDark: _isDark` → `isDark`
+    - `src/features/security/TeamManagement.tsx` — `isDark: _isDark` → `isDark`, `onToggleTheme: _onToggleTheme` → `onToggleTheme`
+    - `src/features/sales/POS.tsx` — `isDark: _isDark` → `isDark`
+  - Comandos ejecutados localmente:
+
+```bash
+npm run build:web
+# verificación en navegador: limpiar SW/cache o abrir en ventana incógnita
+```
+
+- Resultado: corrección aplicada y los componentes dejaron de lanzar ReferenceError en pruebas locales de preview. Commit realizado y push al remoto (mensaje: "fix: correct isDark prop destructuring to avoid runtime ReferenceError").
+
+- Próximos pasos: (1) probar en incógnito/limpiar SW para confirmar que no hay SW sirviendo assets viejos; (2) ejecutar visualizador de bundle para seguir optimizando chunking si se detectan librerías pesadas en `vendor`.

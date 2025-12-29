@@ -18,8 +18,8 @@ const TeamManagement: React.FC<TeamManagementProps> = ({
   onUpdateUser,
   onDeleteUser,
   currentUser,
-  isDark: _isDark,
-  onToggleTheme: _onToggleTheme,
+  isDark,
+  onToggleTheme,
 }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
