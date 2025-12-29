@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
+        // Do not auto-inject the register script; we control registration in `index.html` and
+        // skip registration during preview/localhost to prevent cached SW from serving outdated assets.
+        injectRegister: false,
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
           name: 'Inventariando',
@@ -62,6 +65,27 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, '.'),
         '@features': path.resolve(__dirname, 'src/features'),
       },
+    },
+    build: {
+      // Improve chunking to avoid very large main bundle
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes('node_modules')) {
+              // Keep most node_modules in a single `vendor` chunk to avoid circular
+              // initialization problems between smaller split chunks. Keep a couple
+              // very heavy libs separate to preserve some chunking benefits.
+              if (id.includes('node_modules/html2canvas/')) return 'vendor_html2canvas';
+              if (id.includes('node_modules/recharts/')) return 'vendor_recharts';
+              return 'vendor';
+              if (id.includes('node_modules/html2canvas/')) return 'vendor_html2canvas';
+              if (id.includes('node_modules/recharts/')) return 'vendor_recharts';
+              return 'vendor';
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 800, // KB - increase limit slightly after splitting
     },
   };
 });

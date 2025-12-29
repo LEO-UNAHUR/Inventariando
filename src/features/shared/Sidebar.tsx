@@ -46,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenUserSettings: _onOpenUserSettings,
   onOpenAnalyticsDashboard,
   onOpenSystemConfig,
-  isDark: _isDark,
+  isDark,
   isDesktop,
 }) => {
   const [footerText, setFooterText] = useState('Inventariando');

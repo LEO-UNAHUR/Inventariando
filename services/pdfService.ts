@@ -1,15 +1,12 @@
-import jsPDF from 'jspdf';
 import { Sale, Product } from '../types';
 import { formatCurrency } from '../constants';
 
-/**
- * Generar PDF de factura de venta
- */
-export const generateSalePDF = (
+export const generateSalePDF = async (
   sale: Sale,
   products: Product[],
   companyName: string = 'Inventariando'
 ) => {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 10;
@@ -36,7 +33,7 @@ export const generateSalePDF = (
   doc.setTextColor(0, 0, 0);
 
   // Header de tabla
-  doc.setFont(undefined, 'bold');
+  doc.setFont(undefined as any, 'bold');
   doc.text('Producto', margin, yPosition);
   doc.text('Cantidad', margin + contentWidth * 0.5, yPosition);
   doc.text('Precio', margin + contentWidth * 0.7, yPosition);
@@ -47,7 +44,7 @@ export const generateSalePDF = (
   doc.setDrawColor(200, 200, 200);
   doc.line(margin, yPosition - 2, pageWidth - margin, yPosition - 2);
 
-  doc.setFont(undefined, 'normal');
+  doc.setFont(undefined as any, 'normal');
   doc.setTextColor(0, 0, 0);
 
   // Items
@@ -70,11 +67,8 @@ export const generateSalePDF = (
   yPosition += 6;
 
   // Totales
-  doc.setFont(undefined, 'bold');
+  doc.setFont(undefined as any, 'bold');
   doc.setTextColor(0, 0, 0);
-
-  // Calcular subtotal (monto antes de descuentos/impuestos)
-  // (valor calculado pero no mostrado explícitamente; se mantiene calculo si se necesita más adelante)
 
   doc.text('TOTAL:', margin + contentWidth * 0.6, yPosition);
   doc.text(formatCurrency(sale.total), margin + contentWidth * 0.85, yPosition);
@@ -82,7 +76,7 @@ export const generateSalePDF = (
 
   // Método de pago
   doc.setFontSize(9);
-  doc.setFont(undefined, 'normal');
+  doc.setFont(undefined as any, 'normal');
   doc.text(`Método de pago: ${sale.paymentMethod || 'No especificado'}`, margin, yPosition);
   yPosition += 5;
 
@@ -103,10 +97,8 @@ export const generateSalePDF = (
   doc.save(fileName);
 };
 
-/**
- * Generar PDF de etiqueta de producto (para imprimir)
- */
-export const generateProductLabelPDF = (product: Product, _quantity: number = 1) => {
+export const generateProductLabelPDF = async (product: Product, _quantity: number = 1) => {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -119,7 +111,7 @@ export const generateProductLabelPDF = (product: Product, _quantity: number = 1)
 
   // Nombre producto
   doc.setFontSize(12);
-  doc.setFont(undefined, 'bold');
+  doc.setFont(undefined as any, 'bold');
   doc.text(product.name.substring(0, 20), margin, yPosition);
   yPosition += 8;
 
@@ -131,7 +123,7 @@ export const generateProductLabelPDF = (product: Product, _quantity: number = 1)
 
   // Precio
   doc.setFontSize(14);
-  doc.setFont(undefined, 'bold');
+  doc.setFont(undefined as any, 'bold');
   doc.setTextColor(0, 0, 0);
   doc.text(`${formatCurrency(product.price)}`, margin, yPosition);
   yPosition += 10;

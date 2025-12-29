@@ -35,7 +35,7 @@ const POS: React.FC<POSProps> = ({
   promotions = [],
   onCompleteSale,
   onCancel,
-  isDark: _isDark,
+  isDark,
 }) => {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
