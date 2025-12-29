@@ -190,7 +190,7 @@ vendor_recharts-B835h6Rm.js 241K
 - Dependencias: Node >=18; keystore para Android no presente (necesario para builds firmados).
 - Notas: Se verificó `npm run build:web` y `npm run type-check`. `npm audit` quedó en 0 tras actualizar dev-deps. Próximo paso recomendado: ejecutar build de producción + visualizador de bundle para cuantificar impacto y aplicar splitting adicional (html2canvas, pdf-utils, recharts).
 
-## Fix: Corrección runtime - `isDark` undefined
+## Fix: Corrección runtime - `isDark` unmdefined
 
 - Fecha: 2025-12-28
 - Actor: @DEV

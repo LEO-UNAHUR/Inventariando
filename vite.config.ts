@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
+        // Do not auto-inject the register script; we control registration in `index.html` and
+        // skip registration during preview/localhost to prevent cached SW from serving outdated assets.
+        injectRegister: false,
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
           name: 'Inventariando',
@@ -69,9 +72,14 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id: string) {
             if (id.includes('node_modules')) {
-              if (id.includes('react')) return 'vendor_react';
-              if (id.includes('html2canvas')) return 'vendor_html2canvas';
-              if (id.includes('recharts')) return 'vendor_recharts';
+              // Keep most node_modules in a single `vendor` chunk to avoid circular
+              // initialization problems between smaller split chunks. Keep a couple
+              // very heavy libs separate to preserve some chunking benefits.
+              if (id.includes('node_modules/html2canvas/')) return 'vendor_html2canvas';
+              if (id.includes('node_modules/recharts/')) return 'vendor_recharts';
+              return 'vendor';
+              if (id.includes('node_modules/html2canvas/')) return 'vendor_html2canvas';
+              if (id.includes('node_modules/recharts/')) return 'vendor_recharts';
               return 'vendor';
             }
           },

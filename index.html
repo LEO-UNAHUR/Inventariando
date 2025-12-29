@@ -23,22 +23,21 @@
     <div id="root" class="min-h-screen w-full"></div>
     <script type="module" src="/index.tsx"></script>
     <script>
-      if ('serviceWorker' in navigator) {
+      // Registrar Service Worker SOLO en producción/HTTPS fuera de entorno localhost.
+      if (
+        'serviceWorker' in navigator &&
+        window.location.protocol === 'https:' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1'
+      ) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
             .register('./service-worker.js')
             .then((reg) => console.log('SW registrado correctamente (Modo PWA Activo)'))
-            .catch((err) => {
-              // Filtrar errores de entorno de desarrollo (Sandbox/Preview)
-              if (err.message.includes('origin') || err.message.includes('scriptURL')) {
-                console.warn(
-                  'PWA: Service Worker omitido por restricciones del entorno de vista previa. Funcionará en producción.'
-                );
-              } else {
-                console.error('SW Error:', err);
-              }
-            });
+            .catch((err) => console.error('SW Error:', err));
         });
+      } else {
+        console.info('Service Worker no registrado (entorno de desarrollo / vista previa).');
       }
     </script>
   </body>

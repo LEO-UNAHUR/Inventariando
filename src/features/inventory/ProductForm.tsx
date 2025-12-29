@@ -15,7 +15,7 @@ import {
   ScanLine,
   MessageCircle,
 } from 'lucide-react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+// html5-qrcode will be loaded dynamically when needed to keep bundle small
 import {
   generateProductWhatsAppMessage,
   generateWhatsAppWebLink,
@@ -63,22 +63,28 @@ const ProductForm: React.FC<ProductFormProps> = ({
   useEffect(() => {
     let scanner: any = null;
     if (isScannerOpen) {
-      scanner = new Html5QrcodeScanner(
-        'reader-form',
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false
-      );
-      scanner.render(
-        (decodedText: string) => {
-          setBarcode(decodedText);
-          setIsScannerOpen(false);
-          scanner.clear();
-        },
-        (_error: any) => {
-          // Ignore scan errors
-        }
-      );
+      import('html5-qrcode')
+        .then((mod) => {
+          const Html5QrcodeScanner = (mod as any).Html5QrcodeScanner;
+          scanner = new Html5QrcodeScanner(
+            'reader-form',
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            false
+          );
+          scanner.render(
+            (decodedText: string) => {
+              setBarcode(decodedText);
+              setIsScannerOpen(false);
+              scanner.clear();
+            },
+            (_error: any) => {
+              // ignore
+            }
+          );
+        })
+        .catch((e) => console.error('Failed to load html5-qrcode', e));
     }
+
     return () => {
       if (scanner) {
         try {

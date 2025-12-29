@@ -17,7 +17,6 @@ import {
   ScanLine,
   X,
 } from 'lucide-react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
 
 interface InventoryListProps {
   products: Product[];
@@ -86,37 +85,41 @@ const InventoryList: React.FC<InventoryListProps> = ({
   useEffect(() => {
     let scanner: any = null;
     if (isScannerOpen) {
-      scanner = new Html5QrcodeScanner(
-        'reader',
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false
-      );
-      scanner.render(
-        (decodedText: string) => {
-          setIsScannerOpen(false);
-          scanner.clear();
+      import('html5-qrcode')
+        .then((mod) => {
+          const Html5QrcodeScanner = (mod as any).Html5QrcodeScanner;
+          scanner = new Html5QrcodeScanner(
+            'reader',
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            false
+          );
+          scanner.render(
+            (decodedText: string) => {
+              setIsScannerOpen(false);
+              scanner.clear();
 
-          // Logic: Check if product exists
-          const foundProduct = products.find((p) => p.barcode === decodedText);
+              const foundProduct = products.find((p) => p.barcode === decodedText);
 
-          if (foundProduct) {
-            // If found, open edit form
-            onEdit(foundProduct);
-          } else {
-            // If not found, prompt to add
-            if (
-              window.confirm(`Producto no encontrado (Código: ${decodedText}). ¿Deseas crearlo?`)
-            ) {
-              onAdd(decodedText);
-            } else {
-              setSearchTerm(decodedText); // Just search if cancelled
+              if (foundProduct) {
+                onEdit(foundProduct);
+              } else {
+                if (
+                  window.confirm(
+                    `Producto no encontrado (Código: ${decodedText}). ¿Deseas crearlo?`
+                  )
+                ) {
+                  onAdd(decodedText);
+                } else {
+                  setSearchTerm(decodedText);
+                }
+              }
+            },
+            (_error: any) => {
+              // ignore
             }
-          }
-        },
-        (_error: any) => {
-          // Ignore scan errors, they happen when no code is in frame
-        }
-      );
+          );
+        })
+        .catch((e) => console.error('Failed to load html5-qrcode', e));
     }
 
     return () => {
