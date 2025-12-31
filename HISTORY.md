@@ -214,3 +214,80 @@ npm run build:web
 - Resultado: corrección aplicada y los componentes dejaron de lanzar ReferenceError en pruebas locales de preview. Commit realizado y push al remoto (mensaje: "fix: correct isDark prop destructuring to avoid runtime ReferenceError").
 
 - Próximos pasos: (1) probar en incógnito/limpiar SW para confirmar que no hay SW sirviendo assets viejos; (2) ejecutar visualizador de bundle para seguir optimizando chunking si se detectan librerías pesadas en `vendor`.
+
+---
+
+## Plan de Tareas por Rol (operativo)
+
+**Objetivo:** Alinear acciones para resolver CI/CD, despliegue en GitHub Pages, validación Android y optimización del bundle.
+
+- **Frontend (@FRONTEND / @DEV)**
+
+  - User Story: Como desarrollador frontend, quiero reducir el tamaño del bundle y asegurar builds reproducibles, para mejorar tiempos de carga y facilitar despliegues.
+  - Tareas:
+    - Ejecutar visualizador de bundle y listar módulos > 100 KB. (Herramientas: `rollup-plugin-visualizer` o `source-map-explorer`).
+    - Aplicar splitting adicional (dynamic imports / `manualChunks`) para librerías pesadas detectadas (jspdf, html2canvas, lucide, etc.).
+    - Verificar `vite.config.ts` y ajustes de PWA (rutas relativas).
+  - Criterios de aceptación: vendor < 800 KB minificado o plan documentado; `npm run build:web` sin errores; PR con cambios y passes CI.
+  - Estimación: 2-4d.
+  - Dependencias: acceso a `dist/` y mapas de sourcemap; revisión en PR por QA.
+
+- **DevOps (@DEVOPS)**
+
+  - User Story: Como ingeniero DevOps, quiero que los workflows de GitHub Actions construyan y publiquen artefactos (web + Android) sin fallos, para automatizar releases.
+  - Tareas:
+    - Revisar logs de Actions (releases, deploys) e identificar errores (tokens/secrets, paths, versiones de node/gradle).
+    - Corregir workflows YAML (asegurar `actions/checkout`, `setup-node`, `working-directory`, `publish_dir: dist`).
+    - Ajustar permisos de `GITHUB_TOKEN` si el deploy requiere push a `gh-pages` o `releases`.
+    - Añadir job que genere artefactos Android debug/release y los suba como artifacts en Actions.
+  - Criterios de aceptación: workflows verdes en runs de prueba; artefact disponible en Actions; Pages deploy sin 404s.
+  - Estimación: 1-2d (investigación) + 0.5-1d (parches).
+  - Dependencias: secrets (GH*TOKEN, NPM_TOKEN, ANDROID_KEYSTORE*\*), acceso a repo settings.
+
+- **Mobile (@MOBILE / Android dev)**
+
+  - User Story: Como desarrollador mobile, quiero un APK instalable para validar la app en dispositivo y un job CI que genere el AAB/APK firmado, para pruebas de QA y preparación de release.
+  - Tareas:
+    - Generar APK debug localmente: `cd android && ./gradlew assembleDebug` y validar `android/app/build/outputs/apk/debug/app-debug.apk`.
+    - Preparar keystore (dev o prod), configurar secrets (BASE64 keystore, passwords) y documentar pasos para signing en CI.
+    - Crear job en Actions que compile `assembleRelease` y publique artifact (AAB/APK) en run o attach en Release.
+  - Criterios de aceptación: APK instalado en dispositivo/emulador y app arranca; CI genera artifact en run.
+  - Estimación: 0.5-1d (debug); 1-2d (release + CI) si falta keystore.
+  - Dependencias: JDK, Android SDK, Gradle, secrets de keystore.
+
+- **QA (@QA)**
+
+  - User Story: Como QA, quiero verificar que la web en Pages sirve correctamente y que la app Android arranca, para validar entregables Beta.
+  - Tareas:
+    - Probar GitHub Pages tras deploy (comprobación assets, console errors, PWA/SW behavior).
+    - Ejecutar pruebas manuales en la web local y en la APK: login, navegación principal, scanner, exportar PDF.
+    - Reportar issues con pasos reproducibles y logs.
+  - Criterios de aceptación: Checklist de regresión completado; issues abiertos y asignados.
+  - Estimación: 1-2d por ciclo de verificación.
+  - Dependencias: builds (dist/ o Pages), APK, acceso a dispositivos/emuladores.
+
+- **Product / CTO (@PRODUCT / @CTO)**
+  - User Story: Como Product/CTO, quiero priorizar bloqueadores y aprobar secrets y políticas de release, para que el equipo pueda completar firmas y deploys.
+  - Tareas:
+    - Proveer keystore y aprobar su almacenamiento en secrets de repo o en vault.
+    - Priorizar issues de CI/CD y autorizar accesos necesarios.
+    - Validar criterios de salida Beta y aprobar release candidate.
+  - Criterios de aceptación: keystore disponible en secrets; lista priorizada y recursos asignados.
+  - Estimación: coordinación 0.5-1d.
+  - Dependencias: decisión sobre signing y políticas de release.
+
+---
+
+Añade a esta sección si quieres asignaciones concretas (nombres o cuentas) y yo actualizaré y commitearé el `HISTORY.md` con las asignaciones formales.
+
+--
+
+## Asignaciones concretas
+
+- `@DEV` (Frontend): responsable de ejecutar el visualizador de bundle, aplicar splitting adicional y abrir PRs con los cambios en `vite.config.ts` y componentes que requieran lazy-loading. Estimación: 2-4d.
+- `@DEVOPS` (DevOps): responsable de revisar y corregir GitHub Actions (releases/deploys), preparar job para Android artifacts y arreglar deploy a GitHub Pages. Estimación: 1-2d.
+- `@MOBILE` (Android dev): responsable de generar APK debug localmente, preparar keystore y configurar signing en CI. Entregar APK instalable y guía de signing. Estimación: 0.5-2d.
+- `@QA` (QA): responsable de validar Pages y APK, ejecutar checklist de regresión y reportar issues. Estimación: 1-2d por ciclo.
+- `@CTO` / `@PRODUCT`: encargado de aprobar secrets/keystore y priorizar issues críticos para release.
+
+He creado issues locales en `issues/` para comenzar el seguimiento operativo y facilitar la creación de issues reales en GitHub si lo deseas.
